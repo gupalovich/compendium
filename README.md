@@ -22,6 +22,57 @@ Features of AlbionBot include:
     # Origin
     git remote add origin git@github.com:gupalovich/albion-bot.git
 
+## Architecture
+---
+
+```mermaid
+---
+title: Life cicle
+---
+flowchart LR
+    A[Start] -->|Состояния| B{Проверка}
+
+    B -->|OK| F[Поиск]
+    F -->|Ресурс найден| G[Сбор]
+    F -->|Ресурс не найден| H
+    G --> H[Действие]
+    H -->|Перейти на следующий нод| B
+
+    B -->|Fail| C[Действие]
+    C --> D[Телепорт]
+    D --> E{Очистка}
+```
+
+```mermaid
+---
+title: Entities and Value Objects
+---
+erDiagram
+    Resource {
+        string name
+    }
+    ResourceNode {
+        string name
+        list images
+        int durability
+    }
+    Image {
+        string name
+        string path
+    }
+    Inventory {
+        string name
+        int size
+        int weight
+        list items
+    }
+    Item {
+        string name
+        float unit_weight
+    }
+```
+
+
 ## Project structure
 ---
 
@@ -51,8 +102,9 @@ Features of AlbionBot include:
     |   ├── threading.py
     │   └── win32api.py
     ├── static/
+    |   ├── icons/
     |   ├── items/
-    |   └── icons/
+    |   └── ui/
     ├── main.py
     ├── config.ini
     └── README.md
