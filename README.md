@@ -15,6 +15,16 @@ Features of AlbionBot include:
 ## TODO
 ---
 
+1. Entities/Value Objects
+    - Дизайн основых сущностей домена
+2. OCR
+    - CV сервис
+    - Дополнительная нн для разпознавания ресурсов
+3. Actions
+4. Threads/Async
+5. Жизненный цикл бота
+
+
 
 ## GIT
 ---
