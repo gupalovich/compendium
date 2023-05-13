@@ -15,6 +15,7 @@ Features of AlbionBot include:
 ## TODO
 ---
 
+1. Работа с окном - хелперы
 1. Дизайн основых сущностей домена
     - ~~Value Objects~~
     - Entities
