@@ -37,7 +37,12 @@ class DateRange(ValueObject):
 
 @dataclass(frozen=True)
 class Location2D(ValueObject):
-    """A 2D location"""
+    """A 2D location
+
+    Attributes:
+        x: the x coordinate
+        y: the y coordinate
+    """
 
     x: float
     y: float
@@ -49,7 +54,12 @@ class Location2D(ValueObject):
 
 @dataclass(frozen=True)
 class Rect2D(ValueObject):
-    """A 2D rectangle"""
+    """A 2D rectangle
+
+    Attributes:
+        top_left: Location2D - the top left corner of the rectangle
+        bottom_right: Location2D - the bottom right corner of the rectangle
+    """
 
     top_left: Location2D
     bottom_right: Location2D
