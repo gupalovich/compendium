@@ -1,6 +1,7 @@
 SQLAlchemy==2.0.12  # https://docs.sqlalchemy.org/en/20/intro.html
 psycopg2==2.9.5  # https://github.com/psycopg/psycopg2
 psycopg2-binary==2.9.5  # https://github.com/psycopg/psycopg2
+pynput==1.7.6  # https://github.com/moses-palmer/pynput
 
 # Testing
 # ------------------------------------------------------------------------------

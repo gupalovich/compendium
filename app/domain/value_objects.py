@@ -62,3 +62,9 @@ class Rect2D(ValueObject):
             and location.y >= self.top_left.y
             and location.y <= self.bottom_right.y
         )
+
+    def middle_point(self):
+        """Returns the middle point of the rectangle"""
+        x = (self.top_left.x + self.bottom_right.x) / 2
+        y = (self.top_left.y + self.bottom_right.y) / 2
+        return Location2D(x, y)
