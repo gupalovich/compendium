@@ -1,11 +1,11 @@
-import cv2
 import numpy as np
 import win32api
 import win32con
 import win32gui
 import win32ui
 
-from app.entities.value_objects import Rect2D
+from infrastructure.common.entities import Rect2D
+from infrastructure.vision.opencv import open_cv
 
 
 class ScreenException(Exception):
@@ -69,7 +69,7 @@ class Screen:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+        return open_cv.cvt_img_rgb(img)
 
     def crop(self, rect: Rect2D) -> None:
         pass
