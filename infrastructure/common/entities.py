@@ -6,6 +6,10 @@ import numpy as np
 class ValueObject:
     """A base class for all value objects"""
 
+    def as_tuple(self) -> tuple:
+        """Convert the value object to a tuple"""
+        return tuple(vars(self).values())
+
 
 @dataclass(frozen=True)
 class Location2D(ValueObject):
@@ -18,10 +22,6 @@ class Location2D(ValueObject):
 
     x: float
     y: float
-
-    def as_tuple(self) -> tuple[float, float]:
-        """Return the location as a tuple (x, y)"""
-        return (self.x, self.y)
 
 
 @dataclass(frozen=True)
@@ -36,45 +36,11 @@ class Rect2D(ValueObject):
     top_left: Location2D
     bottom_right: Location2D
 
-    def contains(self, location: Location2D) -> bool:
-        """Returns true if the location is contained in the rectangle"""
-        return (
-            location.x >= self.top_left.x
-            and location.x <= self.bottom_right.x
-            and location.y >= self.top_left.y
-            and location.y <= self.bottom_right.y
-        )
-
     def middle_point(self) -> Location2D:
         """Returns the middle point of the rectangle"""
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
         return Location2D(x, y)
-
-
-@dataclass(frozen=True)
-class Crop2D(ValueObject):
-    """A crop of an image
-
-    Attributes:
-        top_left: Location2D - the top left corner of the crop
-        width: float - the width of the crop
-        height: float - the height of the crop
-    """
-
-    top_left: Location2D
-    width: float
-    height: float
-
-    def as_rect(self) -> Rect2D:
-        """Returns the crop as a rect"""
-        return Rect2D(
-            top_left=self.top_left,
-            bottom_right=Location2D(
-                x=self.top_left.x + self.width,
-                y=self.top_left.y + self.height,
-            ),
-        )
 
 
 @dataclass(frozen=True)
@@ -91,6 +57,30 @@ class ProcessedImg:
     width: int
     height: int
 
-    def as_tuple(self) -> tuple[np.ndarray, int, int]:
-        """Returns the image as a tuple (img, width, height)"""
-        return (self.img, self.width, self.height)
+
+@dataclass(frozen=True)
+class MatchLocationInfo:
+    """A location and confidence
+
+    Attributes:
+        x: the x coordinate
+        y: the y coordinate
+        width: the width of search template
+        height: the height of search template
+        confidence: the confidence
+    """
+
+    top_left: Location2D
+    width: int
+    height: int
+    confidence: float
+
+    def as_rect(self) -> Rect2D:
+        """Convert match location to a Rect2D"""
+        return Rect2D(
+            top_left=self.top_left,
+            bottom_right=Location2D(
+                x=self.top_left.x + self.width,
+                y=self.top_left.y + self.height,
+            ),
+        )

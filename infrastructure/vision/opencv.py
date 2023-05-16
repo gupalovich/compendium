@@ -1,7 +1,12 @@
 import cv2 as cv
 import numpy as np
 
-from infrastructure.common.entities import ProcessedImg
+from infrastructure.common.entities import (
+    Location2D,
+    MatchLocationInfo,
+    ProcessedImg,
+    Rect2D,
+)
 
 
 class OpenCV:
@@ -15,11 +20,12 @@ class OpenCV:
         return ProcessedImg(img=img, width=w, height=h)
 
     def match_template(
-        self, screen: np.ndarray, tmplt: np.ndarray, thresh=0.65
+        self, screen: np.ndarray, tmplt: np.ndarray, confidence=0.65
     ) -> list:
-        """cv2 match template and return locations according to threshold"""
+        """cv2 match template based on confidence value"""
+
         result = cv.matchTemplate(screen, tmplt, self.method)
-        locations = np.where(result >= thresh)
+        locations = np.where(result >= confidence)
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
@@ -38,28 +44,41 @@ class OpenCV:
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         return img_hsv
 
+    def crop_img(self, img: np.ndarray, region: Rect2D) -> np.ndarray:
+        """cv2 crop image according to rect points"""
+        img_cropped = img[
+            region.top_left.y : region.bottom_right.y,
+            region.top_left.x : region.bottom_right.x,
+        ]
+        return img_cropped
+
     def find(
-        self, screen: object, needle_img_path: str, threshold=0.65, crop=[]
-    ) -> list[list[int]]:
-        """Find grayscaled object on screen by given threshold
-        crop - screen region crop [x1, y1, x2, y2]"""
-        needle_img, needle_w, needle_h = self.process_img(needle_img_path)
+        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect2D = None
+    ) -> list[MatchLocationInfo]:
+        """Find a template in a screen image and return a list of MatchLocationInfo objects"""
+
+        needle_img, needle_w, needle_h = self.process_img(tmplt_path).as_tuple()
         screen_gray = self.cvt_img_gray(screen)
 
         if crop:
-            screen = screen[crop[1] : crop[3], crop[0] : crop[2]]  # y1:y2, x1:x2
-            screen_gray = screen_gray[
-                crop[1] : crop[3], crop[0] : crop[2]
-            ]  # y1:y2, x1:x2
+            screen = self.crop_img(screen, crop)
+            screen_gray = self.crop_img(screen_gray, crop)
 
         # find matches
-        locations = self.match_template(screen_gray, needle_img, thresh=threshold)
+        locations = self.match_template(screen_gray, needle_img, confidence=confidence)
         mask = np.zeros(screen.shape[:2], np.uint8)
         detected_objects = []
 
         for x, y in locations:
             if mask[y + needle_h // 2, x + needle_w // 2] != 255:
-                detected_objects.append([x, y, needle_w, needle_h])
+                detected_objects.append(
+                    MatchLocationInfo(
+                        top_left=Location2D(x, y),
+                        width=needle_w,
+                        height=needle_h,
+                        confidence=confidence,
+                    )
+                )
             mask[y : y + needle_h, x : x + needle_w] = 255  # mask out detected object
 
         if crop:  # recalculate cropped region points
@@ -68,7 +87,7 @@ class OpenCV:
 
         return detected_objects
 
-    def draw_rectangles(self, haystack_img, rectangles):
+    def draw_rectangles(self, screen, rectangles):
         """given a list of [x, y, w, h] rectangles and a canvas image to draw on
         return an image with all of those rectangles drawn"""
         # these colors are actually BGR
@@ -80,13 +99,11 @@ class OpenCV:
             top_left = (x, y)
             bottom_right = (x + w, y + h)
             # draw the box
-            cv.rectangle(
-                haystack_img, top_left, bottom_right, line_color, lineType=line_type
-            )
+            cv.rectangle(screen, top_left, bottom_right, line_color, lineType=line_type)
 
-        return haystack_img
+        return screen
 
-    def draw_crosshairs(self, haystack_img, points):
+    def draw_crosshairs(self, screen, points):
         """given a list of [x, y] positions and a canvas image to draw on
         return an image with all of those click points drawn on as crosshairs"""
         # these colors are actually BGR
@@ -95,9 +112,12 @@ class OpenCV:
 
         for center_x, center_y in points:
             # draw the center point
-            cv.drawMarker(haystack_img, (center_x, center_y), marker_color, marker_type)
+            cv.drawMarker(screen, (center_x, center_y), marker_color, marker_type)
 
-        return haystack_img
+        return screen
+
+    def debug(self, screen: np.ndarray) -> None:
+        pass
 
 
 open_cv = OpenCV()
