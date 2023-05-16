@@ -24,9 +24,9 @@ Features of AlbionBot include:
     - CV сервис
     - Дополнительная нн для разпознавания ресурсов
 3. Actions
+6. Camera refactor
 4. Threads/Async
 5. Жизненный цикл бота
-
 
 
 ## GIT
