@@ -6,10 +6,6 @@ import numpy as np
 class ValueObject:
     """A base class for all value objects"""
 
-    def as_tuple(self) -> tuple:
-        """Convert the value object to a tuple"""
-        return tuple(vars(self).values())
-
 
 @dataclass(frozen=True)
 class Location2D(ValueObject):
@@ -22,6 +18,10 @@ class Location2D(ValueObject):
 
     x: float
     y: float
+
+    def as_tuple(self) -> tuple[float, float]:
+        """Return the location as a tuple (x, y)"""
+        return (self.x, self.y)
 
 
 @dataclass(frozen=True)
@@ -57,14 +57,17 @@ class ProcessedImg:
     width: int
     height: int
 
+    def as_tuple(self) -> tuple[np.ndarray, int, int]:
+        """Returns the image as a tuple (img, width, height)"""
+        return (self.img, self.width, self.height)
+
 
 @dataclass(frozen=True)
 class MatchLocationInfo:
     """A location and confidence
 
     Attributes:
-        x: the x coordinate
-        y: the y coordinate
+        top_left: Location2D - the top left corner of the rectangle
         width: the width of search template
         height: the height of search template
         confidence: the confidence

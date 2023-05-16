@@ -8,6 +8,8 @@ from infrastructure.common.entities import (
     Rect2D,
 )
 
+class OpenCVHelpers:
+
 
 class OpenCV:
     def __init__(self, method=cv.TM_CCOEFF_NORMED):
@@ -87,7 +89,7 @@ class OpenCV:
 
         return detected_objects
 
-    def draw_rectangles(self, screen, rectangles):
+    def draw_rectangles(self, screen, rectangles: list[MatchLocationInfo]):
         """given a list of [x, y, w, h] rectangles and a canvas image to draw on
         return an image with all of those rectangles drawn"""
         # these colors are actually BGR
@@ -116,8 +118,19 @@ class OpenCV:
 
         return screen
 
-    def debug(self, screen: np.ndarray) -> None:
-        pass
+    def debug(
+        self,
+        screen: np.ndarray,
+        locations: list[MatchLocationInfo],
+        exit_key: str = "q",
+    ) -> None:
+        """Debug OpenCV screen template matching by adding rectangles"""
+        
+        screen = self.draw_rectangles(screen, locations)
+        screen = cv.resize(screen, (1200, 675))
+        cv.imshow("Debug Screen", screen)
+        if cv.waitKey(1) == ord(exit_key):
+            cv.destroyAllWindows()
 
 
 open_cv = OpenCV()
