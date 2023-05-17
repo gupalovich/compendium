@@ -6,9 +6,9 @@ class Settings:
     def __init__(self, config_path="config.ini"):
         self.config_path = config_path
         self.config = configparser.ConfigParser()
-        self._load_config()
+        self._load_constants()
 
-    def _load_config(self):
+    def _load_constants(self):
         self.config = self.load_config()
         self.DEFAULT = self.config["DEFAULT"]
         self.DEBUG = self.config.getboolean("DEFAULT", "debug")
@@ -31,7 +31,4 @@ class Settings:
         return self.config
 
     def reload(self):
-        self._load_config()
-
-
-settings = Settings()
+        self._load_constants()

@@ -6,9 +6,9 @@ import win32con
 import win32gui
 import win32ui
 
-from infrastructure.common.decorators import time_perf
-from infrastructure.common.entities import Rect
-from infrastructure.vision.opencv import open_cv
+from infra.common.decorators import time_perf
+from infra.common.entities import Rect
+from infra.vision.opencv import open_cv
 
 
 class ScreenException(Exception):
@@ -59,9 +59,9 @@ class Screen:
             width = bottom - left
             height = right - left
         elif region:
-            left, top, bottom, right = region.as_tuple()
-            width = bottom - left + 1
-            height = right - top + 1
+            left, top, bottom, right = region
+            width = region.width
+            height = region.height
         else:
             width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
             height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)

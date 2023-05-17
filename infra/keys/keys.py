@@ -3,7 +3,7 @@ from queue import Queue
 from threading import Thread
 from time import sleep
 
-from infrastructure.keys.constants import (
+from infra.keys.constants import (
     HEX_DIRECT_KEYS,
     HEX_KEY_TYPES,
     HEX_MOUSE_KEYS,

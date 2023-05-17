@@ -32,6 +32,8 @@ class Rect(ValueObject):
     Attributes:
         top_left: Location - the top left corner of the rectangle
         bottom_right: Location - the bottom right corner of the rectangle
+        width: the width property of the rectangle
+        height: the height property of the rectangle
     """
 
     top_left: Location

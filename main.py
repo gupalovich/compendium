@@ -1,6 +1,6 @@
 import logging
 
-from infrastructure.config import settings
+from config import settings
 
 
 def main():

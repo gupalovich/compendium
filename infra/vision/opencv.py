@@ -1,12 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-from infrastructure.common.entities import (
-    Location,
-    MatchLocationInfo,
-    ProcessedImg,
-    Rect,
-)
+from infra.common.entities import Location, MatchLocationInfo, ProcessedImg, Rect
 
 
 class OpenCV:
@@ -57,7 +52,7 @@ class OpenCV:
     ) -> list[MatchLocationInfo]:
         """Find a template in a screen image and return a list of MatchLocationInfo objects"""
 
-        needle_img, needle_w, needle_h = self.process_img(tmplt_path).as_tuple()
+        needle_img, needle_w, needle_h = self.process_img(tmplt_path)
         screen_gray = self.cvt_img_gray(screen)
 
         if crop:
