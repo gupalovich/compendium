@@ -14,7 +14,7 @@ class OpenCV:
         w, h = img.shape[::-1]
         return ProcessedImg(img=img, width=w, height=h)
 
-    def match_template(
+    def _match_template(
         self, screen: np.ndarray, tmplt: np.ndarray, confidence=0.65
     ) -> list:
         """cv2 match template based on confidence value"""
@@ -23,6 +23,41 @@ class OpenCV:
         locations = np.where(result >= confidence)
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
+
+    def match(
+        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
+    ) -> list[MatchLocationInfo]:
+        """Find a template in a screen image and return a list of MatchLocationInfo objects"""
+
+        needle_img, needle_w, needle_h = self.process_img(tmplt_path)
+        screen_gray = self.cvt_img_gray(screen)
+
+        if crop:
+            screen = self.crop_img(screen, crop)
+            screen_gray = self.crop_img(screen_gray, crop)
+
+        # find matches
+        locations = self._match_template(screen_gray, needle_img, confidence=confidence)
+        mask = np.zeros(screen.shape[:2], np.uint8)
+        detected_objects = []
+
+        for x, y in locations:
+            if mask[y + needle_h // 2, x + needle_w // 2] != 255:
+                detected_objects.append(
+                    MatchLocationInfo(
+                        top_left=Location(x, y),
+                        width=needle_w,
+                        height=needle_h,
+                        confidence=confidence,
+                    )
+                )
+            mask[y : y + needle_h, x : x + needle_w] = 255  # mask out detected object
+
+        if crop:  # recalculate cropped region points
+            for i, (x, y, w, h) in enumerate(detected_objects):
+                detected_objects[i] = [x + crop[0], y + crop[1], w, h]
+
+        return detected_objects
 
     def cvt_img_gray(self, img: np.ndarray) -> np.ndarray:
         """cv2 convert image to grayscale format"""
@@ -46,41 +81,6 @@ class OpenCV:
             region.top_left.x : region.bottom_right.x,
         ]
         return img_cropped
-
-    def find(
-        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
-    ) -> list[MatchLocationInfo]:
-        """Find a template in a screen image and return a list of MatchLocationInfo objects"""
-
-        needle_img, needle_w, needle_h = self.process_img(tmplt_path)
-        screen_gray = self.cvt_img_gray(screen)
-
-        if crop:
-            screen = self.crop_img(screen, crop)
-            screen_gray = self.crop_img(screen_gray, crop)
-
-        # find matches
-        locations = self.match_template(screen_gray, needle_img, confidence=confidence)
-        mask = np.zeros(screen.shape[:2], np.uint8)
-        detected_objects = []
-
-        for x, y in locations:
-            if mask[y + needle_h // 2, x + needle_w // 2] != 255:
-                detected_objects.append(
-                    MatchLocationInfo(
-                        top_left=Location(x, y),
-                        width=needle_w,
-                        height=needle_h,
-                        confidence=confidence,
-                    )
-                )
-            mask[y : y + needle_h, x : x + needle_w] = 255  # mask out detected object
-
-        if crop:  # recalculate cropped region points
-            for i, (x, y, w, h) in enumerate(detected_objects):
-                detected_objects[i] = [x + crop[0], y + crop[1], w, h]
-
-        return detected_objects
 
     def draw_rectangles(self, screen, rectangles: list[MatchLocationInfo]):
         """given a list of [x, y, w, h] rectangles and a canvas image to draw on
@@ -117,7 +117,14 @@ class OpenCV:
         locations: list[MatchLocationInfo],
         exit_key: str = "q",
     ) -> None:
-        """Debug OpenCV screen template matching by adding rectangles"""
+        """
+        Debug OpenCV screen template matching by adding rectangles
+
+        Example:
+            screen = screen.grab()
+            locations = opencv.match(screen, "template.png", confidence=0.65)
+            opencv.debug(screen, locations, exit_key="q")
+        """
 
         screen = self.draw_rectangles(screen, locations)
         screen = cv.resize(screen, (1200, 675))
@@ -126,4 +133,4 @@ class OpenCV:
             cv.destroyAllWindows()
 
 
-open_cv = OpenCV()
+opencv = OpenCV()

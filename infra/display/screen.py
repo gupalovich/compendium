@@ -8,7 +8,7 @@ import win32ui
 
 from infra.common.decorators import time_perf
 from infra.common.entities import Rect
-from infra.vision.opencv import open_cv
+from infra.vision.opencv import opencv
 
 
 class ScreenException(Exception):
@@ -85,7 +85,7 @@ class Screen:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return open_cv.cvt_img_rgb(img)
+        return opencv.cvt_img_rgb(img)
 
     def focus(self) -> None:
         pass
