@@ -19,9 +19,10 @@ class Location(ValueObject):
     x: float
     y: float
 
-    def as_tuple(self) -> tuple[float, float]:
-        """Return the location as a tuple (x, y)"""
-        return (self.x, self.y)
+    def __iter__(self):
+        """Allows iteration, unpacking over the location"""
+        yield self.x
+        yield self.y
 
 
 @dataclass(frozen=True)
@@ -36,20 +37,28 @@ class Rect(ValueObject):
     top_left: Location
     bottom_right: Location
 
-    def middle_point(self) -> Location:
+    @property
+    def width(self) -> float:
+        """The width of the rectangle"""
+        return self.bottom_right.x - self.top_left.x
+
+    @property
+    def height(self) -> float:
+        """The height of the rectangle"""
+        return self.bottom_right.y - self.top_left.y
+
+    def center(self) -> Location:
         """Returns the middle point of the rectangle"""
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
         return Location(x, y)
 
-    def as_tuple(self) -> tuple[int, int, int, int]:
-        """Returns the rectangle as a tuple (top_left, bottom_right)"""
-        return (
-            self.top_left.x,
-            self.top_left.y,
-            self.bottom_right.x,
-            self.bottom_right.y,
-        )
+    def __iter__(self):
+        """Allows iteration, unpacking over the rectangle"""
+        yield self.top_left.x
+        yield self.top_left.y
+        yield self.bottom_right.x
+        yield self.bottom_right.y
 
 
 @dataclass(frozen=True)
@@ -66,9 +75,11 @@ class ProcessedImg:
     width: int
     height: int
 
-    def as_tuple(self) -> tuple[np.ndarray, int, int]:
-        """Returns the image as a tuple (img, width, height)"""
-        return (self.img, self.width, self.height)
+    def __iter__(self):
+        """Allows iteration, unpacking over the image"""
+        yield self.img
+        yield self.width
+        yield self.height
 
 
 @dataclass(frozen=True)
@@ -79,7 +90,7 @@ class MatchLocationInfo:
         top_left: Location - the top left corner of the rectangle
         width: the width of search template
         height: the height of search template
-        confidence: the confidence
+        confidence: the confidence threshold
     """
 
     top_left: Location
