@@ -2,13 +2,11 @@ import cv2 as cv
 import numpy as np
 
 from infrastructure.common.entities import (
-    Location2D,
+    Location,
     MatchLocationInfo,
     ProcessedImg,
-    Rect2D,
+    Rect,
 )
-
-class OpenCVHelpers:
 
 
 class OpenCV:
@@ -46,7 +44,7 @@ class OpenCV:
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         return img_hsv
 
-    def crop_img(self, img: np.ndarray, region: Rect2D) -> np.ndarray:
+    def crop_img(self, img: np.ndarray, region: Rect) -> np.ndarray:
         """cv2 crop image according to rect points"""
         img_cropped = img[
             region.top_left.y : region.bottom_right.y,
@@ -55,7 +53,7 @@ class OpenCV:
         return img_cropped
 
     def find(
-        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect2D = None
+        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
     ) -> list[MatchLocationInfo]:
         """Find a template in a screen image and return a list of MatchLocationInfo objects"""
 
@@ -75,7 +73,7 @@ class OpenCV:
             if mask[y + needle_h // 2, x + needle_w // 2] != 255:
                 detected_objects.append(
                     MatchLocationInfo(
-                        top_left=Location2D(x, y),
+                        top_left=Location(x, y),
                         width=needle_w,
                         height=needle_h,
                         confidence=confidence,
@@ -125,7 +123,7 @@ class OpenCV:
         exit_key: str = "q",
     ) -> None:
         """Debug OpenCV screen template matching by adding rectangles"""
-        
+
         screen = self.draw_rectangles(screen, locations)
         screen = cv.resize(screen, (1200, 675))
         cv.imshow("Debug Screen", screen)

@@ -8,7 +8,7 @@ class ValueObject:
 
 
 @dataclass(frozen=True)
-class Location2D(ValueObject):
+class Location(ValueObject):
     """A 2D location
 
     Attributes:
@@ -25,22 +25,31 @@ class Location2D(ValueObject):
 
 
 @dataclass(frozen=True)
-class Rect2D(ValueObject):
+class Rect(ValueObject):
     """A 2D rectangle
 
     Attributes:
-        top_left: Location2D - the top left corner of the rectangle
-        bottom_right: Location2D - the bottom right corner of the rectangle
+        top_left: Location - the top left corner of the rectangle
+        bottom_right: Location - the bottom right corner of the rectangle
     """
 
-    top_left: Location2D
-    bottom_right: Location2D
+    top_left: Location
+    bottom_right: Location
 
-    def middle_point(self) -> Location2D:
+    def middle_point(self) -> Location:
         """Returns the middle point of the rectangle"""
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
-        return Location2D(x, y)
+        return Location(x, y)
+
+    def as_tuple(self) -> tuple[int, int, int, int]:
+        """Returns the rectangle as a tuple (top_left, bottom_right)"""
+        return (
+            self.top_left.x,
+            self.top_left.y,
+            self.bottom_right.x,
+            self.bottom_right.y,
+        )
 
 
 @dataclass(frozen=True)
@@ -67,22 +76,22 @@ class MatchLocationInfo:
     """A location and confidence
 
     Attributes:
-        top_left: Location2D - the top left corner of the rectangle
+        top_left: Location - the top left corner of the rectangle
         width: the width of search template
         height: the height of search template
         confidence: the confidence
     """
 
-    top_left: Location2D
+    top_left: Location
     width: int
     height: int
     confidence: float
 
-    def as_rect(self) -> Rect2D:
-        """Convert match location to a Rect2D"""
-        return Rect2D(
+    def as_rect(self) -> Rect:
+        """Convert match location to a Rect"""
+        return Rect(
             top_left=self.top_left,
-            bottom_right=Location2D(
+            bottom_right=Location(
                 x=self.top_left.x + self.width,
                 y=self.top_left.y + self.height,
             ),

@@ -1,10 +1,13 @@
+import cv2 as cv
+import mss
 import numpy as np
 import win32api
 import win32con
 import win32gui
 import win32ui
 
-from infrastructure.common.entities import Rect2D
+from infrastructure.common.decorators import time_perf
+from infrastructure.common.entities import Rect
 from infrastructure.vision.opencv import open_cv
 
 
@@ -19,31 +22,44 @@ class ScreenNotFoundException(ScreenException):
 class Screen:
     """Class to represent a screen"""
 
-    process_name = None
+    def __init__(self, process_name: str = None) -> None:
+        self.process_name = process_name
 
-    @classmethod
-    def grab(cls, rect: Rect2D = None) -> np.ndarray:
-        """Grab the screen with optimized parameters for maximum speed boost
+    @time_perf
+    def grab_mss(self, left=0, top=0, width=1920, height=1080):
+        stc = mss.mss()
+        scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
+
+        img = np.array(scr)
+        img = cv.cvtColor(img, cv.IMREAD_COLOR)
+
+        return img
+
+    @time_perf
+    def grab(self, region: Rect = None) -> np.ndarray:
+        """
+        Grab the screen with optimized parameters for maximum speed boost.
+        This function has 1.5-2x speed boost compared to grab_mss() function.
 
         TODO: fix win32gui.FindWindow with process_name - searches exact process name
         TODO: Refactor primitives
         """
 
-        if cls.process_name:
-            hwin = win32gui.FindWindow(None, cls.process_name)
+        if self.process_name:
+            hwin = win32gui.FindWindow(None, self.process_name)
             if not hwin:
                 raise ScreenNotFoundException(
-                    f"Process name not found - {cls.process_name}"
+                    f"Process name not found - {self.process_name}"
                 )
         else:
             hwin = win32gui.GetDesktopWindow()
 
-        if cls.process_name:
+        if self.process_name:
             left, top, bottom, right = win32gui.GetWindowRect(hwin)
             width = bottom - left
             height = right - left
-        elif rect:
-            left, top, bottom, right = rect
+        elif region:
+            left, top, bottom, right = region.as_tuple()
             width = bottom - left + 1
             height = right - top + 1
         else:
@@ -71,8 +87,8 @@ class Screen:
 
         return open_cv.cvt_img_rgb(img)
 
-    def crop(self, rect: Rect2D) -> None:
-        pass
-
     def focus(self) -> None:
         pass
+
+
+screen = Screen()
