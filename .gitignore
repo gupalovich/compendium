@@ -278,3 +278,4 @@ supervisord.conf
 
 # Project
 config.ini
+static/screenshots

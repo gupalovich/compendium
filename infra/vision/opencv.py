@@ -59,6 +59,11 @@ class OpenCV:
 
         return detected_objects
 
+    def cvt_img_normal(self, img: np.ndarray) -> np.ndarray:
+        """cv2 convert image to grayscale format"""
+        img_gray = cv.cvtColor(img, cv.IMREAD_COLOR)
+        return img_gray
+
     def cvt_img_gray(self, img: np.ndarray) -> np.ndarray:
         """cv2 convert image to grayscale format"""
         img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)

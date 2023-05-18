@@ -1,3 +1,5 @@
+from time import time
+
 import cv2 as cv
 import mss
 import numpy as np
@@ -6,8 +8,10 @@ import win32con
 import win32gui
 import win32ui
 
+from config import settings
 from infra.common.decorators import time_perf
-from infra.common.entities import Rect
+from infra.common.entities import Location, Rect
+from infra.keys.listener import key_listener
 from infra.vision.opencv import opencv
 
 
@@ -25,6 +29,23 @@ class Screen:
     def __init__(self, process_name: str = None) -> None:
         self.process_name = process_name
 
+    def find_window(self, process_name: str) -> int:
+        """Find window by process name."""
+        hwin = win32gui.FindWindow(None, str(process_name))
+        if not hwin:
+            raise ScreenNotFoundException(f"Process name not found - {process_name}")
+        return hwin
+
+    def get_window_rect(self, process_name: str) -> Rect:
+        """Find window rectangle by process name."""
+        hwin = self.find_window(process_name)
+        rect = win32gui.GetWindowRect(hwin)
+        rect = Rect(
+            top_left=Location(rect[0], rect[1]),
+            bottom_right=Location(rect[2], rect[3]),
+        )
+        return rect
+
     @time_perf
     def grab_mss(self, left=0, top=0, width=1920, height=1080):
         stc = mss.mss()
@@ -33,7 +54,7 @@ class Screen:
         img = np.array(scr)
         img = cv.cvtColor(img, cv.IMREAD_COLOR)
 
-        return img
+        return opencv.cvt_img_normal(img)
 
     @time_perf
     def grab(self, region: Rect = None) -> np.ndarray:
@@ -46,11 +67,7 @@ class Screen:
         """
 
         if self.process_name:
-            hwin = win32gui.FindWindow(None, self.process_name)
-            if not hwin:
-                raise ScreenNotFoundException(
-                    f"Process name not found - {self.process_name}"
-                )
+            hwin = self.find_window(self.process_name)
         else:
             hwin = win32gui.GetDesktopWindow()
 
@@ -85,10 +102,42 @@ class Screen:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return opencv.cvt_img_rgb(img)
+        return opencv.cvt_img_normal(img)
 
-    def focus(self) -> None:
-        pass
+    def focus(self, hwin: int) -> None:
+        """
+        Set window to focus
+
+        Attributes:
+            hwin (int): Window handle
+        """
+        win32gui.SetForegroundWindow(hwin)
+
+    def live(self, process_name: str, exit_key="q", screen_key="f") -> None:
+        """Simplify process of taking screenshots"""
+
+        window_rect = self.get_window_rect(process_name)
+
+        while True:
+            screenshot = self.grab(window_rect)
+
+            cv.imshow("Screenshot", screenshot)
+
+            loop_time = time()
+
+            key = cv.waitKey(1)
+
+            if key == ord(exit_key):
+                cv.destroyAllWindows()
+                break
+            if key == ord(screen_key):
+                print("[INFO] Screenshot taken...")
+                cv.imwrite(f"static/screenshots/{loop_time}.jpg", screenshot)
+        print("[INFO] Done.")
 
 
 screen = Screen()
+
+
+if __name__ == "__main__":
+    screen.live(settings.DEFAULT["process_name"])
