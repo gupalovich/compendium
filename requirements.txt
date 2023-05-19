@@ -3,6 +3,7 @@ psycopg2==2.9.5  # https://github.com/psycopg/psycopg2
 psycopg2-binary==2.9.5  # https://github.com/psycopg/psycopg2
 pynput==1.7.6  # https://github.com/moses-palmer/pynput
 pywin32==306  # https://github.com/mhammond/pywin32
+Pillow==9.5.0  # https://pillow.readthedocs.io/en/stable/installation.html
 
 # Testing
 # ------------------------------------------------------------------------------

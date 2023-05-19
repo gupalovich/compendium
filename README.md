@@ -13,9 +13,8 @@ Features of AlbionBot include:
 - Customizable rules engine for defining bot behavior
 
 ## TODO
----
 
-1. Работа с окном - хелперы
+1. ~~Работа с окном - хелперы~~
 1. Дизайн основых сущностей домена
     - ~~Value Objects~~
     - Entities
