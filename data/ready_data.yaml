@@ -8,13 +8,13 @@ test: ../data/train_data/test_data # test images (optional)
 
 # Classes
 names:
-  0: Еретик
-  1: Элементаль
-  2: Песчаник
-  3: Грубый Камень
-  4: Известняк
-  5: Береза
-  6: Каштан
-  7: Бревна
-  8: Медная Руда
-  9: Оловянная Руда
+  0: Heretic
+  1: Elemental
+  2: Sandstone
+  3: Rough Stone
+  4: Limestone
+  5: Birch
+  6: Chestnut
+  7: Logs
+  8: Copper Ore
+  9: Tin Ore

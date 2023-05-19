@@ -280,3 +280,4 @@ supervisord.conf
 config.ini
 static/screenshots
 yolov5
+*.cache

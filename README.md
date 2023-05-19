@@ -121,9 +121,42 @@ erDiagram
     ├── config.ini
     └── README.md
 
+## Neural network training
+---
+
+1. Install YOLO5
+    - `git clone https://github.com/ultralytics/yolov5.git`
+    - `cd yolov5`
+    - `pip install -r requirements.txt`
+
+2. Install CUDA Toolkit 11.5
+
+3. Install PyTorch with cuda support
+    - `pip install torch==1.11.0+cu115 torchvision==0.12.0+cu115 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu115`
+
+4. Train model
+    - `python train.py --img 640 --batch 2 --epochs 240 --data ../data/ready_data.yaml --weights yolov5s.pt --cache --device 0 --workers 2`
+
+5. Test trained model
+    - `python detect.py --weights runs/train/exp/weights/best.pt --img 640 --source ../data/test_data/ --conf-thres 0.65`
+
+6. Errors
+    - Not enough virtual memory (добавить/разрешить файл подкачки)
+    - YOLO permission denied (in yolo dir):
+        - `git init`
+        - `git config --global --add safe.directory D:/work/albionbot/yolov5`
+        - `git pull`
+
 
 ## Version
 ---
+
+    0.0.4 (20.05.2023)
+        - Custom YOLO model for ingame object detection 
+        - Update infra module
+
+    0.0.3 (16.05.2023)
+        - Added infra module
 
     0.0.2 (10.05.2023)
         - New project structure
