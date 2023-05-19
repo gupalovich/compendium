@@ -279,4 +279,4 @@ supervisord.conf
 # Project
 config.ini
 static/screenshots
-/data
+yolov5
