@@ -11,7 +11,6 @@ import win32ui
 from config import settings
 from infra.common.decorators import time_perf
 from infra.common.entities import Location, Rect
-from infra.keys.listener import key_listener
 from infra.vision.opencv import opencv
 
 
@@ -56,7 +55,6 @@ class Screen:
 
         return opencv.cvt_img_normal(img)
 
-    @time_perf
     def grab(self, region: Rect = None) -> np.ndarray:
         """
         Grab the screen with optimized parameters for maximum speed boost.
