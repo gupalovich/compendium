@@ -129,7 +129,15 @@ erDiagram
     - `cd yolov5`
     - `pip install -r requirements.txt`
 
-2. Install CUDA Toolkit 11.5
+2. Install
+    - CUDA Toolkit 11.5
+    - TensorRT 8.6.1
+        - Add path to system path variables `\TensorRT-8.6.1.6\lib`
+    - zlib
+        - Add path to system path variables `\zlib123\dll_x64`
+    - cuDNN 8.9.0
+        - Add path to system path variables `\cudnn-8.9.0.131_cuda11\bin`
+
 
 3. Install PyTorch with cuda support
     - `pip install torch==1.11.0+cu115 torchvision==0.12.0+cu115 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu115`
@@ -140,7 +148,11 @@ erDiagram
 5. Test trained model
     - `python detect.py --weights runs/train/exp/weights/best.pt --img 640 --source ../data/test_data/ --conf-thres 0.65`
 
-6. Errors
+6. Export model (TensorRT required)
+    - Path to model: `runs/train/exp/weights/best.pt`
+    - `python export.py --weights ../best.pt --include engine --half --device 0`
+
+7. Errors
     - Not enough virtual memory (добавить/разрешить файл подкачки)
     - YOLO permission denied (in yolo dir):
         - `git init`
