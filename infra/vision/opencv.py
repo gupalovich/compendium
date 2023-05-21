@@ -59,25 +59,35 @@ class OpenCV:
 
         return detected_objects
 
-    def cvt_img_normal(self, img: np.ndarray) -> np.ndarray:
-        """cv2 convert image to grayscale format"""
-        img_gray = cv.cvtColor(img, cv.IMREAD_COLOR)
-        return img_gray
+    def cvt_img_color(self, img: np.ndarray, fmt: str = "bgr") -> np.ndarray:
+        """
+        OpenCV convert image color to specific format
 
-    def cvt_img_gray(self, img: np.ndarray) -> np.ndarray:
-        """cv2 convert image to grayscale format"""
-        img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        return img_gray
+        Formats:
+            "bgr", "bgra", "rgb", "gray", "hsv"
+        """
+        formats = {
+            "bgr": cv.IMREAD_COLOR,
+            "bgra": cv.COLOR_BGRA2BGR,
+            "rgb": cv.COLOR_BGRA2RGB,
+            "gray": cv.COLOR_BGR2GRAY,
+            "hsv": cv.COLOR_BGR2HSV,
+        }
 
-    def cvt_img_rgb(self, img: np.ndarray) -> np.ndarray:
-        """cv2 convert image to rgb format"""
-        img_rgb = cv.cvtColor(img, cv.COLOR_BGRA2RGB)
-        return img_rgb
+        if fmt not in formats:
+            raise ValueError(
+                f"Invalid format: {fmt}. Supported formats: {formats.keys()}"
+            )
 
-    def cvt_img_hsv(self, img: np.ndarray) -> np.ndarray:
-        """cv2 convert image to HSV format"""
-        img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-        return img_hsv
+        try:
+            img = cv.cvtColor(img, formats[fmt])
+        except cv.error as e:
+            # Handle OpenCV conversion errors
+            print(f"Error converting image color: {e}")
+            # Optionally, fallback to a default behavior
+            img = cv.cvtColor(img, formats["normal"])
+
+        return img
 
     def crop_img(self, img: np.ndarray, region: Rect) -> np.ndarray:
         """cv2 crop image according to rect points"""
@@ -86,6 +96,9 @@ class OpenCV:
             region.top_left.x : region.bottom_right.x,
         ]
         return img_cropped
+
+    def zoom(self, img, zoom_factor=2):
+        return cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
 
     def draw_rectangles(self, screen, rectangles: list[MatchLocationInfo]):
         """given a list of [x, y, w, h] rectangles and a canvas image to draw on

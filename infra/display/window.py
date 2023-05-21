@@ -11,20 +11,17 @@ import win32ui
 from config import settings
 from infra.common.decorators import time_perf
 from infra.common.entities import Location, Rect
-from infra.vision.opencv import opencv
 
 
-class ScreenException(Exception):
+class WindowException(Exception):
     """Base class for exceptions in this module."""
 
 
-class ScreenNotFoundException(ScreenException):
-    """Exception raised when screen is not found."""
+class WindowNotFoundException(WindowException):
+    """Exception raised when window is not found."""
 
 
-class Screen:
-    """Class to represent a screen"""
-
+class Window:
     def __init__(self, process_name: str = None) -> None:
         self.process_name = process_name
 
@@ -32,7 +29,7 @@ class Screen:
         """Find window by process name."""
         hwin = win32gui.FindWindow(None, str(process_name))
         if not hwin:
-            raise ScreenNotFoundException(f"Process name not found - {process_name}")
+            raise WindowNotFoundException(f"Process name not found - {process_name}")
         return hwin
 
     def get_window_rect(self, process_name: str) -> Rect:
@@ -49,15 +46,13 @@ class Screen:
     def grab_mss(self, left=0, top=0, width=1920, height=1080):
         stc = mss.mss()
         scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
-
+        stc.close()
         img = np.array(scr)
-        img = cv.cvtColor(img, cv.IMREAD_COLOR)
-
-        return opencv.cvt_img_normal(img)
+        return cv.cvtColor(img, cv.IMREAD_COLOR)
 
     def grab(self, region: Rect = None) -> np.ndarray:
         """
-        Grab the screen with optimized parameters for maximum speed boost.
+        Grab the window with optimized parameters for maximum speed boost.
         This function has 1.5-2x speed boost compared to grab_mss() function.
 
         TODO: fix win32gui.FindWindow with process_name - searches exact process name
@@ -100,7 +95,7 @@ class Screen:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return opencv.cvt_img_normal(img)
+        return cv.cvtColor(img, cv.IMREAD_COLOR)
 
     def focus(self, hwin: int) -> None:
         """
@@ -111,7 +106,7 @@ class Screen:
         """
         win32gui.SetForegroundWindow(hwin)
 
-    def live(self, process_name: str, exit_key="q", screen_key="f") -> None:
+    def live_screenshot(self, process_name: str, exit_key="q", screen_key="f") -> None:
         """Simplify process of taking screenshots"""
 
         window_rect = self.get_window_rect(process_name)
@@ -119,7 +114,7 @@ class Screen:
         while True:
             screenshot = self.grab(window_rect)
 
-            cv.imshow("Screenshot", screenshot)
+            cv.imshow("Windowshot", screenshot)
 
             loop_time = time()
 
@@ -129,13 +124,11 @@ class Screen:
                 cv.destroyAllWindows()
                 break
             if key == ord(screen_key):
-                print("[INFO] Screenshot taken...")
+                print("[INFO] Windowshot taken...")
                 cv.imwrite(f"static/screenshots/{loop_time}.jpg", screenshot)
         print("[INFO] Done.")
 
 
-screen = Screen()
-
-
 if __name__ == "__main__":
-    screen.live(settings.DEFAULT["process_name"])
+    window = Window()
+    window.live_screenshot(settings.DEFAULT["process_name"])
