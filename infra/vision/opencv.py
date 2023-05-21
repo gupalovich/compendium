@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 
+from config import settings
 from infra.common.entities import Location, MatchLocationInfo, ProcessedImg, Rect
 
 
@@ -8,14 +9,8 @@ class OpenCV:
     def __init__(self, method=cv.TM_CCOEFF_NORMED):
         self.method = method
 
-    def process_img(self, img_path: str, static_path="static/") -> ProcessedImg:
-        """cv2 read image and return processed image"""
-        img = cv.imread(static_path + img_path, 0)
-        w, h = img.shape[::-1]
-        return ProcessedImg(img=img, width=w, height=h)
-
     def _match_template(
-        self, screen: np.ndarray, tmplt: np.ndarray, confidence=0.65
+        self, screen: np.ndarray, tmplt: np.ndarray, confidence: float = 0.65
     ) -> list:
         """cv2 match template based on confidence value"""
 
@@ -24,38 +19,74 @@ class OpenCV:
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
+    def _recalculate_cropped_points(
+        self, detected_objects: list[MatchLocationInfo], crop: Rect
+    ) -> list[MatchLocationInfo]:
+        """Recalculate the top-left points of detected objects based on the crop rectangle"""
+
+        recalculated_objects = []
+
+        for match_info in detected_objects:
+            x, y = match_info.top_left.as_tuple()
+            recalculated_top_left = Location(x + crop.top_left.x, y + crop.top_left.y)
+            recalculated_objects.append(
+                MatchLocationInfo(
+                    top_left=recalculated_top_left,
+                    width=match_info.width,
+                    height=match_info.height,
+                    confidence=match_info.confidence,
+                )
+            )
+
+        return recalculated_objects
+
+    def process_img(self, img_path: str, static_path: str = None) -> ProcessedImg:
+        """cv2 read image and return processed image"""
+        if static_path is None:
+            static_path = settings.STATIC_PATH
+        img = cv.imread(static_path + img_path, 0)
+        w, h = img.shape[::-1]
+        return ProcessedImg(img=img, width=w, height=h)
+
+    def save_img(self, img: np.ndarray, img_path: str, static_path: str = None) -> None:
+        """cv2 save image"""
+        if static_path is None:
+            static_path = settings.STATIC_PATH
+        cv.imwrite(static_path + img_path, img)
+
     def match(
         self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
     ) -> list[MatchLocationInfo]:
         """Find a template in a screen image and return a list of MatchLocationInfo objects"""
 
-        needle_img, needle_w, needle_h = self.process_img(tmplt_path)
-        screen_gray = self.cvt_img_gray(screen)
+        screen_gray = self.cvt_img_color(screen, fmt="gray")
+        tmplt_img, tmplt_w, tmplt_h = self.process_img(tmplt_path)
 
         if crop:
             screen = self.crop_img(screen, crop)
             screen_gray = self.crop_img(screen_gray, crop)
 
-        # find matches
-        locations = self._match_template(screen_gray, needle_img, confidence=confidence)
+        # Find matches
+        locations = self._match_template(screen_gray, tmplt_img, confidence=confidence)
         mask = np.zeros(screen.shape[:2], np.uint8)
         detected_objects = []
 
         for x, y in locations:
-            if mask[y + needle_h // 2, x + needle_w // 2] != 255:
+            if mask[y + tmplt_h // 2, x + tmplt_w // 2] != 255:
+                top_left = Location(x, y)
                 detected_objects.append(
                     MatchLocationInfo(
-                        top_left=Location(x, y),
-                        width=needle_w,
-                        height=needle_h,
+                        top_left=top_left,
+                        width=tmplt_w,
+                        height=tmplt_h,
                         confidence=confidence,
                     )
                 )
-            mask[y : y + needle_h, x : x + needle_w] = 255  # mask out detected object
+            # Mask out detected object
+            mask[y : y + tmplt_h, x : x + tmplt_w] = 255
 
-        if crop:  # recalculate cropped region points
-            for i, (x, y, w, h) in enumerate(detected_objects):
-                detected_objects[i] = [x + crop[0], y + crop[1], w, h]
+        if crop:
+            detected_objects = self._recalculate_cropped_points(detected_objects, crop)
 
         return detected_objects
 
@@ -97,7 +128,9 @@ class OpenCV:
         ]
         return img_cropped
 
-    def zoom(self, img, zoom_factor=2):
+    def zoom(self, img: np.ndarray, zoom_factor: int = 2):
+        """cv2 resize image with double the size
+        # (note: this will not work for images with alpha channel)"""
         return cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
 
     def draw_rectangles(self, screen, rectangles: list[MatchLocationInfo]):
@@ -149,6 +182,3 @@ class OpenCV:
         cv.imshow("Debug Screen", screen)
         if cv.waitKey(1) == ord(exit_key):
             cv.destroyAllWindows()
-
-
-opencv = OpenCV()

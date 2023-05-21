@@ -12,6 +12,7 @@ class Settings:
         self.config = self.load_config()
         self.DEFAULT = self.config["DEFAULT"]
         self.DEBUG = self.config.getboolean("DEFAULT", "debug")
+        self.STATIC_PATH = self.DEFAULT.get("static_path")
 
     def build_config(self) -> None:
         self.config["DEFAULT"] = {
