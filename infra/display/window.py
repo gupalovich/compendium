@@ -9,7 +9,6 @@ import win32gui
 import win32ui
 
 from config import settings
-from infra.common.decorators import time_perf
 from infra.common.entities import Location, Rect
 
 
@@ -51,7 +50,7 @@ class Window:
         scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
         stc.close()
         img = np.array(scr)
-        return cv.cvtColor(img, cv.IMREAD_COLOR)
+        return cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
     def grab(self, region: Rect = None) -> np.ndarray:
         """
@@ -71,6 +70,7 @@ class Window:
             left, top, bottom, right = win32gui.GetWindowRect(hwin)
             width = bottom - left
             height = right - left
+            print("here", width, height, left, top, bottom, right)
         elif region:
             left, top, bottom, right = region
             width = region.width
@@ -98,7 +98,7 @@ class Window:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return cv.cvtColor(img, cv.IMREAD_COLOR)
+        return cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
     def focus(self, hwin: int) -> None:
         """

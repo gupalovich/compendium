@@ -2,7 +2,13 @@ import cv2 as cv
 import numpy as np
 
 from config import settings
-from infra.common.entities import Location, MatchLocationInfo, ProcessedImg, Rect
+from infra.common.entities import (
+    Location,
+    MatchLocationInfo,
+    Polygon,
+    ProcessedImg,
+    Rect,
+)
 
 
 class OpenCV:
@@ -53,6 +59,11 @@ class OpenCV:
         if static_path is None:
             static_path = settings.STATIC_PATH
         cv.imwrite(static_path + img_path, img)
+
+    def show_img(self, img: np.ndarray, window_name: str = "Window") -> None:
+        """cv2 show image"""
+        cv.imshow(window_name, img)
+        cv.waitKey(0)
 
     def match(
         self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
@@ -128,7 +139,23 @@ class OpenCV:
         ]
         return img_cropped
 
-    def zoom(self, img: np.ndarray, zoom_factor: int = 2):
+    def crop_polygon(self, img: np.ndarray, region: Polygon) -> np.ndarray:
+        """Extract polygon from screen and fill background"""
+
+        points = region.as_np_array()
+        # Create a binary mask with the polygon shape
+        mask = np.zeros(img.shape[:2], dtype=np.uint8)
+        cv.fillPoly(mask, [points], 255)
+        # Apply the mask to the image
+        masked_image = cv.bitwise_and(img, img, mask=mask)
+        # Crop out the masked region
+        cropped_image = masked_image[
+            min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
+        ]
+        cropped_image = opencv.cvt_img_color(cropped_image, fmt="rgb")
+        return cropped_image
+
+    def zoom(self, img: np.ndarray, zoom_factor: float = 2):
         """cv2 resize image with double the size
         # (note: this will not work for images with alpha channel)"""
         return cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
@@ -140,10 +167,10 @@ class OpenCV:
         line_color = (0, 255, 0)
         line_type = cv.LINE_4
 
-        for x, y, w, h in rectangles:
-            # determine the box positions
-            top_left = (x, y)
-            bottom_right = (x + w, y + h)
+        for match_loc in rectangles:
+            rect = match_loc.as_rect()
+            top_left = list(rect.top_left)
+            bottom_right = list(rect.bottom_right)
             # draw the box
             cv.rectangle(screen, top_left, bottom_right, line_color, lineType=line_type)
 
@@ -172,13 +199,15 @@ class OpenCV:
         Debug OpenCV screen template matching by adding rectangles
 
         Example:
-            screen = screen.grab()
+            screen = window.grab()
             locations = opencv.match(screen, "template.png", confidence=0.65)
             opencv.debug(screen, locations, exit_key="q")
         """
-
         screen = self.draw_rectangles(screen, locations)
         screen = cv.resize(screen, (1200, 675))
         cv.imshow("Debug Screen", screen)
         if cv.waitKey(1) == ord(exit_key):
             cv.destroyAllWindows()
+
+
+opencv = OpenCV()

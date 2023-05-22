@@ -64,6 +64,19 @@ class Rect(ValueObject):
 
 
 @dataclass(frozen=True)
+class Polygon(ValueObject):
+    points: list[Location]
+
+    def __post_init__(self):
+        if len(self.points) < 4:
+            raise ValueError("Polygon must have at least 4 points")
+
+    def as_np_array(self) -> np.ndarray:
+        """Converts the polygon to a NumPy array of points"""
+        return np.array([(point.x, point.y) for point in self.points])
+
+
+@dataclass(frozen=True)
 class ProcessedImg:
     """A processed image
 
