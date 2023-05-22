@@ -11,7 +11,7 @@ class OpenCV:
 
     def _match_template(
         self, screen: np.ndarray, tmplt: np.ndarray, confidence: float = 0.65
-    ) -> list:
+    ) -> tuple:
         """cv2 match template based on confidence value"""
 
         result = cv.matchTemplate(screen, tmplt, self.method)
@@ -27,7 +27,7 @@ class OpenCV:
         recalculated_objects = []
 
         for match_info in detected_objects:
-            x, y = match_info.top_left.as_tuple()
+            x, y = match_info.top_left
             recalculated_top_left = Location(x + crop.top_left.x, y + crop.top_left.y)
             recalculated_objects.append(
                 MatchLocationInfo(
@@ -59,9 +59,9 @@ class OpenCV:
     ) -> list[MatchLocationInfo]:
         """Find a template in a screen image and return a list of MatchLocationInfo objects"""
 
+        screen = self.cvt_img_color(screen, fmt="bgr")
         screen_gray = self.cvt_img_color(screen, fmt="gray")
         tmplt_img, tmplt_w, tmplt_h = self.process_img(tmplt_path)
-
         if crop:
             screen = self.crop_img(screen, crop)
             screen_gray = self.crop_img(screen_gray, crop)
@@ -116,7 +116,7 @@ class OpenCV:
             # Handle OpenCV conversion errors
             print(f"Error converting image color: {e}")
             # Optionally, fallback to a default behavior
-            img = cv.cvtColor(img, formats["normal"])
+            img = cv.cvtColor(img, formats["bgr"])
 
         return img
 

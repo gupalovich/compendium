@@ -46,7 +46,6 @@ class Window:
         )
         return rect
 
-    @time_perf
     def grab_mss(self, left=0, top=0, width=1920, height=1080):
         stc = mss.mss()
         scr = stc.grab({"left": left, "top": top, "width": width, "height": height})

@@ -52,7 +52,7 @@ class Keys:
     def parseKeyString(self, string):
         # print keys
         if not self.standalone:
-            self.common.info("Processing keys: %s" % string)
+            self.common.info(f"Processing keys: {string}")
 
         key_queue = []
         errors = []
