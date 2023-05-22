@@ -21,6 +21,10 @@ class WindowNotFoundException(WindowException):
     """Exception raised when window is not found."""
 
 
+class WindowFocusException(WindowException):
+    """Exception raised when window is not focused."""
+
+
 class Window:
     def __init__(self, process_name: str = None) -> None:
         self.process_name = process_name
@@ -99,12 +103,17 @@ class Window:
 
     def focus(self, hwin: int) -> None:
         """
-        Set window to focus
+        Set window to focused state
 
         Attributes:
             hwin (int): Window handle
         """
-        win32gui.SetForegroundWindow(hwin)
+        try:
+            win32gui.SetForegroundWindow(hwin)
+        except win32gui.error as e:
+            raise WindowFocusException(
+                f"Error occurred while setting window focus: {e}"
+            ) from e
 
     def live_screenshot(self, process_name: str, exit_key="q", screen_key="f") -> None:
         """Simplify process of taking screenshots"""

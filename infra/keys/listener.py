@@ -18,7 +18,7 @@ class KeyListener:
     def on_scroll(self, x, y, dx, dy):
         pass
 
-    def start(self):
+    def start(self, on_release=None):
         print(f"- {__class__.__name__} started")
         with mouse.Listener(
             on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll

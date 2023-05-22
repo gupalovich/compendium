@@ -67,7 +67,7 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
     return filtered_annotations
 
 
-def mirror_images(image_dir):
+def mirror_images(image_dir: str) -> None:
     """Flip screenshots horizonally
 
     Example: mirror_images("data/test_data")
