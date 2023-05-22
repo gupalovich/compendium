@@ -1,3 +1,8 @@
+"""
+TODO: refactoring for future usage in 3d games
+"""
+
+
 class CameraHandler:
     """Class for 3d camera handling"""
 

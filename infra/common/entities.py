@@ -12,15 +12,15 @@ class Location(ValueObject):
     """A 2D location
 
     Attributes:
-        x: the x coordinate
-        y: the y coordinate
+        x: the x point
+        y: the y point
     """
 
     x: float
     y: float
 
     def __iter__(self):
-        """Allows iteration, unpacking over the location"""
+        """Allows iteration, unpacking over value object"""
         yield self.x
         yield self.y
 
@@ -39,6 +39,13 @@ class Rect(ValueObject):
     top_left: Location
     bottom_right: Location
 
+    def __iter__(self):
+        """Allows iteration, unpacking over value object"""
+        yield self.top_left.x
+        yield self.top_left.y
+        yield self.bottom_right.x
+        yield self.bottom_right.y
+
     @property
     def width(self) -> float:
         """The width of the rectangle"""
@@ -54,13 +61,6 @@ class Rect(ValueObject):
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
         return Location(x, y)
-
-    def __iter__(self):
-        """Allows iteration, unpacking over the rectangle"""
-        yield self.top_left.x
-        yield self.top_left.y
-        yield self.bottom_right.x
-        yield self.bottom_right.y
 
 
 @dataclass(frozen=True)
@@ -78,10 +78,20 @@ class ProcessedImg:
     height: int
 
     def __iter__(self):
-        """Allows iteration, unpacking over the image"""
+        """Allows iteration, unpacking over value object"""
         yield self.img
         yield self.width
         yield self.height
+
+    def __eq__(self, other):
+        """Compares two processed images"""
+        if isinstance(other, ProcessedImg):
+            return (
+                np.array_equal(self.img, other.img)
+                and self.width == other.width
+                and self.height == other.height
+            )
+        return False
 
 
 @dataclass(frozen=True)

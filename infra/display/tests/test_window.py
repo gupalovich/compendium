@@ -7,7 +7,7 @@ from infra.common.entities import Location, Rect
 from ..window import Window, WindowFocusException, WindowNotFoundException
 
 
-class TestScreen(TestCase):
+class TestWindow(TestCase):
     def setUp(self) -> None:
         self.window = Window()
         self.process_name = "Calculator"
