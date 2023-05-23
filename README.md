@@ -108,11 +108,24 @@ erDiagram
     │   ├── services/
     │   │   └── ocr.py
     │   └── bot.py
-    ├── infrastructure/
-    |   ├── asyncio.py
-    |   ├── config.py
-    |   ├── threading.py
-    │   └── win32api.py
+    ├── infra/
+    │   ├── async/
+    │   │   ├── asyncio.py
+    │   │   └── threading.py
+    │   ├── common/
+    |   |   ├── decorators.py
+    |   |   ├── entities.py
+    │   │   └── utils.py
+    │   ├── devices/
+    |   |   ├── display/
+    │   │   |   ├── camera.py
+    │   │   |   └── window.py
+    |   |   ├── input/
+    │   │   |   ├── mouse.py
+    │   │   |   └── keyboard.py
+    |   |   ├── vision/
+    │   │   |   ├── opencv.py
+    │   │   |   └── tesseract.py
     ├── static/
     |   ├── icons/
     |   ├── items/

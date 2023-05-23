@@ -13,55 +13,32 @@ import cv2 as cv
 import numpy as np
 
 from config import settings
-from infra.common.entities import Location, Polygon
-from infra.display.window import Window
-from infra.vision.opencv import opencv
+from infra.common.entities import Coord, Polygon, Rect
+from infra.devices.display.window import Window
+from infra.devices.vision.opencv import opencv
 
-
-class Extractor:
-    def __init__(self):
-        self.window = Window(process_name=settings.PROCESS_NAME)
-        self.crops = {
-            "map": Polygon(
-                points=[
-                    Location(415, 570),
-                    Location(960, 200),
-                    Location(1500, 570),
-                    Location(960, 950),
-                ]
-            ),
-            "minimap": Polygon(
-                points=[
-                    Location(1550, 910),
-                    Location(1710, 795),
-                    Location(1880, 910),
-                    Location(1720, 1020),
-                ]
-            ),
-        }
-
-    def extract(self, region: Polygon) -> np.ndarray:
-        """Extract polygon from screen and fill background"""
-
-        screen = self.window.grab_mss()
-        points = region.as_np_array()
-        # Create a binary mask with the polygon shape
-        mask = np.zeros(screen.shape[:2], dtype=np.uint8)
-        cv.fillPoly(mask, [points], 255)
-        # Apply the mask to the image
-        masked_image = cv.bitwise_and(screen, screen, mask=mask)
-        # Crop out the masked region
-        cropped_image = masked_image[
-            min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
+crops = {
+    "map": Polygon(
+        points=[
+            Coord(415, 570),
+            Coord(960, 200),
+            Coord(1500, 570),
+            Coord(960, 950),
         ]
-        cropped_image = opencv.cvt_img_color(cropped_image, fmt="rgb")
-        return cropped_image
+    ),
+    "minimap": Rect(top_left=Coord(1661, 863), bottom_right=Coord(1761, 963)),
+}
 
+window = Window()
+map_cluster = opencv.load_img("maps/mase_knoll.png")
+screen = window.grab_mss()
+minimap = opencv.crop_img(screen, crops["minimap"])
+minimap = opencv.zoom(minimap, 0.6)
+minimap = cv.cvtColor(minimap, cv.COLOR_BGR2RGB)
+opencv.save_img(minimap, "maps/minimap.png")
 
-extractor = Extractor()
-# minimap = extractor.extract(extractor.crops["minimap"])
-# opencv.show_img(minimap)
-# opencv.save_img(minimap, "minimap.png")
+result = opencv.match(opencv.zoom(map_cluster.img, 1.5), "maps/minimap.png")
+print(result)
 
 # map_cluster = extractor.extract(extractor.crops["map"])
 # opencv.show_img(map_cluster)

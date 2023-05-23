@@ -3,12 +3,7 @@ from queue import Queue
 from threading import Thread
 from time import sleep
 
-from infra.keys.constants import (
-    HEX_DIRECT_KEYS,
-    HEX_KEY_TYPES,
-    HEX_MOUSE_KEYS,
-    HEX_VIRTUAL_KEYS,
-)
+from .constants import HEX_DIRECT_KEYS, HEX_KEY_TYPES, HEX_MOUSE_KEYS, HEX_VIRTUAL_KEYS
 
 
 class Keys:

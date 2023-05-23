@@ -2,18 +2,11 @@ import cv2 as cv
 import numpy as np
 
 from config import settings
-from infra.common.entities import (
-    Location,
-    MatchLocationInfo,
-    Polygon,
-    ProcessedImg,
-    Rect,
-)
+from infra.common.entities import Coord, Img, MatchLocation, Polygon, Rect
 
 
 class OpenCV:
-    def __init__(self, method=cv.TM_CCOEFF_NORMED):
-        self.method = method
+    method = cv.TM_CCOEFF_NORMED
 
     def _match_template(
         self, screen: np.ndarray, tmplt: np.ndarray, confidence: float = 0.65
@@ -26,17 +19,17 @@ class OpenCV:
         return locations
 
     def _recalculate_cropped_points(
-        self, detected_objects: list[MatchLocationInfo], crop: Rect
-    ) -> list[MatchLocationInfo]:
+        self, detected_objects: list[MatchLocation], crop: Rect
+    ) -> list[MatchLocation]:
         """Recalculate the top-left points of detected objects based on the crop rectangle"""
 
         recalculated_objects = []
 
         for match_info in detected_objects:
             x, y = match_info.top_left
-            recalculated_top_left = Location(x + crop.top_left.x, y + crop.top_left.y)
+            recalculated_top_left = Coord(x + crop.top_left.x, y + crop.top_left.y)
             recalculated_objects.append(
-                MatchLocationInfo(
+                MatchLocation(
                     top_left=recalculated_top_left,
                     width=match_info.width,
                     height=match_info.height,
@@ -46,13 +39,13 @@ class OpenCV:
 
         return recalculated_objects
 
-    def process_img(self, img_path: str, static_path: str = None) -> ProcessedImg:
+    def load_img(self, img_path: str, static_path: str = None) -> Img:
         """cv2 read image and return processed image"""
         if static_path is None:
             static_path = settings.STATIC_PATH
         img = cv.imread(static_path + img_path, 0)
         w, h = img.shape[::-1]
-        return ProcessedImg(img=img, width=w, height=h)
+        return Img(img=img, width=w, height=h)
 
     def save_img(self, img: np.ndarray, img_path: str, static_path: str = None) -> None:
         """cv2 save image"""
@@ -66,27 +59,33 @@ class OpenCV:
         cv.waitKey(0)
 
     def match(
-        self, screen: np.ndarray, tmplt_path: str, confidence=0.65, crop: Rect = None
-    ) -> list[MatchLocationInfo]:
-        """Find a template in a screen image and return a list of MatchLocationInfo objects"""
+        self,
+        main_img: Img,
+        template: Img,
+        confidence=0.65,
+        crop: Rect = None,
+    ) -> list[MatchLocation]:
+        """Find a template in a screen image and return a list of MatchLocation objects"""
 
-        screen = self.cvt_img_color(screen, fmt="bgr")
-        screen_gray = self.cvt_img_color(screen, fmt="gray")
-        tmplt_img, tmplt_w, tmplt_h = self.process_img(tmplt_path)
+        main_img = self.cvt_img_color(main_img, fmt="bgr")
+        main_img_gray = self.cvt_img_color(main_img, fmt="gray")
+        tmplt_img, tmplt_w, tmplt_h = template
         if crop:
-            screen = self.crop_img(screen, crop)
-            screen_gray = self.crop_img(screen_gray, crop)
+            main_img = self.crop_img(main_img, crop)
+            main_img_gray = self.crop_img(main_img_gray, crop)
 
         # Find matches
-        locations = self._match_template(screen_gray, tmplt_img, confidence=confidence)
-        mask = np.zeros(screen.shape[:2], np.uint8)
+        locations = self._match_template(
+            main_img_gray, tmplt_img, confidence=confidence
+        )
+        mask = np.zeros(main_img.shape[:2], np.uint8)
         detected_objects = []
 
         for x, y in locations:
             if mask[y + tmplt_h // 2, x + tmplt_w // 2] != 255:
-                top_left = Location(x, y)
+                top_left = Coord(x, y)
                 detected_objects.append(
-                    MatchLocationInfo(
+                    MatchLocation(
                         top_left=top_left,
                         width=tmplt_w,
                         height=tmplt_h,
@@ -111,7 +110,7 @@ class OpenCV:
         formats = {
             "bgr": cv.IMREAD_COLOR,
             "bgra": cv.COLOR_BGRA2BGR,
-            "rgb": cv.COLOR_BGRA2RGB,
+            "rgb": cv.COLOR_BGR2RGB,
             "gray": cv.COLOR_BGR2GRAY,
             "hsv": cv.COLOR_BGR2HSV,
         }
@@ -160,7 +159,7 @@ class OpenCV:
         # (note: this will not work for images with alpha channel)"""
         return cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
 
-    def draw_rectangles(self, screen, rectangles: list[MatchLocationInfo]):
+    def draw_rectangles(self, screen, rectangles: list[MatchLocation]):
         """given a list of [x, y, w, h] rectangles and a canvas image to draw on
         return an image with all of those rectangles drawn"""
         # these colors are actually BGR
@@ -192,7 +191,7 @@ class OpenCV:
     def debug(
         self,
         screen: np.ndarray,
-        locations: list[MatchLocationInfo],
+        locations: list[MatchLocation],
         exit_key: str = "q",
     ) -> None:
         """

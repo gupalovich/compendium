@@ -5,7 +5,7 @@ import cv2 as cv
 import numpy as np
 
 from config import settings
-from infra.common.entities import MatchLocationInfo, ProcessedImg
+from infra.common.entities import Img, MatchLocation
 
 from ..opencv import OpenCV
 
@@ -20,10 +20,10 @@ class OpenCVTests(TestCase):
         self.tmplt_path1 = "tests/test_template1.png"
         self.opencv = OpenCV()
 
-    def test_process_img(self):
-        processed_img = self.opencv.process_img(self.screen_path, self.static_path)
-        # Assert the returned value is an instance of ProcessedImg
-        self.assertIsInstance(processed_img, ProcessedImg)
+    def test_load_img(self):
+        processed_img = self.opencv.load_img(self.screen_path, self.static_path)
+        # Assert the returned value is an instance of Img
+        self.assertIsInstance(processed_img, Img)
         # Assert the processed image has the correct dimensions
         self.assertEqual(processed_img.width, self.screen_img_w)
         self.assertEqual(processed_img.height, self.screen_img_h)
@@ -33,36 +33,36 @@ class OpenCVTests(TestCase):
 
     def test_save_img(self):
         new_img_path = "tests/test_save.png"
-        processed_img = self.opencv.process_img(self.screen_path, self.static_path)
+        processed_img = self.opencv.load_img(self.screen_path, self.static_path)
         self.opencv.save_img(processed_img.img, new_img_path)
         # Test image was saved
-        processed_img = self.opencv.process_img(new_img_path)
+        processed_img = self.opencv.load_img(new_img_path)
         self.assertEqual(processed_img.width, self.screen_img_w)
         self.assertEqual(processed_img.height, self.screen_img_h)
         # Delete the test image
         os.remove(self.static_path + new_img_path)
 
     def test__match_template(self):
-        screen = self.opencv.process_img(self.screen_path)
-        tmplt = self.opencv.process_img(self.tmplt_path)
+        screen = self.opencv.load_img(self.screen_path)
+        tmplt = self.opencv.load_img(self.tmplt_path)
         result = self.opencv._match_template(screen.img, tmplt.img, confidence=0.95)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
 
     def test__match_template_not_found(self):
-        screen = self.opencv.process_img(self.screen_path)
-        tmplt = self.opencv.process_img(self.tmplt_path1)
+        screen = self.opencv.load_img(self.screen_path)
+        tmplt = self.opencv.load_img(self.tmplt_path1)
         result = self.opencv._match_template(screen.img, tmplt.img, confidence=0.8)
         self.assertIsInstance(result, list)
         self.assertFalse(len(result))
 
     def test_match(self):
-        screen = self.opencv.process_img(self.screen_path)
+        screen = self.opencv.load_img(self.screen_path)
         result = self.opencv.match(screen.img, self.tmplt_path, confidence=0.5)
         # Test result
         self.assertEqual(len(result), 1)
         for match_info in result:
-            self.assertIsInstance(match_info, MatchLocationInfo)
+            self.assertIsInstance(match_info, MatchLocation)
             self.assertEqual(match_info.confidence, 0.5)
             self.assertEqual(match_info.top_left.x, 223)
             self.assertEqual(match_info.top_left.y, 175)
@@ -70,7 +70,7 @@ class OpenCVTests(TestCase):
             self.assertEqual(match_info.height, 319)
 
     def test_match_not_found(self):
-        screen = self.opencv.process_img(self.screen_path)
+        screen = self.opencv.load_img(self.screen_path)
         result = self.opencv.match(screen.img, self.tmplt_path1, confidence=0.5)
         # Test result
         self.assertFalse(len(result))

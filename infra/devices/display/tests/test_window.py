@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from infra.common.entities import Location, Rect
+from infra.common.entities import Coord, Rect
 
 from ..window import Window, WindowFocusException, WindowNotFoundException
 
@@ -45,7 +45,7 @@ class TestWindow(TestCase):
 
     def test_grab(self):
         result = self.window.grab(
-            region=Rect(top_left=Location(100, 100), bottom_right=Location(200, 200))
+            region=Rect(top_left=Coord(100, 100), bottom_right=Coord(200, 200))
         )
         self.assertIsInstance(result, np.ndarray)
         self.assertEqual(result.shape[0], 100)

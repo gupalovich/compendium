@@ -9,7 +9,7 @@ import win32gui
 import win32ui
 
 from config import settings
-from infra.common.entities import Location, Rect
+from infra.common.entities import Coord, Rect
 
 
 class WindowException(Exception):
@@ -40,8 +40,8 @@ class Window:
         hwin = self.find_window(process_name)
         rect = win32gui.GetWindowRect(hwin)
         rect = Rect(
-            top_left=Location(rect[0], rect[1]),
-            bottom_right=Location(rect[2], rect[3]),
+            top_left=Coord(rect[0], rect[1]),
+            bottom_right=Coord(rect[2], rect[3]),
         )
         return rect
 

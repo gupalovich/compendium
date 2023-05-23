@@ -8,8 +8,8 @@ class ValueObject:
 
 
 @dataclass(frozen=True)
-class Location(ValueObject):
-    """A 2D location
+class Coord(ValueObject):
+    """A 2D coordinate
 
     Attributes:
         x: the x point
@@ -30,14 +30,14 @@ class Rect(ValueObject):
     """A 2D rectangle
 
     Attributes:
-        top_left: Location - the top left corner of the rectangle
-        bottom_right: Location - the bottom right corner of the rectangle
+        top_left: Coord - the top left corner of the rectangle
+        bottom_right: Coord - the bottom right corner of the rectangle
         width: the width property of the rectangle
         height: the height property of the rectangle
     """
 
-    top_left: Location
-    bottom_right: Location
+    top_left: Coord
+    bottom_right: Coord
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
@@ -56,16 +56,16 @@ class Rect(ValueObject):
         """The height of the rectangle"""
         return self.bottom_right.y - self.top_left.y
 
-    def center(self) -> Location:
+    def center(self) -> Coord:
         """Returns the middle point of the rectangle"""
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
-        return Location(x, y)
+        return Coord(x, y)
 
 
 @dataclass(frozen=True)
 class Polygon(ValueObject):
-    points: list[Location]
+    points: list[Coord]
 
     def __post_init__(self):
         if len(self.points) < 4:
@@ -77,7 +77,7 @@ class Polygon(ValueObject):
 
 
 @dataclass(frozen=True)
-class ProcessedImg:
+class Img:
     """A processed image
 
     Attributes:
@@ -98,7 +98,7 @@ class ProcessedImg:
 
     def __eq__(self, other):
         """Compares two processed images"""
-        if isinstance(other, ProcessedImg):
+        if isinstance(other, Img):
             return (
                 np.array_equal(self.img, other.img)
                 and self.width == other.width
@@ -108,17 +108,17 @@ class ProcessedImg:
 
 
 @dataclass(frozen=True)
-class MatchLocationInfo:
+class MatchLocation:
     """A location and confidence
 
     Attributes:
-        top_left: Location - the top left corner of the rectangle
+        top_left: Coord - the top left corner of the rectangle
         width: the width of search template
         height: the height of search template
         confidence: the confidence threshold
     """
 
-    top_left: Location
+    top_left: Coord
     width: int
     height: int
     confidence: float
@@ -127,7 +127,7 @@ class MatchLocationInfo:
         """Convert match location to a Rect"""
         return Rect(
             top_left=self.top_left,
-            bottom_right=Location(
+            bottom_right=Coord(
                 x=self.top_left.x + self.width,
                 y=self.top_left.y + self.height,
             ),
