@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -12,8 +13,8 @@ class Coord(ValueObject):
     """A 2D coordinate
 
     Attributes:
-        x: the x point
-        y: the y point
+        x: float
+        y: float
     """
 
     x: float
@@ -27,17 +28,32 @@ class Coord(ValueObject):
 
 @dataclass(frozen=True)
 class Rect(ValueObject):
-    """A 2D rectangle
+    """A 2d rectangle
 
     Attributes:
-        top_left: Coord - the top left corner of the rectangle
-        bottom_right: Coord - the bottom right corner of the rectangle
-        width: the width property of the rectangle
-        height: the height property of the rectangle
+        top_left: Coord
+        bottom_right: Optional[Coord] = None
+        width: Optional[float] = None
+        height: Optional[float] = None
+
+    Example:
+        Rect(top_left=(0, 0), bottom_right=(100, 100))
+        Rect(top_left=(0, 0), width=100, height=100)
     """
 
     top_left: Coord
-    bottom_right: Coord
+    bottom_right: Optional[Coord] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+
+    def __post_init__(self):
+        if self.bottom_right is None and (self.width is None or self.height is None):
+            raise ValueError(
+                "Either bottom_right or both width and height must be provided."
+            )
+
+        if self.bottom_right is None:
+            self.calc_bottom_right()
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
@@ -47,20 +63,18 @@ class Rect(ValueObject):
         yield self.bottom_right.y
 
     @property
-    def width(self) -> float:
-        """The width of the rectangle"""
-        return self.bottom_right.x - self.top_left.x
-
-    @property
-    def height(self) -> float:
-        """The height of the rectangle"""
-        return self.bottom_right.y - self.top_left.y
-
     def center(self) -> Coord:
         """Returns the middle point of the rectangle"""
         x = (self.top_left.x + self.bottom_right.x) / 2
         y = (self.top_left.y + self.bottom_right.y) / 2
         return Coord(x, y)
+
+    def calc_bottom_right(self) -> Coord:
+        """The bottom right point of the rectangle"""
+        self.bottom_right = Coord(
+            self.top_left.x + self.width,
+            self.top_left.y + self.height,
+        )
 
 
 @dataclass(frozen=True)
@@ -71,64 +85,93 @@ class Polygon(ValueObject):
         if len(self.points) < 4:
             raise ValueError("Polygon must have at least 4 points")
 
-    def as_np_array(self) -> np.ndarray:
+    def as_np_array(self) -> np.array:
         """Converts the polygon to a NumPy array of points"""
         return np.array([(point.x, point.y) for point in self.points])
 
 
 @dataclass(frozen=True)
 class Img:
-    """A processed image
+    """
+    An image object, that will measure width and height on __init__
 
     Attributes:
-        img: np.ndarray - the image
+        data: np.ndarray - the image
         width: int - the width of the image
         height: int - the height of the image
     """
 
-    img: np.ndarray
+    data: np.ndarray
     width: int
     height: int
+
+    def __init__(self, data: np.ndarray):
+        self.data = data
+        self.width, self.height = data.shape[::-1]
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
-        yield self.img
+        yield self.data
         yield self.width
         yield self.height
 
-    def __eq__(self, other):
-        """Compares two processed images"""
-        if isinstance(other, Img):
-            return (
-                np.array_equal(self.img, other.img)
-                and self.width == other.width
-                and self.height == other.height
-            )
-        return False
-
 
 @dataclass(frozen=True)
-class MatchLocation:
-    """A location and confidence
+class Color:
+    r: int
+    g: int
+    b: int
+    a: Optional[int] = None
 
-    Attributes:
-        top_left: Coord - the top left corner of the rectangle
-        width: the width of search template
-        height: the height of search template
-        confidence: the confidence threshold
-    """
+    def __post_init__(self):
+        """Perform additional validates after object initialization"""
+        self._validate_color_limits()
 
-    top_left: Coord
-    width: int
-    height: int
+    def _validate_color_limits(self):
+        """Check if color values exceed the limit of 0-255"""
+        if not 0 <= self.r <= 255:
+            raise ValueError("Invalid color value for 'r'. Must be between 0 and 255.")
+        if not 0 <= self.g <= 255:
+            raise ValueError("Invalid color value for 'g'. Must be between 0 and 255.")
+        if not 0 <= self.b <= 255:
+            raise ValueError("Invalid color value for 'b'. Must be between 0 and 255.")
+        if self.a is not None and not 0 <= self.a <= 255:
+            raise ValueError("Invalid color value for 'a'. Must be between 0 and 255.")
+
+    @classmethod
+    def from_rgb(cls, rgb: Tuple[int, int, int, Optional[int]]) -> "Color":
+        """Create a Color object from RGB values"""
+        r, g, b, a = rgb
+        return cls(r, g, b, a)
+
+    @classmethod
+    def from_bgr(cls, bgr: Tuple[int, int, int, Optional[int]]) -> "Color":
+        """Create a Color object from BGR values"""
+        b, g, r, a = bgr
+        return cls(r, g, b, a)
+
+    def to_rgb(self) -> Tuple[int, int, int, Optional[int]]:
+        """Return RGB values of the color"""
+        if self.a is None:
+            return self.r, self.g, self.b
+        return self.r, self.g, self.b, self.a
+
+    def to_bgr(self) -> Tuple[int, int, int, Optional[int]]:
+        """Return BGR values of the color"""
+        if self.a is None:
+            return self.b, self.g, self.r
+        return self.b, self.g, self.r, self.a
+
+
+@dataclass
+class DetectedObjects:
+    """Entity representing a collection of detected objects"""
+
+    search_img: Img
+    template: Img
     confidence: float
+    locations: List[Rect]
 
-    def as_rect(self) -> Rect:
-        """Convert match location to a Rect"""
-        return Rect(
-            top_left=self.top_left,
-            bottom_right=Coord(
-                x=self.top_left.x + self.width,
-                y=self.top_left.y + self.height,
-            ),
-        )
+    def size(self) -> int:
+        """Returns the number of detected objects"""
+        return len(self.locations)
