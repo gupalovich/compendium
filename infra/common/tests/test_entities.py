@@ -4,7 +4,7 @@ from unittest import TestCase
 import cv2 as cv
 import numpy as np
 
-from ..entities import Color, Coord, Img, Polygon, Rect
+from ..entities import Color, Coord, DetectedObjects, Img, Polygon, Rect
 
 
 class CoordTests(TestCase):
@@ -268,3 +268,38 @@ class ColorTests(TestCase):
             "a": None,
         }
         self.assertEqual(color_dict, expected_dict)
+
+
+class DetectedObjectsTests(TestCase):
+    def setUp(self):
+        self.ref_img = Img(data=np.zeros((10, 10), dtype=np.uint8))
+        self.search_img = Img(data=np.zeros((20, 20), dtype=np.uint8))
+        self.confidence = 0.8
+        self.rect1 = Rect(top_left=Coord(x=5, y=5), bottom_right=Coord(x=15, y=15))
+        self.rect2 = Rect(top_left=Coord(x=10, y=10), bottom_right=Coord(x=20, y=20))
+        self.detected_objects = DetectedObjects(
+            ref_img=self.ref_img, search_img=self.search_img, confidence=self.confidence
+        )
+
+    def test_attributes(self):
+        self.assertEqual(self.detected_objects.ref_img, self.ref_img)
+        self.assertEqual(self.detected_objects.search_img, self.search_img)
+        self.assertEqual(self.detected_objects.confidence, self.confidence)
+        self.assertEqual(self.detected_objects.locations, [])
+
+    def test_size(self):
+        self.detected_objects.locations = [self.rect1, self.rect2]
+        self.assertEqual(self.detected_objects.size(), 2)
+
+    def test_add(self):
+        self.detected_objects.add(self.rect1)
+        self.assertEqual(self.detected_objects.size(), 1)
+        self.assertEqual(self.detected_objects.locations, [self.rect1])
+
+        self.detected_objects.add(self.rect2)
+        self.assertEqual(self.detected_objects.size(), 2)
+        self.assertEqual(self.detected_objects.locations, [self.rect1, self.rect2])
+
+    def test_remove(self):
+        with self.assertRaises(NotImplementedError):
+            self.detected_objects.remove()
