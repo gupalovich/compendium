@@ -30,7 +30,7 @@ def show_img(img: Img, window_name: str = "Window") -> None:
     cv.waitKey(0)
 
 
-def zoom_img(img: Img, zoom_factor: float = 2) -> Img:
+def resize_img(img: Img, zoom_factor: float = 2) -> Img:
     """Zoom in/out image by x = zoom_factor"""
     new_img = cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
     return Img(new_img)
@@ -60,31 +60,8 @@ def crop_polygon_img(img: Img, region: Polygon) -> Img:
     return Img(cropped_image)
 
 
-def convert_img_color(img: Img, fmt: str = "bgr") -> np.ndarray:
-    """
-    OpenCV convert image color to specific format
-
-    Formats:
-        "bgr", "rgb", "gray", "hsv"
-    """
-    formats = {
-        "bgr": cv.IMREAD_COLOR,
-        "rgb": cv.COLOR_BGR2RGB,
-        "gray": cv.COLOR_BGR2GRAY,
-        "hsv": cv.COLOR_BGR2HSV,
-    }
-
-    if fmt not in formats:
-        raise ValueError(f"Invalid format: {fmt}. Supported formats: {formats.keys()}")
-
-    try:
-        img = cv.cvtColor(img, formats[fmt])
-    except cv.error as e:
-        # Handle OpenCV conversion errors
-        print(f"Error converting image color: {e}")
-        # Optionally, fallback to a default behavior
-        img = cv.cvtColor(img, formats["bgr"])
-
+def convert_img_color(img: Img, fmt: ColorFormat) -> np.ndarray:
+    img = Img(cv.cvtColor(img.data, fmt))
     return img
 
 

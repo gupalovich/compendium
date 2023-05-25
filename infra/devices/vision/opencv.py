@@ -1,35 +1,33 @@
 import cv2 as cv
 import numpy as np
 
-from config import settings
 from infra.common.entities import Coord, DetectedObjects, Img, Rect
+
+from .enums import ColorFormat
+from .utils import convert_img_color, crop_img, draw_rectangles
 
 
 class OpenCV:
     method = cv.TM_CCOEFF_NORMED
 
-    def _recalculate_cropped_points(
-        self, results: DetectedObjects, crop: Rect
+    def _recalculate_cropped_locations(
+        self, result: DetectedObjects, crop: Rect
     ) -> DetectedObjects:
         """Recalculate the top-left points of detected objects based on the crop rectangle"""
 
-        recalculated_objects = []
-
-        for match_info in detected_objects:
-            x, y = match_info.top_left
-            recalculated_top_left = Coord(x + crop.top_left.x, y + crop.top_left.y)
-            recalculated_objects.append(
-                MatchLocation(
-                    rect=Rect(
-                        top_left=recalculated_top_left,
-                        width=match_info.width,
-                        height=match_info.height,
-                    ),
-                    confidence=match_info.confidence,
-                )
+        for i, location in enumerate(result.locations):
+            new_top_left = Coord(
+                location.top_left.x + crop.top_left.x,
+                location.top_left.y + crop.top_left.y,
             )
+            new_location = Rect(
+                top_left=new_top_left,
+                width=location.width,
+                height=location.height,
+            )
+            result.locations[i] = new_location
 
-        return recalculated_objects
+        return result
 
     def _match_template(
         self, ref_img: Img, search_img: Img, confidence: float = 0.65
@@ -45,53 +43,38 @@ class OpenCV:
         self, ref_img: Img, search_img: Img, confidence=0.65, crop: Rect = None
     ) -> DetectedObjects:
         """Find a ref_img in search_img and return DetectedObjects entity"""
+        search_img = convert_img_color(search_img, ColorFormat.BGR)
+        search_img_gray = convert_img_color(search_img, ColorFormat.BGR_GRAY)
+        ref_img, ref_width, ref_height = ref_img
 
-    def match(
-        self, ref_img: Img, search_img: Img, confidence=0.65, crop: Rect = None
-    ) -> DetectedObjects:
-        """Find a template in a screen image and return a list of MatchLocation objects"""
-
-        search_img = self.cvt_img_color(search_img, fmt="bgr")
-        search_img_gray = self.cvt_img_color(search_img, fmt="gray")
-        tmplt_img, tmplt_w, tmplt_h = template
         if crop:
-            search_img = self.crop_img(search_img, crop)
-            search_img_gray = self.crop_img(search_img_gray, crop)
+            search_img = crop_img(search_img, crop)
+            search_img_gray = crop_img(search_img_gray, crop)
 
-        # Find matches
         locations = self._match_template(
-            search_img_gray, tmplt_img, confidence=confidence
+            search_img_gray, ref_img, confidence=confidence
         )
-        mask = np.zeros(search_img.shape[:2], np.uint8)
-        detected_objects = []
+        mask = np.zeros(search_img.data.shape[:2], np.uint8)
+        result = DetectedObjects(ref_img, search_img, confidence)
 
         for x, y in locations:
-            if mask[y + tmplt_h // 2, x + tmplt_w // 2] != 255:
-                top_left = Coord(x, y)
-                # TODO: detected_objects into entity: confidence, img, template, locations
-                detected_objects.append(
-                    MatchLocation(
-                        rect=Rect(
-                            top_left=top_left,
-                            width=tmplt_w,
-                            height=tmplt_h,
-                        ),
-                        confidence=confidence,
-                    )
-                )
+            if mask[y + ref_width // 2, x + ref_height // 2] != 255:
+                loc = Rect(top_left=Coord(x, y), width=ref_width, height=ref_height)
+                result.add(loc)
             # Mask out detected object
-            mask[y : y + tmplt_h, x : x + tmplt_w] = 255
+            mask[y : y + ref_height, x : x + ref_width] = 255
 
         if crop:
-            detected_objects = self._recalculate_cropped_points(detected_objects, crop)
+            result = self._recalculate_cropped_locations(result, crop)
 
-        return detected_objects
+        return result
 
     def livestream(
         self,
-        screen: np.ndarray,
-        locations: list[MatchLocation],
+        screen: Img,
+        result: DetectedObjects,
         exit_key: str = "q",
+        resize: Coord = Coord(1200, 675),
     ) -> None:
         """
         Debug OpenCV screen template matching by adding rectangles
@@ -101,8 +84,8 @@ class OpenCV:
             locations = opencv.match(screen, "template.png", confidence=0.65)
             opencv.debug(screen, locations, exit_key="q")
         """
-        screen = self.draw_rectangles(screen, locations)
-        screen = cv.resize(screen, (1200, 675))
+        screen = draw_rectangles(screen, result.locations)
+        screen = cv.resize(screen, tuple(resize))
         cv.imshow("Debug Screen", screen)
         if cv.waitKey(1) == ord(exit_key):
             cv.destroyAllWindows()

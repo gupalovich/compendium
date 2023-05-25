@@ -97,13 +97,13 @@ class Img:
 
     Attributes:
         data: np.ndarray - the image
-        width: int - the width of the image
-        height: int - the height of the image
+        width: Optional[int]
+        height: Optional[int]
     """
 
     data: np.ndarray
-    width: int
-    height: int
+    width: Optional[int]
+    height: Optional[int]
 
     def __init__(self, data: np.ndarray):
         self.data = data
@@ -165,13 +165,22 @@ class Color:
 
 @dataclass
 class DetectedObjects:
-    """Entity representing a collection of detected objects"""
+    """Entity representing a collection of detected objects
 
+    TODO: move to vision module
+    """
+
+    ref_img: Img
     search_img: Img
-    template: Img
     confidence: float
-    locations: List[Rect]
+    locations: Optional[List[Rect]] = []
 
     def size(self) -> int:
         """Returns the number of detected objects"""
         return len(self.locations)
+
+    def add(self, rect: Rect) -> None:
+        self.locations.append(rect)
+
+    def remove(self) -> None:
+        raise NotImplementedError()
