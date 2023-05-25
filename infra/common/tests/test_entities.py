@@ -1,12 +1,13 @@
 from dataclasses import asdict
 from unittest import TestCase
 
+import cv2 as cv
 import numpy as np
 
-from ..entities import Coord, Img, MatchLocation, Rect
+from ..entities import Color, Coord, Img, Polygon, Rect
 
 
-class LocationTests(TestCase):
+class CoordTests(TestCase):
     def test_attributes(self):
         x = 10.5
         y = 20.5
@@ -47,153 +48,223 @@ class LocationTests(TestCase):
 
 
 class RectTests(TestCase):
-    def test_attributes(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
+    def setUp(self) -> None:
+        self.top_left = Coord(x=10.5, y=20.5)
+        self.bottom_right = Coord(x=30.5, y=40.5)
+        self.width = 20
+        self.height = 20
 
-        self.assertEqual(rect.top_left, top_left)
-        self.assertEqual(rect.bottom_right, bottom_right)
+    def test_post_init_attributes_validation(self):
+        err_msg = "Either bottom_right or both width and height must be provided."
+
+        test_cases = [
+            {"top_left": self.top_left},
+            {"top_left": self.top_left, "width": self.width},
+            {"top_left": self.top_left, "height": self.height},
+        ]
+
+        for kwargs in test_cases:
+            with self.assertRaisesRegex(ValueError, err_msg):
+                Rect(**kwargs)
+
+    def test_attributes(self):
+        width = self.bottom_right.x - self.top_left.x
+        height = self.bottom_right.y - self.top_left.y
+        expected_center_x = self.top_left.x + width / 2
+        expected_center_y = self.top_left.y + height / 2
+
+        test_cases = [
+            {"top_left": self.top_left, "bottom_right": self.bottom_right},
+            {"top_left": self.top_left, "width": self.width, "height": self.height},
+        ]
+
+        for kwargs in test_cases:
+            rect = Rect(**kwargs)
+            self.assertEqual(rect.top_left, self.top_left)
+            self.assertEqual(rect.bottom_right, self.bottom_right)
+            self.assertEqual(rect.width, width)
+            self.assertEqual(rect.height, height)
+            self.assertEqual(rect.center.x, expected_center_x)
+            self.assertEqual(rect.center.y, expected_center_y)
 
     def test_iteration(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
-
+        rect = Rect(top_left=self.top_left, bottom_right=self.bottom_right)
         rect_values = list(rect)
-        expected_values = [top_left.x, top_left.y, bottom_right.x, bottom_right.y]
+        expected_values = [self.top_left, self.bottom_right, self.width, self.height]
         self.assertEqual(rect_values, expected_values)
 
-    def test_width(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
-
-        self.assertEqual(rect.width, bottom_right.x - top_left.x)
-
-    def test_height(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
-
-        self.assertEqual(rect.height, bottom_right.y - top_left.y)
-
-    def test_center(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
-
-        center = rect.center()
-        expected_center = Coord(
-            x=(top_left.x + bottom_right.x) / 2, y=(top_left.y + bottom_right.y) / 2
-        )
-        self.assertEqual(center, expected_center)
-
-    def test_immutable(self):
-        rect = Rect(top_left=Coord(x=10.5, y=20.5), bottom_right=Coord(x=30.5, y=40.5))
-
-        with self.assertRaises(AttributeError):
-            rect.top_left = Coord(x=50.5, y=60.5)
-
     def test_rect_asdict(self):
-        top_left = Coord(x=10.5, y=20.5)
-        bottom_right = Coord(x=30.5, y=40.5)
-        rect = Rect(top_left=top_left, bottom_right=bottom_right)
-
+        rect = Rect(top_left=self.top_left, bottom_right=self.bottom_right)
         rect_dict = asdict(rect)
         expected_dict = {
-            "top_left": {"x": top_left.x, "y": top_left.y},
-            "bottom_right": {"x": bottom_right.x, "y": bottom_right.y},
+            "top_left": {"x": self.top_left.x, "y": self.top_left.y},
+            "bottom_right": {"x": self.bottom_right.x, "y": self.bottom_right.y},
+            "width": self.width,
+            "height": self.height,
         }
         self.assertEqual(rect_dict, expected_dict)
 
 
-class ProcessedImgTests(TestCase):
+class PolygonTests(TestCase):
+    def test_valid_polygon(self):
+        points = [
+            Coord(x=0, y=0),
+            Coord(x=0, y=1),
+            Coord(x=1, y=1),
+            Coord(x=1, y=0),
+        ]
+        polygon = Polygon(points)
+        self.assertEqual(polygon.points, points)
+
+    def test_invalid_polygon(self):
+        points = [
+            Coord(x=0, y=0),
+            Coord(x=0, y=1),
+            Coord(x=1, y=1),
+        ]
+        with self.assertRaises(ValueError):
+            Polygon(points)
+
+    def test_as_np_array(self):
+        points = [
+            Coord(x=0, y=0),
+            Coord(x=0, y=1),
+            Coord(x=1, y=1),
+            Coord(x=1, y=0),
+        ]
+        polygon = Polygon(points)
+        expected_np_array = np.array([(0, 0), (0, 1), (1, 1), (1, 0)])
+        np.testing.assert_array_equal(polygon.as_np_array(), expected_np_array)
+
+
+class ImgTests(TestCase):
     def setUp(self) -> None:
-        self.width = 10
-        self.height = 15
+        self.img = cv.imread("static/tests/test_template.png")
+        self.height = self.img.shape[0]
+        self.width = self.img.shape[1]
+        self.channels = self.img.shape[2]
 
     def test_attributes(self):
-        img = np.zeros((self.width, self.height), dtype=np.uint8)
-        processed_img = Img(img=img, width=self.width, height=self.height)
-
-        self.assertTrue(np.array_equal(processed_img.img, img))
-        self.assertEqual(processed_img.width, self.width)
-        self.assertEqual(processed_img.height, self.height)
+        test_cases = [
+            {"data": self.img},
+            {"data": self.img, "width": self.width, "height": self.height},
+            {"data": self.img, "width": 123, "height": 123},
+        ]
+        for kwargs in test_cases:
+            img = Img(**kwargs)
+            self.assertEqual(img.width, self.width)
+            self.assertEqual(img.height, self.height)
+            self.assertEqual(img.channels, self.channels)
 
     def test_iteration(self):
-        img = np.zeros((self.width, self.height), dtype=np.uint8)
-        processed_img = Img(img=img, width=self.width, height=self.height)
-
-        img_value, width_value, height_value = processed_img
-        self.assertTrue(np.array_equal(img_value, img))
-        self.assertEqual(width_value, self.width)
-        self.assertEqual(height_value, self.height)
-
-    def test_immutable(self):
-        img = np.zeros((self.width, self.height), dtype=np.uint8)
-        processed_img = Img(img=img, width=self.width, height=self.height)
-
-        with self.assertRaises(AttributeError):
-            processed_img.img = np.ones((10, 10), dtype=np.uint8)
-
-    def test_equality(self):
-        img1 = np.zeros((self.width, self.height), dtype=np.uint8)
-        img2 = np.zeros((self.width, self.height), dtype=np.uint8)
-        processed_img1 = Img(img=img1, width=self.width, height=self.height)
-        processed_img2 = Img(img=img2, width=self.width, height=self.height)
-
-        self.assertEqual(processed_img1, processed_img2)
-
-    def test_inequality(self):
-        img1 = np.zeros((self.width, self.height), dtype=np.uint8)
-        img2 = np.zeros((100, 100), dtype=np.uint8)
-        processed_img1 = Img(img=img1, width=self.width, height=self.height)
-        processed_img2 = Img(img=img2, width=100, height=100)
-
-        self.assertNotEqual(processed_img1, processed_img2)
+        img = Img(self.img)
+        img_values = list(img)
+        expected_values = [self.img, self.width, self.height, self.channels]
+        self.assertEqual(img_values, expected_values)
 
 
-class MatchLocationTests(TestCase):
-    def test_attributes(self):
-        top_left = Coord(x=10.5, y=20.5)
-        width = 100
-        height = 200
-        confidence = 0.75
+class ColorTests(TestCase):
+    def test_color_creation_valid_rgb(self):
+        # Test creating Color object with valid RGB values
+        color = Color(r=255, g=128, b=64)
+        self.assertEqual(color.r, 255)
+        self.assertEqual(color.g, 128)
+        self.assertEqual(color.b, 64)
+        self.assertIsNone(color.a)
 
-        match_info = MatchLocation(
-            top_left=top_left,
-            width=width,
-            height=height,
-            confidence=confidence,
-        )
+    def test_color_creation_valid_rgba(self):
+        # Test creating Color object with valid RGBA values
+        color = Color(r=255, g=128, b=64, a=200)
+        self.assertEqual(color.r, 255)
+        self.assertEqual(color.g, 128)
+        self.assertEqual(color.b, 64)
+        self.assertEqual(color.a, 200)
 
-        self.assertEqual(match_info.top_left, top_left)
-        self.assertEqual(match_info.width, width)
-        self.assertEqual(match_info.height, height)
-        self.assertEqual(match_info.confidence, confidence)
+    def test_color_creation_invalid_rgb(self):
+        # Test creating Color object with invalid RGB values
+        with self.assertRaises(ValueError):
+            Color(r=-1, g=128, b=64)
 
-    def test_as_rect(self):
-        top_left = Coord(x=10.5, y=20.5)
-        width = 100
-        height = 200
-        confidence = 0.75
+        with self.assertRaises(ValueError):
+            Color(r=255, g=300, b=64)
 
-        match_info = MatchLocation(
-            top_left=top_left,
-            width=width,
-            height=height,
-            confidence=confidence,
-        )
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=-10)
 
-        expected_rect = Rect(
-            top_left=top_left,
-            bottom_right=Coord(
-                x=top_left.x + width,
-                y=top_left.y + height,
-            ),
-        )
+    def test_color_creation_invalid_rgba(self):
+        # Test creating Color object with invalid RGBA values
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=64, a=-1)
 
-        rect = match_info.as_rect()
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=64, a=300)
 
-        self.assertEqual(rect, expected_rect)
+    def test_from_rgb(self):
+        # Test creating Color object from RGB values
+        rgb = (100, 150, 200)
+        color = Color.from_rgb(rgb)
+        self.assertEqual(color.r, 100)
+        self.assertEqual(color.g, 150)
+        self.assertEqual(color.b, 200)
+        self.assertIsNone(color.a)
+
+    def test_from_rgb_invalid(self):
+        err_msg = "Invalid RGB values. Expected a tuple of length 3 or 4."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Color.from_rgb((200, 150, 100, 0, 0))
+
+    def test_from_bgr(self):
+        # Test creating Color object from BGR values
+        bgr = (200, 150, 100)
+        color = Color.from_bgr(bgr)
+        self.assertEqual(color.r, 100)
+        self.assertEqual(color.g, 150)
+        self.assertEqual(color.b, 200)
+        self.assertIsNone(color.a)
+
+    def test_from_bgr_invalid(self):
+        err_msg = "Invalid BGR values. Expected a tuple of length 3 or 4."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Color.from_bgr((200, 150, 100, 0, 0))
+
+    def test_to_rgb(self):
+        # Test converting Color object to RGB values
+        color = Color(r=100, g=150, b=200, a=50)
+        rgb = color.to_rgb()
+        self.assertEqual(rgb, (100, 150, 200, 50))
+
+        color = Color(r=100, g=150, b=200)
+        rgb = color.to_rgb()
+        self.assertEqual(rgb, (100, 150, 200))
+
+    def test_to_bgr(self):
+        # Test converting Color object to BGR values
+        color = Color(r=100, g=150, b=200, a=50)
+        bgr = color.to_bgr()
+        self.assertEqual(bgr, (200, 150, 100, 50))
+
+        color = Color(r=100, g=150, b=200)
+        bgr = color.to_bgr()
+        self.assertEqual(bgr, (200, 150, 100))
+
+    def test_asdict(self):
+        # Test converting Color object to dictionary
+        color = Color(r=100, g=150, b=200, a=50)
+        color_dict = asdict(color)
+        expected_dict = {
+            "r": 100,
+            "g": 150,
+            "b": 200,
+            "a": 50,
+        }
+        self.assertEqual(color_dict, expected_dict)
+
+        color = Color(r=100, g=150, b=200)
+        color_dict = asdict(color)
+        expected_dict = {
+            "r": 100,
+            "g": 150,
+            "b": 200,
+            "a": None,
+        }
+        self.assertEqual(color_dict, expected_dict)

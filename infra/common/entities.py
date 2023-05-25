@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -26,7 +26,7 @@ class Coord(ValueObject):
         yield self.y
 
 
-@dataclass(frozen=True)
+@dataclass
 class Rect(ValueObject):
     """A 2d rectangle
 
@@ -54,13 +54,15 @@ class Rect(ValueObject):
 
         if self.bottom_right is None:
             self.calc_bottom_right()
+        if self.bottom_right and (self.width is None or self.height is None):
+            self.calc_dimensions()
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
-        yield self.top_left.x
-        yield self.top_left.y
-        yield self.bottom_right.x
-        yield self.bottom_right.y
+        yield self.top_left
+        yield self.bottom_right
+        yield self.width
+        yield self.height
 
     @property
     def center(self) -> Coord:
@@ -76,6 +78,11 @@ class Rect(ValueObject):
             self.top_left.y + self.height,
         )
 
+    def calc_dimensions(self) -> None:
+        """The width and height of the rectangle"""
+        self.width = self.bottom_right.x - self.top_left.x
+        self.height = self.bottom_right.y - self.top_left.y
+
 
 @dataclass(frozen=True)
 class Polygon(ValueObject):
@@ -90,30 +97,39 @@ class Polygon(ValueObject):
         return np.array([(point.x, point.y) for point in self.points])
 
 
-@dataclass(frozen=True)
+@dataclass
 class Img:
     """
     An image object, that will measure width and height on __init__
+    Values of width, height and channels will be calculated on __post_init__
 
     Attributes:
         data: np.ndarray - the image
         width: Optional[int]
         height: Optional[int]
+        channels: Optional[int] = 0
     """
 
     data: np.ndarray
-    width: Optional[int]
-    height: Optional[int]
+    width: Optional[int] = None
+    height: Optional[int] = None
+    channels: Optional[int] = 0
 
-    def __init__(self, data: np.ndarray):
-        self.data = data
-        self.width, self.height = data.shape[::-1]
+    def __post_init__(self):
+        self.calc_dimensions()
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
         yield self.data
         yield self.width
         yield self.height
+        yield self.channels
+
+    def calc_dimensions(self) -> None:
+        try:
+            self.height, self.width, self.channels = self.data.shape
+        except ValueError:
+            self.height, self.width = self.data.shape[:2]
 
 
 @dataclass(frozen=True)
@@ -141,14 +157,26 @@ class Color:
     @classmethod
     def from_rgb(cls, rgb: Tuple[int, int, int, Optional[int]]) -> "Color":
         """Create a Color object from RGB values"""
-        r, g, b, a = rgb
-        return cls(r, g, b, a)
+        if len(rgb) == 3:
+            r, g, b = rgb
+            return cls(r, g, b)
+        elif len(rgb) == 4:
+            r, g, b, a = rgb
+            return cls(r, g, b, a)
+        else:
+            raise ValueError("Invalid RGB values. Expected a tuple of length 3 or 4.")
 
     @classmethod
     def from_bgr(cls, bgr: Tuple[int, int, int, Optional[int]]) -> "Color":
         """Create a Color object from BGR values"""
-        b, g, r, a = bgr
-        return cls(r, g, b, a)
+        if len(bgr) == 3:
+            b, g, r = bgr
+            return cls(r, g, b)
+        elif len(bgr) == 4:
+            b, g, r, a = bgr
+            return cls(r, g, b, a)
+        else:
+            raise ValueError("Invalid BGR values. Expected a tuple of length 3 or 4.")
 
     def to_rgb(self) -> Tuple[int, int, int, Optional[int]]:
         """Return RGB values of the color"""
@@ -165,15 +193,12 @@ class Color:
 
 @dataclass
 class DetectedObjects:
-    """Entity representing a collection of detected objects
-
-    TODO: move to vision module
-    """
+    """Entity representing a collection of detected locations"""
 
     ref_img: Img
     search_img: Img
     confidence: float
-    locations: Optional[List[Rect]] = []
+    locations: Optional[List[Rect]] = field(default_factory=list)
 
     def size(self) -> int:
         """Returns the number of detected objects"""
