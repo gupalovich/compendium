@@ -16,6 +16,8 @@ def load_img(
         static_path = settings.STATIC_PATH
     path = static_path + img_path
     img = cv.imread(path, fmt)
+    if not img.any():
+        raise FileNotFoundError(f"File {path} not found")
     return Img(img)
 
 
@@ -32,8 +34,9 @@ def show_img(img: Img, window_name: str = "Window") -> None:
 
 def resize_img(img: Img, zoom_factor: float = 2) -> Img:
     """Zoom in/out image by x = zoom_factor"""
-    new_img = cv.resize(img, None, fx=zoom_factor, fy=zoom_factor)
-    return Img(new_img)
+    img.data = cv.resize(img.data, None, fx=zoom_factor, fy=zoom_factor)
+    img.calc_dimensions()
+    return img
 
 
 def crop_img(img: Img, region: Rect) -> Img:

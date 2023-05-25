@@ -113,7 +113,7 @@ class Img:
     data: np.ndarray
     width: Optional[int] = None
     height: Optional[int] = None
-    channels: Optional[int] = 0
+    channels: Optional[int] = 1
 
     def __post_init__(self):
         self.calc_dimensions()
