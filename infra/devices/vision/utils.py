@@ -34,9 +34,8 @@ def show_img(img: Img, window_name: str = "Window") -> None:
 
 def resize_img(img: Img, zoom_factor: float = 2) -> Img:
     """Zoom in/out image by x = zoom_factor"""
-    img.data = cv.resize(img.data, None, fx=zoom_factor, fy=zoom_factor)
-    img.calc_dimensions()
-    return img
+    new_img = cv.resize(img.data, None, fx=zoom_factor, fy=zoom_factor)
+    return Img(new_img)
 
 
 def crop_img(img: Img, region: Rect) -> Img:
@@ -52,42 +51,41 @@ def crop_polygon_img(img: Img, region: Polygon) -> Img:
     """Crop out polygon from image and fill background"""
     points = region.as_np_array()
     # Create a binary mask with the polygon shape
-    mask = np.zeros(img.shape[:2], dtype=np.uint8)
+    mask = np.zeros(img.data.shape[:2], dtype=np.uint8)
     cv.fillPoly(mask, [points], 255)
     # Apply the mask to the image
-    masked_image = cv.bitwise_and(img, img, mask=mask)
+    masked_img = cv.bitwise_and(img.data, img.data, mask=mask)
     # Crop out the masked region
-    cropped_image = masked_image[
+    cropped_img = masked_img[
         min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
     ]
-    return Img(cropped_image)
+    return Img(cropped_img)
 
 
-def convert_img_color(img: Img, fmt: ColorFormat) -> np.ndarray:
-    img = Img(cv.cvtColor(img.data, fmt))
-    return img
+def convert_img_color(img: Img, fmt: ColorFormat) -> Img:
+    """Create new instance with converted color"""
+    return Img(cv.cvtColor(img.data, fmt))
 
 
 def draw_rectangles(img, rectangles: list[Rect]):
-    """given a list of [x, y, w, h] rectangles and a canvas image to draw on
-    return an image with all of those rectangles drawn"""
+    """Draw rectangles on image in place"""
     line_color = (0, 255, 0)  # BGR
     line_type = cv.LINE_4
 
     for rect in rectangles:
         top_left = list(rect.top_left)
         bottom_right = list(rect.bottom_right)
-        cv.rectangle(img, top_left, bottom_right, line_color, lineType=line_type)
+        cv.rectangle(img.data, top_left, bottom_right, line_color, lineType=line_type)
 
     return img
 
 
-def draw_crosshairs(img, rectangles: list[Rect]):
+def draw_crosshairs(img: Img, rectangles: list[Rect]):
     marker_color = (255, 0, 255)  # BGR
     marker_type = cv.MARKER_CROSS
 
     for rect in rectangles:
-        cv.drawMarker(img, rect.center, marker_color, marker_type)
+        cv.drawMarker(img.data, rect.center, marker_color, marker_type)
 
     return img
 

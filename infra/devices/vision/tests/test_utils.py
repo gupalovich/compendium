@@ -1,15 +1,28 @@
 import os
 from unittest import TestCase, skip
 
+import numpy as np
+
 from config import settings
-from infra.common.entities import Img
+from infra.common.entities import Coord, Img, Polygon, Rect
+from infra.devices.display.window import Window
 from infra.devices.vision.enums import ColorFormat
 
-from ..utils import crop_img, load_img, resize_img, save_img, show_img
+from ..utils import (
+    convert_img_color,
+    crop_img,
+    crop_polygon_img,
+    draw_rectangles,
+    load_img,
+    resize_img,
+    save_img,
+    show_img,
+)
 
 
 class UtilsTests(TestCase):
     def setUp(self) -> None:
+        self.window = Window()
         self.static_path = settings.STATIC_PATH
         self.img_path = "tests/test_template.png"
         self.img_w = 219
@@ -67,4 +80,48 @@ class UtilsTests(TestCase):
         self.assertAlmostEqual(img.height, self.img_h / 2, delta=0.5)
 
     def test_crop_img(self):
-        pass
+        img = load_img(self.img_path)
+        width, height = (150, 100)
+        test_cases = [
+            {"rect": Rect(top_left=Coord(0, 0), width=width, height=height)},
+            {
+                "rect": Rect(
+                    top_left=Coord(50, 75), bottom_right=Coord(width + 50, height + 75)
+                )
+            },
+        ]
+        for case in test_cases:
+            new_img = crop_img(img, case["rect"])
+            self.assertEqual(new_img.width, width)
+            self.assertEqual(new_img.height, height)
+
+    def test_crop_polygon_img(self):
+        img = self.window.grab_mss()
+        poly = Polygon(
+            [Coord(100, 500), Coord(500, 250), Coord(1000, 600), Coord(500, 800)]
+        )
+        width, height = 900, 550
+        new_img = crop_polygon_img(img, poly)
+        # Test image was cropped
+        self.assertEqual(new_img.width, width)
+        self.assertEqual(new_img.height, height)
+        # Test pixel color at (10, 10)
+        pixel_color = new_img.data[10, 10]
+        expected_color = (0, 0, 0)
+        for channel_value, expected_value in zip(pixel_color, expected_color):
+            self.assertEqual(channel_value, expected_value)
+
+    def test_convert_img_color(self):
+        img = self.window.grab_mss()
+        self.assertEqual(img.channels, 4)
+        img_gray = convert_img_color(img, ColorFormat.BGR_GRAY)
+        self.assertEqual(img_gray.channels, 1)
+
+    def test_draw_rectangles(self):
+        img = self.window.grab_mss()
+        top_left = Coord(50, 50)
+        bottom_right = Coord(150, 150)
+        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        draw_rectangles(img, rectangles)
+        # Show img
+        show_img(img)

@@ -99,17 +99,6 @@ class Polygon(ValueObject):
 
 @dataclass
 class Img:
-    """
-    An image object, that will measure width and height on __init__
-    Values of width, height and channels will be calculated on __post_init__
-
-    Attributes:
-        data: np.ndarray - the image
-        width: Optional[int]
-        height: Optional[int]
-        channels: Optional[int] = 0
-    """
-
     data: np.ndarray
     width: Optional[int] = None
     height: Optional[int] = None

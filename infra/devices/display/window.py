@@ -9,7 +9,9 @@ import win32gui
 import win32ui
 
 from config import settings
-from infra.common.entities import Coord, Rect
+from infra.common.entities import Coord, Img, Rect
+from infra.devices.vision.enums import ColorFormat
+from infra.devices.vision.utils import convert_img_color
 
 
 class WindowException(Exception):
@@ -29,7 +31,10 @@ class Window:
         self.process_name = process_name
 
     def find_window(self, process_name: str) -> int:
-        """Find window by process name."""
+        """Find window by process name
+
+        TODO: fix win32gui.FindWindow with process_name - searches exact process name
+        """
         hwin = win32gui.FindWindow(None, str(process_name))
         if not hwin:
             raise WindowNotFoundException(f"Process name not found - {process_name}")
@@ -45,20 +50,18 @@ class Window:
         )
         return rect
 
-    def grab_mss(self, left=0, top=0, width=1920, height=1080):
+    def grab_mss(self, left=0, top=0, width=1920, height=1080) -> Img:
+        """Grab main screen"""
         stc = mss.mss()
         scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
         stc.close()
-        img = np.array(scr)
-        return cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        return Img(data=np.array(scr))
 
-    def grab(self, region: Rect = None) -> np.ndarray:
+    def grab(self, region: Rect = None) -> Img:
         """
         Grab the window with optimized parameters for maximum speed boost.
         This function has 1.5-2x speed boost compared to grab_mss() function.
-
-        TODO: fix win32gui.FindWindow with process_name - searches exact process name
-        TODO: Refactor primitives
+        By default grabs all screens combined.
         """
 
         if self.process_name:
@@ -70,7 +73,6 @@ class Window:
             left, top, bottom, right = win32gui.GetWindowRect(hwin)
             width = bottom - left
             height = right - left
-            print("here", width, height, left, top, bottom, right)
         elif region:
             left, top, bottom, right = region
             width = region.width
@@ -98,7 +100,7 @@ class Window:
         win32gui.ReleaseDC(hwin, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
-        return cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        return Img(data=img)
 
     def focus(self, hwin: int) -> None:
         """
