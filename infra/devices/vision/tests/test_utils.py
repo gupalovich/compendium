@@ -1,8 +1,6 @@
 import os
 from unittest import TestCase, skip
 
-import numpy as np
-
 from config import settings
 from infra.common.entities import Coord, Img, Polygon, Rect
 from infra.devices.display.window import Window
@@ -12,6 +10,9 @@ from ..utils import (
     convert_img_color,
     crop_img,
     crop_polygon_img,
+    draw_circles,
+    draw_crosshairs,
+    draw_lines,
     draw_rectangles,
     load_img,
     resize_img,
@@ -124,4 +125,31 @@ class UtilsTests(TestCase):
         rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
         draw_rectangles(img, rectangles)
         # Show img
-        show_img(img)
+        # show_img(img)
+
+    def test_draw_crosshairs(self):
+        img = self.window.grab_mss()
+        top_left = Coord(50, 50)
+        bottom_right = Coord(150, 150)
+        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        draw_crosshairs(img, rectangles)
+        # Show img
+        # show_img(img)
+
+    def test_draw_circles(self):
+        img = self.window.grab_mss()
+        top_left = Coord(50, 50)
+        bottom_right = Coord(150, 150)
+        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        draw_circles(img, rectangles, radius=20)
+        # Show img
+        # show_img(img)
+
+    def test_draw_lines(self):
+        img = self.window.grab_mss()
+        top_left = Coord(50, 50)
+        bottom_right = Coord(150, 150)
+        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        draw_lines(img, rectangles)
+        # Show img
+        # show_img(img)

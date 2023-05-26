@@ -67,8 +67,8 @@ class Rect(ValueObject):
     @property
     def center(self) -> Coord:
         """Returns the middle point of the rectangle"""
-        x = (self.top_left.x + self.bottom_right.x) / 2
-        y = (self.top_left.y + self.bottom_right.y) / 2
+        x = round((self.top_left.x + self.bottom_right.x) / 2)
+        y = round((self.top_left.y + self.bottom_right.y) / 2)
         return Coord(x, y)
 
     def calc_bottom_right(self) -> Coord:

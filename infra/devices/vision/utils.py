@@ -76,7 +76,6 @@ def draw_rectangles(img, rectangles: list[Rect]):
         top_left = list(rect.top_left)
         bottom_right = list(rect.bottom_right)
         cv.rectangle(img.data, top_left, bottom_right, line_color, lineType=line_type)
-
     return img
 
 
@@ -85,8 +84,8 @@ def draw_crosshairs(img: Img, rectangles: list[Rect]):
     marker_type = cv.MARKER_CROSS
 
     for rect in rectangles:
-        cv.drawMarker(img.data, rect.center, marker_color, marker_type)
-
+        center = tuple(rect.center)
+        cv.drawMarker(img.data, center, marker_color, marker_type)
     return img
 
 
@@ -95,8 +94,8 @@ def draw_circles(img, rectangles: list[Rect], radius: int = 1):
     line_type = cv.LINE_4
 
     for rect in rectangles:
-        cv.circle(img, rect.center, radius, circle_color, lineType=line_type)
-
+        center = list(rect.center)
+        cv.circle(img.data, center, radius, circle_color, lineType=line_type)
     return img
 
 
@@ -108,6 +107,5 @@ def draw_lines(img, rectangles: list[Rect]):
         start = list(rect.top_left)
         end = list(rect.bottom_right)
         # Draw the line
-        cv.line(img, start, end, line_color, thickness=line_thickness)
-
+        cv.line(img.data, start, end, line_color, thickness=line_thickness)
     return img

@@ -70,8 +70,8 @@ class RectTests(TestCase):
     def test_attributes(self):
         width = self.bottom_right.x - self.top_left.x
         height = self.bottom_right.y - self.top_left.y
-        expected_center_x = self.top_left.x + width / 2
-        expected_center_y = self.top_left.y + height / 2
+        expected_center_x = round((self.top_left.x + self.bottom_right.x) / 2)
+        expected_center_y = round((self.top_left.y + self.bottom_right.y) / 2)
 
         test_cases = [
             {"top_left": self.top_left, "bottom_right": self.bottom_right},
