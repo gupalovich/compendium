@@ -139,7 +139,7 @@ class PolygonTests(TestCase):
 
 class ImgTests(TestCase):
     def setUp(self) -> None:
-        self.img = cv.imread("static/tests/test_template.png")
+        self.img = cv.imread("static/tests/vision/test_template.png")
         self.height = self.img.shape[0]
         self.width = self.img.shape[1]
         self.channels = self.img.shape[2]

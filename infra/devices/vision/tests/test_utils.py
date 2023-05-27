@@ -25,7 +25,7 @@ class UtilsTests(TestCase):
     def setUp(self) -> None:
         self.window = Window()
         self.static_path = settings.STATIC_PATH
-        self.img_path = "tests/test_template.png"
+        self.img_path = "tests/vision/test_template.png"
         self.img_w = 219
         self.img_h = 319
         self.img_channels = 3
