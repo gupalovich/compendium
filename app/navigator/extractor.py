@@ -14,7 +14,7 @@ import numpy as np
 
 from config import settings
 from infra.common.entities import Coord, Polygon, Rect
-from infra.devices.display.window import Window
+from infra.devices.display.window import WindowHandler
 from infra.devices.vision.opencv import opencv
 
 crops = {
@@ -29,7 +29,7 @@ crops = {
     "minimap": Rect(top_left=Coord(1661, 863), bottom_right=Coord(1761, 963)),
 }
 
-window = Window()
+window = WindowHandler()
 map_cluster = opencv.load_img("maps/mase_knoll.png")
 screen = window.grab_mss()
 minimap = opencv.crop_img(screen, crops["minimap"])

@@ -14,13 +14,17 @@ Features of AlbionBot include:
 
 ## TODO
 
+0. Тестирование
+    - Window модуля
+    - OpenCV модуля
 1. OCR
     - CV сервис
     - Дополнительная нн для разпознавания ресурсов
 2. Навигатор карты
-2. Actions
-4. Threads/Async
-5. Жизненный цикл бота
+3. Tesseract API
+4. Actions
+5. Threads/Async
+6. Жизненный цикл бота
 10. Рефакторинг модуля мыши/клавиатуры
     - Создать апи
 11. Рефакторинг модуля camera

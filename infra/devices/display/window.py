@@ -10,8 +10,6 @@ import win32ui
 
 from config import settings
 from infra.common.entities import Coord, Img, Rect
-from infra.devices.vision.enums import ColorFormat
-from infra.devices.vision.utils import convert_img_color
 
 
 class WindowException(Exception):
@@ -23,54 +21,88 @@ class WindowNotFoundException(WindowException):
 
 
 class WindowFocusException(WindowException):
-    """Exception raised when window is not focused."""
+    """Exception raised when focus on window is not successful."""
 
 
-class Window:
+class WindowHandler:
+    """Class to handle window actions. It can handle both screen and specific window mode."""
+
     def __init__(self, process_name: str = None) -> None:
-        self.process_name = process_name
+        self.name = process_name
+        self.handle = None
+        self.dimensions = None
+        self._set_handle()
+        self._set_dimensions()
 
-    def find_window(self, process_name: str) -> int:
-        """Find window by process name
+    def _set_handle(self):
+        """Set class handle by process name or desktop"""
+        if self.name:
+            self.handle = self.find_window(self.name)
+        else:
+            self.handle = self.get_desktop_handle()
 
-        TODO: fix win32gui.FindWindow with process_name - searches exact process name
-        """
+    def _set_dimensions(self):
+        """Set class dimensions by process name or desktop"""
+        if self.name:
+            self.dimensions = self.get_window_rect(self.name)
+        else:
+            self.dimensions = self.get_desktop_rect()
+
+    @classmethod
+    def get_desktop_handle(cls) -> int:
+        return win32gui.GetDesktopWindow()
+
+    @classmethod
+    def get_desktop_rect(cls) -> Rect:
+        handle = cls.get_desktop_handle()
+        left, top, right, bottom = win32gui.GetWindowRect(handle)
+        return Rect(top_left=Coord(top, left), bottom_right=Coord(bottom, right))
+
+    @classmethod
+    def find_window(cls, process_name: str) -> int:
+        """Find window by exact process name"""
         hwin = win32gui.FindWindow(None, str(process_name))
         if not hwin:
             raise WindowNotFoundException(f"Process name not found - {process_name}")
         return hwin
 
-    def get_window_rect(self, process_name: str) -> Rect:
+    @classmethod
+    def get_window_rect(cls, process_name: str) -> Rect:
         """Find window rectangle by process name."""
-        hwin = self.find_window(process_name)
-        rect = win32gui.GetWindowRect(hwin)
-        rect = Rect(
-            top_left=Coord(rect[0], rect[1]),
-            bottom_right=Coord(rect[2], rect[3]),
-        )
+        hwin = cls.find_window(process_name)
+        left, top, right, bottom = win32gui.GetWindowRect(hwin)
+        rect = Rect(top_left=Coord(top, left), bottom_right=Coord(bottom, right))
         return rect
 
-    def grab_mss(self, left=0, top=0, width=1920, height=1080) -> Img:
-        """Grab main screen"""
+    def grab_mss(
+        self, region: Rect = Rect(top_left=Coord(0, 0), width=1920, height=1080)
+    ) -> Img:
+        """Grab window by using mss library"""
         stc = mss.mss()
-        scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
+        scr = stc.grab(
+            {
+                "left": region.top_left.x,
+                "top": region.top_left.y,
+                "width": region.width,
+                "height": region.height,
+            }
+        )
+        img = np.array(scr)
         stc.close()
-        return Img(data=np.array(scr))
+        return Img(data=img)
 
     def grab(self, region: Rect = None) -> Img:
         """
         Grab the window with optimized parameters for maximum speed boost.
         This function has 1.5-2x speed boost compared to grab_mss() function.
-        By default grabs all screens combined.
+        By default, grabs all screens combined.
         """
 
-        if self.process_name:
-            hwin = self.find_window(self.process_name)
-        else:
-            hwin = win32gui.GetDesktopWindow()
+        if not self.name:
+            self.handle = win32gui.GetDesktopWindow()
 
-        if self.process_name:
-            left, top, bottom, right = win32gui.GetWindowRect(hwin)
+        if self.name:
+            left, top, bottom, right = win32gui.GetWindowRect(self.handle)
             width = bottom - left
             height = right - left
         elif region:
@@ -83,7 +115,7 @@ class Window:
             left = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
             top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
 
-        hwindc = win32gui.GetWindowDC(hwin)
+        hwindc = win32gui.GetWindowDC(self.handle)
         srcdc = win32ui.CreateDCFromHandle(hwindc)
         memdc = srcdc.CreateCompatibleDC()
         bmp = win32ui.CreateBitmap()
@@ -97,20 +129,20 @@ class Window:
 
         srcdc.DeleteDC()
         memdc.DeleteDC()
-        win32gui.ReleaseDC(hwin, hwindc)
+        win32gui.ReleaseDC(self.handle, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
 
         return Img(data=img)
 
-    def focus(self, hwin: int) -> None:
-        """
-        Set window to focused state
+    def focus(self, handle: int = None) -> None:
+        """Set window to focused state
 
         Attributes:
-            hwin (int): Window handle
+            handle: Optional(int), otherwise self.handle
         """
         try:
-            win32gui.SetForegroundWindow(hwin)
+            handle = handle if handle else self.handle
+            win32gui.SetForegroundWindow(handle)
         except win32gui.error as e:
             raise WindowFocusException(
                 f"Error occurred while setting window focus: {e}"
@@ -140,5 +172,5 @@ class Window:
 
 
 if __name__ == "__main__":
-    window = Window()
+    window = WindowHandler()
     window.live_screenshot(settings.DEFAULT["process_name"])

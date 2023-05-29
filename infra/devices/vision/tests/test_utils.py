@@ -3,7 +3,7 @@ from unittest import TestCase, skip
 
 from config import settings
 from infra.common.entities import Coord, Img, Polygon, Rect
-from infra.devices.display.window import Window
+from infra.devices.display.window import WindowHandler
 from infra.devices.vision.enums import ColorFormat
 
 from ..utils import (
@@ -23,7 +23,7 @@ from ..utils import (
 
 class UtilsTests(TestCase):
     def setUp(self) -> None:
-        self.window = Window()
+        self.window = WindowHandler()
         self.static_path = settings.STATIC_PATH
         self.img_path = "tests/vision/test_template.png"
         self.img_w = 219
