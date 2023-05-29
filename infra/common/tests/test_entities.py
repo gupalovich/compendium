@@ -287,17 +287,13 @@ class DetectedObjectsTests(TestCase):
         self.assertEqual(self.detected_objects.confidence, self.confidence)
         self.assertEqual(self.detected_objects.locations, [])
 
-    def test_size(self):
-        self.detected_objects.locations = [self.rect1, self.rect2]
-        self.assertEqual(self.detected_objects.size(), 2)
-
     def test_add(self):
         self.detected_objects.add(self.rect1)
-        self.assertEqual(self.detected_objects.size(), 1)
+        self.assertEqual(len(self.detected_objects), 1)
         self.assertEqual(self.detected_objects.locations, [self.rect1])
 
         self.detected_objects.add(self.rect2)
-        self.assertEqual(self.detected_objects.size(), 2)
+        self.assertEqual(len(self.detected_objects), 2)
         self.assertEqual(self.detected_objects.locations, [self.rect1, self.rect2])
 
     def test_remove(self):

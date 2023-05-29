@@ -1,3 +1,5 @@
+from typing import List
+
 import cv2 as cv
 import numpy as np
 
@@ -14,55 +16,66 @@ class OpenCV:
         self, result: DetectedObjects, crop: Rect
     ) -> DetectedObjects:
         """Recalculate the top-left points of detected objects based on the crop rectangle"""
-
-        for i, location in enumerate(result.locations):
-            new_left_top = Coord(
-                location.left_top.x + crop.left_top.x,
-                location.left_top.y + crop.left_top.y,
-            )
-            new_location = Rect(
-                left_top=new_left_top,
+        result.locations = [
+            Rect(
+                left_top=Coord(
+                    location.left_top.x + crop.left_top.x,
+                    location.left_top.y + crop.left_top.y,
+                ),
                 width=location.width,
                 height=location.height,
             )
-            result.locations[i] = new_location
+            for location in result.locations
+        ]
 
         return result
 
     def _match_template(
         self, ref_img: Img, search_img: Img, confidence: float = 0.65
-    ) -> tuple:
+    ) -> List[tuple[int, int]]:
         """cv2 match template based on confidence value"""
 
-        result = cv.matchTemplate(search_img, ref_img, self.method)
+        result = cv.matchTemplate(search_img.data, ref_img.data, self.method)
         locations = np.where(result >= confidence)
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
     def find(
-        self, ref_img: Img, search_img: Img, confidence=0.65, crop: Rect = None
+        self, ref_img: Img, search_img: Img, confidence: float = 0.65, crop: Rect = None
     ) -> DetectedObjects:
-        """Find a ref_img in search_img and return DetectedObjects entity"""
-        search_img = convert_img_color(search_img, ColorFormat.BGR)
+        ref_width = ref_img.width
+        ref_height = ref_img.height
+        ref_img_gray = convert_img_color(ref_img, ColorFormat.BGR_GRAY)
         search_img_gray = convert_img_color(search_img, ColorFormat.BGR_GRAY)
-        ref_img, ref_width, ref_height = ref_img
 
         if crop:
-            search_img = crop_img(search_img, crop)
             search_img_gray = crop_img(search_img_gray, crop)
 
         locations = self._match_template(
-            search_img_gray, ref_img, confidence=confidence
+            ref_img_gray, search_img_gray, confidence=confidence
         )
-        mask = np.zeros(search_img.data.shape[:2], np.uint8)
+        mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
         result = DetectedObjects(ref_img, search_img, confidence)
 
-        for x, y in locations:
-            if mask[y + ref_width // 2, x + ref_height // 2] != 255:
-                loc = Rect(left_top=Coord(x, y), width=ref_width, height=ref_height)
+        if crop:
+            crop_left = crop.left_top.x
+            crop_top = crop.left_top.y
+
+        for loc_x, loc_y in locations:
+            if crop:
+                loc_x += crop_left
+                loc_y += crop_top
+
+            center_x = loc_x + ref_width // 2
+            center_y = loc_y + ref_height // 2
+
+            if mask[center_y, center_x] != 255:
+                loc = Rect(
+                    left_top=Coord(loc_x, loc_y), width=ref_width, height=ref_height
+                )
                 result.add(loc)
-            # Mask out detected object
-            mask[y : y + ref_height, x : x + ref_width] = 255
+                # Mask out detected object
+                mask[loc_y : loc_y + ref_height, loc_x : loc_x + ref_width] = 255
 
         if crop:
             result = self._recalculate_cropped_locations(result, crop)

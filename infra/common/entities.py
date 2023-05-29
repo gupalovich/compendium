@@ -211,7 +211,7 @@ class DetectedObjects:
     confidence: float
     locations: Optional[List[Rect]] = field(default_factory=list)
 
-    def size(self) -> int:
+    def __len__(self) -> int:
         """Returns the number of detected objects"""
         return len(self.locations)
 
