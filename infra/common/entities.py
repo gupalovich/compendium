@@ -12,7 +12,7 @@ class ValueObject:
 class Coord(ValueObject):
     """A 2D coordinate
 
-    Attributes:
+    #### Attributes:
         x: float
         y: float
     """
@@ -30,21 +30,21 @@ class Coord(ValueObject):
 class Rect(ValueObject):
     """A 2d rectangle
 
-    Attributes:
+    #### Attributes:
         left_top: Coord
         right_bottom: Optional[Coord] = None
         width: Optional[float] = None
         height: Optional[float] = None
 
-    Example:
-        Rect(left_top=(0, 0), right_bottom=(100, 100))
-        Rect(left_top=(0, 0), width=100, height=100)
+    #### Example:
+        Rect(left_top=Coord(0, 0), right_bottom=Coord(100, 100))
+        Rect(left_top=Coord(0, 0), width=100, height=100)
     """
 
     left_top: Coord
     right_bottom: Optional[Coord] = None
-    width: Optional[float] = None
-    height: Optional[float] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
 
     def __post_init__(self):
         if self.right_bottom is None and (self.width is None or self.height is None):
@@ -86,6 +86,12 @@ class Rect(ValueObject):
 
 @dataclass(frozen=True)
 class Polygon(ValueObject):
+    """A 2d polygon
+
+    #### Attributes:
+        points: list[Coord]
+    """
+
     points: list[Coord]
 
     def __post_init__(self):
@@ -97,32 +103,17 @@ class Polygon(ValueObject):
         return np.array([(point.x, point.y) for point in self.points])
 
 
-@dataclass
-class Img:
-    data: np.ndarray
-    width: Optional[int] = None
-    height: Optional[int] = None
-    channels: Optional[int] = 1
-
-    def __post_init__(self):
-        self.calc_dimensions()
-
-    def __iter__(self):
-        """Allows iteration, unpacking over value object"""
-        yield self.data
-        yield self.width
-        yield self.height
-        yield self.channels
-
-    def calc_dimensions(self) -> None:
-        try:
-            self.height, self.width, self.channels = self.data.shape
-        except ValueError:
-            self.height, self.width = self.data.shape[:2]
-
-
 @dataclass(frozen=True)
-class Color:
+class Color(ValueError):
+    """A color respresenting value object
+
+    #### Attributes:
+        r: int
+        g: int
+        b: int
+        a: Optional[int] = None
+    """
+
     r: int
     g: int
     b: int
@@ -181,8 +172,39 @@ class Color:
 
 
 @dataclass
+class Img:
+    data: np.ndarray
+    width: Optional[int] = None
+    height: Optional[int] = None
+    channels: Optional[int] = 1
+
+    def __post_init__(self):
+        self.calc_dimensions()
+
+    def __iter__(self):
+        """Allows iteration, unpacking over value object"""
+        yield self.data
+        yield self.width
+        yield self.height
+        yield self.channels
+
+    def calc_dimensions(self) -> None:
+        try:
+            self.height, self.width, self.channels = self.data.shape
+        except ValueError:
+            self.height, self.width = self.data.shape[:2]
+
+
+@dataclass
 class DetectedObjects:
-    """Entity representing a collection of detected locations"""
+    """Entity representing a collection of detected locations
+
+    #### Attributes:
+        ref_img: Img
+        search_img: Img
+        confidence: float
+        locations: Optional[List[Rect]]
+    """
 
     ref_img: Img
     search_img: Img

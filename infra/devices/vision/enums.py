@@ -3,8 +3,6 @@ import cv2 as cv
 
 class ColorFormat:
     """
-    Color format constants
-
     BGR: cv.IMREAD_COLOR
     GRAY: cv.IMREAD_GRAYSCALE
     UNCHANGED: cv.IMREAD_UNCHANGED

@@ -15,7 +15,7 @@ Features of AlbionBot include:
 ## TODO
 
 0. Тестирование
-    - Window модуля
+    - ~~Window модуля~~
     - OpenCV модуля
 1. OCR
     - CV сервис
