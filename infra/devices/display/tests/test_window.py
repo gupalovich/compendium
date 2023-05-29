@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from infra.common.entities import Coord, Rect
+from infra.common.entities import Coord, Img, Rect
 
 from ..window import WindowFocusException, WindowHandler, WindowNotFoundException
 
@@ -10,60 +10,89 @@ from ..window import WindowFocusException, WindowHandler, WindowNotFoundExceptio
 class TestWindowHandler(TestCase):
     def setUp(self) -> None:
         self.process_name = "Calculator"
-        self.window = WindowHandler(self.process_name)
-        self.window_without_name = WindowHandler()
 
-    # def test_find_window(self):
-    #     result = self.window.find_window(self.process_name)
-    #     self.assertIsInstance(result, int)
+    def test__set_handle_with_name(self):
+        window = WindowHandler(self.process_name)
+        self.assertEqual(window.name, self.process_name)
+        self.assertIsInstance(window.handle, int)
 
-    # def test_find_window_exception_raised_when_window_not_found(self):
-    #     with self.assertRaises(WindowNotFoundException):
-    #         self.window.find_window("nonexistent_process_name")
+    def test__set_handle_without_name(self):
+        window = WindowHandler()
+        self.assertEqual(window.name, None)
+        self.assertIsInstance(window.handle, int)
 
-    # def test_get_window_rect(self):
-    #     rect = self.window.get_window_rect(self.process_name)
-    #     # Verify if the top left and bottom right coordinates are within the expected range
-    #     self.assertIsInstance(rect, Rect)
-    #     self.assertGreaterEqual(rect.top_left.x, 0)
-    #     self.assertGreaterEqual(rect.top_left.y, 0)
-    #     self.assertGreater(rect.bottom_right.x, rect.top_left.x)
-    #     self.assertGreater(rect.bottom_right.y, rect.top_left.y)
+    def test__set_dimensions_with_name(self):
+        window = WindowHandler(self.process_name)
+        self.assertIsInstance(window.dimensions, Rect)
+        self.assertLess(window.dimensions.width, 700)
+        self.assertLess(window.dimensions.height, 700)
 
-    # def test_grab_mss(self):
-    #     result = self.window.grab_mss()
-    #     self.assertIsInstance(result, np.ndarray)
-    #     self.assertGreater(result.shape[0], 0)
-    #     self.assertGreater(result.shape[1], 0)
-    #     self.assertEqual(result.shape[2], 3)
+    def test__set_dimensions_without_name(self):
+        window = WindowHandler()
+        self.assertIsInstance(window.dimensions, Rect)
+        self.assertGreaterEqual(window.dimensions.width, 1920)
+        self.assertGreaterEqual(window.dimensions.height, 1080)
 
-    # def test_grab_mss_with_region(self):
-    #     result = self.window.grab_mss(left=100, top=100, width=100, height=100)
-    #     self.assertIsInstance(result, np.ndarray)
-    #     self.assertGreater(result.shape[0], 0)
-    #     self.assertGreater(result.shape[1], 0)
-    #     self.assertEqual(result.shape[2], 3)
+    def test_get_desktop_handle(self):
+        handle = WindowHandler.get_desktop_handle()
+        self.assertIsInstance(handle, int)
 
-    # def test_grab(self):
-    #     result = self.window.grab(
-    #         region=Rect(top_left=Coord(100, 100), bottom_right=Coord(200, 200))
-    #     )
-    #     self.assertIsInstance(result, np.ndarray)
-    #     self.assertEqual(result.shape[0], 100)
-    #     self.assertEqual(result.shape[1], 100)
-    #     self.assertEqual(result.shape[2], 3)
+    def test_get_desktop_rect(self):
+        rect = WindowHandler.get_desktop_rect()
+        self.assertIsInstance(rect, Rect)
+        self.assertGreaterEqual(rect.width, 1920)
+        self.assertGreaterEqual(rect.height, 1080)
 
-    # def test_grab_without_region(self):
-    #     result = self.window.grab()
-    #     self.assertIsInstance(result, np.ndarray)
-    #     self.assertGreater(result.shape[0], 0)
-    #     self.assertGreater(result.shape[1], 0)
-    #     self.assertEqual(result.shape[2], 3)
+    def test_find_window(self):
+        handle = WindowHandler.find_window(self.process_name)
+        self.assertIsInstance(handle, int)
 
-    def test_focus(self):
-        hwin = self.window.find_window(self.process_name)
-        self.window.focus(hwin)
+    def test_find_window_exception_raised_when_window_not_found(self):
+        with self.assertRaises(WindowNotFoundException):
+            WindowHandler.find_window("nonexistent_process_name")
+
+    def test_get_window_rect(self):
+        rect = WindowHandler.get_window_rect(self.process_name)
+        self.assertIsInstance(rect, Rect)
+        self.assertGreaterEqual(rect.top_left.x, 0)
+        self.assertGreaterEqual(rect.top_left.y, 0)
+        self.assertGreater(rect.bottom_right.x, rect.top_left.x)
+        self.assertGreater(rect.bottom_right.y, rect.top_left.y)
+
+    def test_focus_with_name(self):
+        window = WindowHandler(self.process_name)
+        window.focus()
 
     def test_focus_unknown(self):
         with self.assertRaises(WindowFocusException):
-            self.window.focus(999)
+            window = WindowHandler(self.process_name)
+            window.handle = 999
+            window.focus()
+
+    def test_grab_mss(self):
+        window = WindowHandler()
+        result = window.grab_mss()
+        self.assertIsInstance(result, Img)
+        self.assertIsInstance(result.data, np.ndarray)
+        self.assertGreaterEqual(result.data.shape[0], 1080)
+        self.assertGreaterEqual(result.data.shape[1], 1920)
+        self.assertEqual(result.data.shape[2], 4)
+
+    def test_grab(self):
+        window = WindowHandler()
+        rect = Rect(top_left=Coord(100, 100), bottom_right=Coord(200, 200))
+        result = window.grab(region=rect)
+        self.assertIsInstance(result, Img)
+        self.assertIsInstance(result.data, np.ndarray)
+        self.assertEqual(result.data.shape[0], 100)
+        self.assertEqual(result.data.shape[1], 100)
+        self.assertEqual(result.data.shape[2], 4)
+
+    def test_grab_without_region(self):
+        window = WindowHandler()
+        result = window.grab()
+        self.assertIsInstance(result, Img)
+        self.assertIsInstance(result.data, np.ndarray)
+        self.assertGreaterEqual(result.data.shape[0], 1080)
+        self.assertGreaterEqual(result.data.shape[1], 1920)
+        self.assertEqual(result.data.shape[2], 4)
