@@ -26,7 +26,7 @@ crops = {
             Coord(960, 950),
         ]
     ),
-    "minimap": Rect(top_left=Coord(1661, 863), bottom_right=Coord(1761, 963)),
+    "minimap": Rect(left_top=Coord(1661, 863), right_bottom=Coord(1761, 963)),
 }
 
 window = WindowHandler()

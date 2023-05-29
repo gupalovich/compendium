@@ -49,18 +49,18 @@ class CoordTests(TestCase):
 
 class RectTests(TestCase):
     def setUp(self) -> None:
-        self.top_left = Coord(x=10.5, y=20.5)
-        self.bottom_right = Coord(x=30.5, y=40.5)
+        self.left_top = Coord(x=10.5, y=20.5)
+        self.right_bottom = Coord(x=30.5, y=40.5)
         self.width = 20
         self.height = 20
 
     def test_post_init_attributes_validation(self):
-        err_msg = "Either bottom_right or both width and height must be provided."
+        err_msg = "Either right_bottom or both width and height must be provided."
 
         test_cases = [
-            {"top_left": self.top_left},
-            {"top_left": self.top_left, "width": self.width},
-            {"top_left": self.top_left, "height": self.height},
+            {"left_top": self.left_top},
+            {"left_top": self.left_top, "width": self.width},
+            {"left_top": self.left_top, "height": self.height},
         ]
 
         for kwargs in test_cases:
@@ -68,37 +68,37 @@ class RectTests(TestCase):
                 Rect(**kwargs)
 
     def test_attributes(self):
-        width = self.bottom_right.x - self.top_left.x
-        height = self.bottom_right.y - self.top_left.y
-        expected_center_x = round((self.top_left.x + self.bottom_right.x) / 2)
-        expected_center_y = round((self.top_left.y + self.bottom_right.y) / 2)
+        width = self.right_bottom.x - self.left_top.x
+        height = self.right_bottom.y - self.left_top.y
+        expected_center_x = round((self.left_top.x + self.right_bottom.x) / 2)
+        expected_center_y = round((self.left_top.y + self.right_bottom.y) / 2)
 
         test_cases = [
-            {"top_left": self.top_left, "bottom_right": self.bottom_right},
-            {"top_left": self.top_left, "width": self.width, "height": self.height},
+            {"left_top": self.left_top, "right_bottom": self.right_bottom},
+            {"left_top": self.left_top, "width": self.width, "height": self.height},
         ]
 
         for kwargs in test_cases:
             rect = Rect(**kwargs)
-            self.assertEqual(rect.top_left, self.top_left)
-            self.assertEqual(rect.bottom_right, self.bottom_right)
+            self.assertEqual(rect.left_top, self.left_top)
+            self.assertEqual(rect.right_bottom, self.right_bottom)
             self.assertEqual(rect.width, width)
             self.assertEqual(rect.height, height)
             self.assertEqual(rect.center.x, expected_center_x)
             self.assertEqual(rect.center.y, expected_center_y)
 
     def test_iteration(self):
-        rect = Rect(top_left=self.top_left, bottom_right=self.bottom_right)
+        rect = Rect(left_top=self.left_top, right_bottom=self.right_bottom)
         rect_values = list(rect)
-        expected_values = [self.top_left, self.bottom_right, self.width, self.height]
+        expected_values = [self.left_top, self.right_bottom, self.width, self.height]
         self.assertEqual(rect_values, expected_values)
 
     def test_rect_asdict(self):
-        rect = Rect(top_left=self.top_left, bottom_right=self.bottom_right)
+        rect = Rect(left_top=self.left_top, right_bottom=self.right_bottom)
         rect_dict = asdict(rect)
         expected_dict = {
-            "top_left": {"x": self.top_left.x, "y": self.top_left.y},
-            "bottom_right": {"x": self.bottom_right.x, "y": self.bottom_right.y},
+            "left_top": {"x": self.left_top.x, "y": self.left_top.y},
+            "right_bottom": {"x": self.right_bottom.x, "y": self.right_bottom.y},
             "width": self.width,
             "height": self.height,
         }
@@ -275,8 +275,8 @@ class DetectedObjectsTests(TestCase):
         self.ref_img = Img(data=np.zeros((10, 10), dtype=np.uint8))
         self.search_img = Img(data=np.zeros((20, 20), dtype=np.uint8))
         self.confidence = 0.8
-        self.rect1 = Rect(top_left=Coord(x=5, y=5), bottom_right=Coord(x=15, y=15))
-        self.rect2 = Rect(top_left=Coord(x=10, y=10), bottom_right=Coord(x=20, y=20))
+        self.rect1 = Rect(left_top=Coord(x=5, y=5), right_bottom=Coord(x=15, y=15))
+        self.rect2 = Rect(left_top=Coord(x=10, y=10), right_bottom=Coord(x=20, y=20))
         self.detected_objects = DetectedObjects(
             ref_img=self.ref_img, search_img=self.search_img, confidence=self.confidence
         )

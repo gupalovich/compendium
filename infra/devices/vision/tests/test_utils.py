@@ -84,10 +84,10 @@ class UtilsTests(TestCase):
         img = load_img(self.img_path)
         width, height = (150, 100)
         test_cases = [
-            {"rect": Rect(top_left=Coord(0, 0), width=width, height=height)},
+            {"rect": Rect(left_top=Coord(0, 0), width=width, height=height)},
             {
                 "rect": Rect(
-                    top_left=Coord(50, 75), bottom_right=Coord(width + 50, height + 75)
+                    left_top=Coord(50, 75), right_bottom=Coord(width + 50, height + 75)
                 )
             },
         ]
@@ -120,36 +120,36 @@ class UtilsTests(TestCase):
 
     def test_draw_rectangles(self):
         img = self.window.grab_mss()
-        top_left = Coord(50, 50)
-        bottom_right = Coord(150, 150)
-        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        left_top = Coord(50, 50)
+        right_bottom = Coord(150, 150)
+        rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_rectangles(img, rectangles)
         # Show img
         # show_img(img)
 
     def test_draw_crosshairs(self):
         img = self.window.grab_mss()
-        top_left = Coord(50, 50)
-        bottom_right = Coord(150, 150)
-        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        left_top = Coord(50, 50)
+        right_bottom = Coord(150, 150)
+        rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_crosshairs(img, rectangles)
         # Show img
         # show_img(img)
 
     def test_draw_circles(self):
         img = self.window.grab_mss()
-        top_left = Coord(50, 50)
-        bottom_right = Coord(150, 150)
-        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        left_top = Coord(50, 50)
+        right_bottom = Coord(150, 150)
+        rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_circles(img, rectangles, radius=20)
         # Show img
         # show_img(img)
 
     def test_draw_lines(self):
         img = self.window.grab_mss()
-        top_left = Coord(50, 50)
-        bottom_right = Coord(150, 150)
-        rectangles = [Rect(top_left=top_left, bottom_right=bottom_right)]
+        left_top = Coord(50, 50)
+        right_bottom = Coord(150, 150)
+        rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_lines(img, rectangles)
         # Show img
         # show_img(img)

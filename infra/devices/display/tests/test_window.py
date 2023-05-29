@@ -54,10 +54,10 @@ class TestWindowHandler(TestCase):
     def test_get_window_rect(self):
         rect = WindowHandler.get_window_rect(self.process_name)
         self.assertIsInstance(rect, Rect)
-        self.assertGreaterEqual(rect.top_left.x, 0)
-        self.assertGreaterEqual(rect.top_left.y, 0)
-        self.assertGreater(rect.bottom_right.x, rect.top_left.x)
-        self.assertGreater(rect.bottom_right.y, rect.top_left.y)
+        self.assertGreaterEqual(rect.left_top.x, 0)
+        self.assertGreaterEqual(rect.left_top.y, 0)
+        self.assertGreater(rect.right_bottom.x, rect.left_top.x)
+        self.assertGreater(rect.right_bottom.y, rect.left_top.y)
 
     def test_focus_with_name(self):
         window = WindowHandler(self.process_name)
@@ -80,7 +80,7 @@ class TestWindowHandler(TestCase):
 
     def test_grab(self):
         window = WindowHandler()
-        rect = Rect(top_left=Coord(100, 100), bottom_right=Coord(200, 200))
+        rect = Rect(left_top=Coord(100, 100), right_bottom=Coord(200, 200))
         result = window.grab(region=rect)
         self.assertIsInstance(result, Img)
         self.assertIsInstance(result.data, np.ndarray)

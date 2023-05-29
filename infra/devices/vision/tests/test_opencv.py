@@ -64,8 +64,8 @@
 #         for match_info in result:
 #             self.assertIsInstance(match_info, MatchLocation)
 #             self.assertEqual(match_info.confidence, 0.5)
-#             self.assertEqual(match_info.top_left.x, 223)
-#             self.assertEqual(match_info.top_left.y, 175)
+#             self.assertEqual(match_info.left_top.x, 223)
+#             self.assertEqual(match_info.left_top.y, 175)
 #             self.assertEqual(match_info.width, 219)
 #             self.assertEqual(match_info.height, 319)
 

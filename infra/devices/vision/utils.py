@@ -45,8 +45,8 @@ def resize_img(img: Img, zoom_factor: float = 2) -> Img:
 def crop_img(img: Img, region: Rect) -> Img:
     """Crop out rectangle from image"""
     new_img = img.data[
-        region.top_left.y : region.bottom_right.y,
-        region.top_left.x : region.bottom_right.x,
+        region.left_top.y : region.right_bottom.y,
+        region.left_top.x : region.right_bottom.x,
     ]
     return Img(new_img)
 
@@ -77,9 +77,9 @@ def draw_rectangles(img, rectangles: list[Rect]):
     line_type = cv.LINE_4
 
     for rect in rectangles:
-        top_left = list(rect.top_left)
-        bottom_right = list(rect.bottom_right)
-        cv.rectangle(img.data, top_left, bottom_right, line_color, lineType=line_type)
+        left_top = list(rect.left_top)
+        right_bottom = list(rect.right_bottom)
+        cv.rectangle(img.data, left_top, right_bottom, line_color, lineType=line_type)
     return img
 
 
@@ -108,8 +108,8 @@ def draw_lines(img, rectangles: list[Rect]):
     line_thickness = 2
 
     for rect in rectangles:
-        start = list(rect.top_left)
-        end = list(rect.bottom_right)
+        start = list(rect.left_top)
+        end = list(rect.right_bottom)
         # Draw the line
         cv.line(img.data, start, end, line_color, thickness=line_thickness)
     return img

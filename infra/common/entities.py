@@ -31,57 +31,57 @@ class Rect(ValueObject):
     """A 2d rectangle
 
     Attributes:
-        top_left: Coord
-        bottom_right: Optional[Coord] = None
+        left_top: Coord
+        right_bottom: Optional[Coord] = None
         width: Optional[float] = None
         height: Optional[float] = None
 
     Example:
-        Rect(top_left=(0, 0), bottom_right=(100, 100))
-        Rect(top_left=(0, 0), width=100, height=100)
+        Rect(left_top=(0, 0), right_bottom=(100, 100))
+        Rect(left_top=(0, 0), width=100, height=100)
     """
 
-    top_left: Coord
-    bottom_right: Optional[Coord] = None
+    left_top: Coord
+    right_bottom: Optional[Coord] = None
     width: Optional[float] = None
     height: Optional[float] = None
 
     def __post_init__(self):
-        if self.bottom_right is None and (self.width is None or self.height is None):
+        if self.right_bottom is None and (self.width is None or self.height is None):
             raise ValueError(
-                "Either bottom_right or both width and height must be provided."
+                "Either right_bottom or both width and height must be provided."
             )
 
-        if self.bottom_right is None:
-            self.calc_bottom_right()
-        if self.bottom_right and (self.width is None or self.height is None):
+        if self.right_bottom is None:
+            self.calc_right_bottom()
+        if self.right_bottom and (self.width is None or self.height is None):
             self.calc_dimensions()
 
     def __iter__(self):
         """Allows iteration, unpacking over value object"""
-        yield self.top_left
-        yield self.bottom_right
+        yield self.left_top
+        yield self.right_bottom
         yield self.width
         yield self.height
 
     @property
     def center(self) -> Coord:
         """Returns the middle point of the rectangle"""
-        x = round((self.top_left.x + self.bottom_right.x) / 2)
-        y = round((self.top_left.y + self.bottom_right.y) / 2)
+        x = round((self.left_top.x + self.right_bottom.x) / 2)
+        y = round((self.left_top.y + self.right_bottom.y) / 2)
         return Coord(x, y)
 
-    def calc_bottom_right(self) -> Coord:
+    def calc_right_bottom(self) -> Coord:
         """The bottom right point of the rectangle"""
-        self.bottom_right = Coord(
-            self.top_left.x + self.width,
-            self.top_left.y + self.height,
+        self.right_bottom = Coord(
+            self.left_top.x + self.width,
+            self.left_top.y + self.height,
         )
 
     def calc_dimensions(self) -> None:
         """The width and height of the rectangle"""
-        self.width = self.bottom_right.x - self.top_left.x
-        self.height = self.bottom_right.y - self.top_left.y
+        self.width = self.right_bottom.x - self.left_top.x
+        self.height = self.right_bottom.y - self.left_top.y
 
 
 @dataclass(frozen=True)

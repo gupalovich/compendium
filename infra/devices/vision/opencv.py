@@ -16,12 +16,12 @@ class OpenCV:
         """Recalculate the top-left points of detected objects based on the crop rectangle"""
 
         for i, location in enumerate(result.locations):
-            new_top_left = Coord(
-                location.top_left.x + crop.top_left.x,
-                location.top_left.y + crop.top_left.y,
+            new_left_top = Coord(
+                location.left_top.x + crop.left_top.x,
+                location.left_top.y + crop.left_top.y,
             )
             new_location = Rect(
-                top_left=new_top_left,
+                left_top=new_left_top,
                 width=location.width,
                 height=location.height,
             )
@@ -59,7 +59,7 @@ class OpenCV:
 
         for x, y in locations:
             if mask[y + ref_width // 2, x + ref_height // 2] != 255:
-                loc = Rect(top_left=Coord(x, y), width=ref_width, height=ref_height)
+                loc = Rect(left_top=Coord(x, y), width=ref_width, height=ref_height)
                 result.add(loc)
             # Mask out detected object
             mask[y : y + ref_height, x : x + ref_width] = 255

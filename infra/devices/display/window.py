@@ -55,7 +55,7 @@ class WindowHandler:
     def get_desktop_rect(cls) -> Rect:
         handle = cls.get_desktop_handle()
         left, top, right, bottom = win32gui.GetWindowRect(handle)
-        return Rect(top_left=Coord(left, top), bottom_right=Coord(right, bottom))
+        return Rect(left_top=Coord(left, top), right_bottom=Coord(right, bottom))
 
     @classmethod
     def find_window(cls, process_name: str) -> int:
@@ -70,7 +70,7 @@ class WindowHandler:
         """Find window rectangle by process name."""
         hwin = cls.find_window(process_name)
         left, top, right, bottom = win32gui.GetWindowRect(hwin)
-        return Rect(top_left=Coord(left, top), bottom_right=Coord(right, bottom))
+        return Rect(left_top=Coord(left, top), right_bottom=Coord(right, bottom))
 
     def focus(self) -> None:
         """Set window to focused state using self.handle"""
@@ -86,8 +86,8 @@ class WindowHandler:
         stc = mss.mss()
         scr = stc.grab(
             {
-                "left": region.top_left.x,
-                "top": region.top_left.y,
+                "left": region.left_top.x,
+                "top": region.left_top.y,
                 "width": region.width,
                 "height": region.height,
             }
@@ -109,7 +109,7 @@ class WindowHandler:
         top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
         """
         region = region or self.dimensions
-        left, top = region.top_left
+        left, top = region.left_top
         width = region.width
         height = region.height
 
