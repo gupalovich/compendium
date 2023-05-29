@@ -17,15 +17,15 @@ class OpenCVTests(TestCase):
         self.ref_img = load_img("tests/vision/test_template.png")
         self.ref_img1 = load_img("tests/vision/test_template1.png")
 
-    def test__match_template(self):
-        result = self.opencv._match_template(
+    def test_match_template(self):
+        result = self.opencv.match_template(
             self.ref_img, self.search_img, confidence=0.95
         )
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
 
-    def test__match_template_not_found(self):
-        result = self.opencv._match_template(
+    def test_match_template_not_found(self):
+        result = self.opencv.match_template(
             self.ref_img1, self.search_img, confidence=0.8
         )
         self.assertIsInstance(result, list)
@@ -61,7 +61,10 @@ class OpenCVTests(TestCase):
         self.assertFalse(len(result))
 
     def test_find_with_crop(self):
-        crop = Rect(left_top=Coord(x=100, y=100), right_bottom=Coord(x=700, y=700))
+        crop_x = 100
+        crop = Rect(
+            left_top=Coord(x=crop_x, y=crop_x), right_bottom=Coord(x=600, y=600)
+        )
         conf = 0.5
         result = self.opencv.find(
             self.ref_img,
@@ -74,7 +77,7 @@ class OpenCVTests(TestCase):
         self.assertEqual(result.confidence, conf)
         self.assertEqual(len(result), 1)
         for loc in result.locations:
-            self.assertEqual(loc.left_top.x, 223)
-            self.assertEqual(loc.left_top.y, 175)
+            self.assertEqual(loc.left_top.x, 223 + crop_x)
+            self.assertEqual(loc.left_top.y, 175 + crop_x)
             self.assertEqual(loc.width, 219)
             self.assertEqual(loc.height, 319)

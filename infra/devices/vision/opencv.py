@@ -30,7 +30,7 @@ class OpenCV:
 
         return result
 
-    def _match_template(
+    def match_template(
         self, ref_img: Img, search_img: Img, confidence: float = 0.65
     ) -> List[tuple[int, int]]:
         """cv2 match template based on confidence value"""
@@ -51,7 +51,7 @@ class OpenCV:
         if crop:
             search_img_gray = crop_img(search_img_gray, crop)
 
-        locations = self._match_template(
+        locations = self.match_template(
             ref_img_gray, search_img_gray, confidence=confidence
         )
         mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
