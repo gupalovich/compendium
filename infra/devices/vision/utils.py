@@ -71,7 +71,7 @@ def convert_img_color(img: Img, fmt: ColorFormat) -> Img:
     return Img(cv.cvtColor(img.data, fmt))
 
 
-def draw_rectangles(img, rectangles: list[Rect]):
+def draw_rectangles(img: Img, rectangles: list[Rect]):
     """Draw rectangles on image in place"""
     line_color = (0, 255, 0)  # BGR
     line_type = cv.LINE_4
@@ -93,7 +93,7 @@ def draw_crosshairs(img: Img, rectangles: list[Rect]):
     return img
 
 
-def draw_circles(img, rectangles: list[Rect], radius: int = 1):
+def draw_circles(img: Img, rectangles: list[Rect], radius: int = 1):
     circle_color = (255, 0, 0)  # BGR
     line_type = cv.LINE_4
 
@@ -103,7 +103,7 @@ def draw_circles(img, rectangles: list[Rect], radius: int = 1):
     return img
 
 
-def draw_lines(img, rectangles: list[Rect]):
+def draw_lines(img: Img, rectangles: list[Rect]):
     line_color = (0, 0, 255)  # BGR
     line_thickness = 2
 

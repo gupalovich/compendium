@@ -33,20 +33,23 @@ class OpenCVTests(TestCase):
 
     def test_find(self):
         conf = 0.5
-        result = self.opencv.find(
-            self.ref_img,
-            self.search_img,
-            confidence=conf,
-        )
-        # Test result
-        self.assertIsInstance(result, DetectedObjects)
-        self.assertEqual(result.confidence, conf)
-        self.assertEqual(len(result), 1)
-        for loc in result.locations:
-            self.assertEqual(loc.left_top.x, 223)
-            self.assertEqual(loc.left_top.y, 175)
-            self.assertEqual(loc.width, 219)
-            self.assertEqual(loc.height, 319)
+        crop = Rect(Coord(100, 100), Coord(600, 600))
+        test_cases = [
+            (self.ref_img, self.search_img, conf),
+            (self.ref_img, self.search_img, conf, crop),
+        ]
+
+        for test_case in test_cases:
+            result = self.opencv.find(*test_case)
+            # Test result
+            self.assertIsInstance(result, DetectedObjects)
+            self.assertEqual(result.confidence, test_case[2])
+            self.assertEqual(len(result), 1)
+            for loc in result.locations:
+                self.assertEqual(loc.left_top.x, 223)
+                self.assertEqual(loc.left_top.y, 175)
+                self.assertEqual(loc.width, 219)
+                self.assertEqual(loc.height, 319)
 
     def test_find_with_no_result(self):
         conf = 0.5
@@ -59,25 +62,3 @@ class OpenCVTests(TestCase):
         self.assertIsInstance(result, DetectedObjects)
         self.assertEqual(result.confidence, conf)
         self.assertFalse(len(result))
-
-    def test_find_with_crop(self):
-        crop_x = 100
-        crop = Rect(
-            left_top=Coord(x=crop_x, y=crop_x), right_bottom=Coord(x=600, y=600)
-        )
-        conf = 0.5
-        result = self.opencv.find(
-            self.ref_img,
-            self.search_img,
-            confidence=conf,
-            crop=crop,
-        )
-        # Test result
-        self.assertIsInstance(result, DetectedObjects)
-        self.assertEqual(result.confidence, conf)
-        self.assertEqual(len(result), 1)
-        for loc in result.locations:
-            self.assertEqual(loc.left_top.x, 223 + crop_x)
-            self.assertEqual(loc.left_top.y, 175 + crop_x)
-            self.assertEqual(loc.width, 219)
-            self.assertEqual(loc.height, 319)
