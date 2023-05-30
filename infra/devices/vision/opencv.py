@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy as np
 
 from infra.common.entities import Coord, DetectedObjects, Img, Rect
+from infra.devices.display.window import WindowHandler
 
 from .enums import ColorFormat
 from .utils import convert_img_color, crop_img, draw_rectangles
@@ -62,14 +63,19 @@ class OpenCV:
     @classmethod
     def live_stream(
         cls,
-        search_img: Img,
-        result: DetectedObjects,
+        ref_img: Img,
         exit_key: str = "q",
         resize: Coord = Coord(1200, 675),
+        crop: Rect = None,
     ) -> None:
-        search_img = draw_rectangles(search_img, result.locations)
-        search_img = cv.resize(search_img.data, tuple(resize))
-        cv.imshow("Debug Screen", search_img)
-        if cv.waitKey(1) == ord(exit_key):
-            cv.destroyAllWindows()
-            return "exit"
+        window = WindowHandler()
+        while True:
+            search_img = window.grab()
+            result = cls.find(ref_img, search_img, crop=crop)
+            show_img = draw_rectangles(search_img, result.locations)
+            show_img = cv.resize(show_img.data, tuple(resize))
+            cv.imshow("Debug Screen", show_img)
+            key = cv.waitKey(1)
+            if key == ord(exit_key):
+                cv.destroyAllWindows()
+                break
