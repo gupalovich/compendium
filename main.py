@@ -1,8 +1,8 @@
 import logging
 
 from config import settings
-from infra.devices.vision.opencv import OpenCV
-from infra.devices.vision.utils import load_img
+from infra.vision.opencv import OpenCV
+from infra.vision.utils import load_img
 
 
 def main():
