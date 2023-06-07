@@ -12,7 +12,7 @@ from infra.vision.utils import (
 )
 
 
-def extract_map():
+def extract_map(filename: str) -> None:
     window = WindowHandler()
     map_center = Coord(962, 585)
     crop_size = Coord(560, 420)
@@ -26,18 +26,10 @@ def extract_map():
     )
     search_img = window.grab()
     ref_img = crop_polygon_img(search_img, map_crop)
-    save_img(ref_img, "maps/mase_knoll2.png")
+    save_img(ref_img, f"maps/{filename}.png")
 
 
 def grab_minimap():
-    """
-    1. Load map cluster
-    2. Crop screen with minimap region
-    3. Resize minimap img
-    4. Save minimap img
-    5. Find minimap img on screen
-    6. Show result
-    """
     char_pos = Coord(1710, 912)
     crop_size = 65
     window = WindowHandler()
@@ -50,10 +42,10 @@ def grab_minimap():
     # cv.waitKey(0)
     # cv.destroyAllWindows()
     while True:
-        search_img = load_img("maps/mase_knoll.png")
+        search_img = load_img("albion/maps/mase_knoll.png")
         search_img = resize_img(search_img, zoom_factor=1.55)
         ref_img = window.grab(region=minimap_crop)
-        save_img(ref_img, "temp/minimap.png")
+        save_img(ref_img, "albion/temp/minimap.png")
         result = OpenCV.find(ref_img, search_img, confidence=0.75)
         print("FOUND: ", len(result))
         show_img = draw_circles(search_img, result.locations, radius=2)

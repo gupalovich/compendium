@@ -1,14 +1,13 @@
 import logging
 
+from bots.albion.navigator.extractor import grab_minimap
 from config import settings
-from infra.vision.opencv import OpenCV
-from infra.vision.utils import load_img
 
 
 def main():
     # crop = Rect(Coord(100, 100), Coord(800, 800))
     # OpenCV.live_stream("tests/maps/minimap.png")
-    OpenCV.grab_minimap()
+    grab_minimap()
 
 
 if __name__ == "__main__":
