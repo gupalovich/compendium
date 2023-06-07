@@ -17,11 +17,7 @@ Features of AlbionBot include:
 0. Тестирование
     - ~~Window модуля~~
     - ~~OpenCV модуля~~
-    - Тестрование livestream
-    - Add support for init Rect with tuple(0, 0)
-1. OCR
-    - CV сервис
-    - Дополнительная нн для разпознавания ресурсов
+    - ~~Тестрование livestream~~
 2. Навигатор карты
 3. Tesseract API
 4. Actions

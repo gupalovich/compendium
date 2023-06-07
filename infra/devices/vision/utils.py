@@ -73,45 +73,48 @@ def convert_img_color(img: Img, fmt: ColorFormat) -> Img:
 
 def draw_rectangles(img: Img, rectangles: list[Rect]):
     """Draw rectangles on image in place"""
-    line_color = (0, 255, 0)  # BGR
+    color = (0, 255, 0)  # BGR
     line_type = cv.LINE_4
 
     for rect in rectangles:
         left_top = list(rect.left_top)
         right_bottom = list(rect.right_bottom)
-        cv.rectangle(img.data, left_top, right_bottom, line_color, lineType=line_type)
+        cv.rectangle(img.data, left_top, right_bottom, color, lineType=line_type)
     return img
 
 
 def draw_crosshairs(img: Img, rectangles: list[Rect]):
-    marker_color = (255, 0, 255)  # BGR
+    color = (255, 0, 255)  # BGR
     marker_type = cv.MARKER_CROSS
 
     for rect in rectangles:
         center = tuple(rect.center)
-        cv.drawMarker(img.data, center, marker_color, marker_type)
+        cv.drawMarker(img.data, center, color, marker_type)
     return img
 
 
 def draw_circles(img: Img, rectangles: list[Rect], radius: int = 1):
-    circle_color = (255, 0, 0)  # BGR
+    color = (0, 0, 255)  # BGR
     line_type = cv.LINE_4
+    thickness = 2
 
     for rect in rectangles:
         center = list(rect.center)
-        cv.circle(img.data, center, radius, circle_color, lineType=line_type)
+        cv.circle(
+            img.data, center, radius, color, thickness=thickness, lineType=line_type
+        )
     return img
 
 
 def draw_lines(img: Img, rectangles: list[Rect]):
-    line_color = (0, 0, 255)  # BGR
-    line_thickness = 2
+    color = (0, 0, 255)  # BGR
+    thickness = 2
 
     for rect in rectangles:
         start = list(rect.left_top)
         end = list(rect.right_bottom)
         # Draw the line
-        cv.line(img.data, start, end, line_color, thickness=line_thickness)
+        cv.line(img.data, start, end, color, thickness=thickness)
     return img
 
 

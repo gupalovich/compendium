@@ -278,6 +278,6 @@ supervisord.conf
 
 # Project
 config.ini
-static/screenshots
+static/temp/*
 yolov5
 *.cache

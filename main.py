@@ -1,15 +1,14 @@
 import logging
 
 from config import settings
-from infra.common.entities import Coord, Rect
 from infra.devices.vision.opencv import OpenCV
 from infra.devices.vision.utils import load_img
 
 
 def main():
-    ref_img = load_img("tests/vision/test_template.png")
     # crop = Rect(Coord(100, 100), Coord(800, 800))
-    OpenCV.live_stream(ref_img)
+    # OpenCV.live_stream("tests/maps/minimap.png")
+    OpenCV.grab_minimap()
 
 
 if __name__ == "__main__":
