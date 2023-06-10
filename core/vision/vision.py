@@ -13,10 +13,9 @@ from .utils import convert_img_color, crop_img, draw_rectangles
 
 
 class BaseVision:
-    def __init__(self, method=cv.TM_CCOEFF_NORMED) -> None:
-        self.method = method
-        self.cropped_areas = {}
-        self.ui_elements = {}
+    method = cv.TM_CCOEFF_NORMED
+    cropped_areas = {}
+    ui_elements = {}
 
     def match_template(
         self, ref_img: Img, search_img: Img, confidence: float = 0.65
@@ -28,9 +27,7 @@ class BaseVision:
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
-    def find(
-        self, ref_img: Img, search_img: Img, confidence: float = 0.65, crop: Rect = None
-    ) -> DetectedObjects:
+    def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> DetectedObjects:
         ref_width = ref_img.width
         ref_height = ref_img.height
         ref_img_gray = convert_img_color(ref_img, ColorFormat.BGR_GRAY)
@@ -40,10 +37,10 @@ class BaseVision:
             search_img_gray = crop_img(search_img_gray, crop)
 
         locations = self.match_template(
-            ref_img_gray, search_img_gray, confidence=confidence
+            ref_img_gray, search_img_gray, ref_img.confidence
         )
         mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
-        result = DetectedObjects(ref_img, search_img, confidence)
+        result = DetectedObjects(ref_img, search_img)
 
         for loc_x, loc_y in locations:
             if crop:
@@ -63,9 +60,10 @@ class BaseVision:
 
         return result
 
-    def find_ui(self, ref_path: RefPath, search_img: Img) -> DetectedObjects:
-        ref_img = load_img(self.ui_elements[ref_path.path])
-        result = self.find(ref_img, search_img, confidence=ref_path.confidence)
+    def find_ui(
+        self, ref_img: Img, search_img: Img, crop: Rect = None
+    ) -> DetectedObjects:
+        result = self.find(ref_img, search_img, crop)
         return result
 
     def image_to_text(self, search_img: Img, crop: Rect) -> str:
@@ -73,7 +71,7 @@ class BaseVision:
 
     def live(
         self,
-        ref_img: Img,
+        ref_path: RefPath,
         exit_key: str = "q",
         resize: Coord = Coord(1200, 675),
         crop: Rect = None,
@@ -87,8 +85,9 @@ class BaseVision:
         window = WindowHandler()
         while True:
             search_img = window.grab()
-            result = self.find(ref_img, search_img, crop=crop)
+            result = self.find_ui(ref_path, search_img, crop)
             show_img = draw_rectangles(search_img, result.locations)
+            print("Found: ", len(result))
             show_img = cv.resize(show_img.data, tuple(resize))
             cv.imshow("Debug Screen", show_img)
             key = cv.waitKey(1)

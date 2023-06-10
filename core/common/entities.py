@@ -1,7 +1,12 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
+import cv2 as cv
 import numpy as np
+
+from config import settings
+
+from .enums import ColorFormat
 
 
 class ValueObject:
@@ -171,28 +176,63 @@ class Color(ValueError):
         return self.b, self.g, self.r, self.a
 
 
-@dataclass
 class Img:
-    data: np.ndarray
+    _data: Optional[np.ndarray] = None
+    data: Optional[np.ndarray] = None
+    confidence: Optional[float] = None
     width: Optional[int] = None
     height: Optional[int] = None
     channels: Optional[int] = 1
+    static_path = settings.STATIC_PATH
 
-    def __post_init__(self):
-        self.calc_dimensions()
+    def __init__(self, path: str, fmt: ColorFormat = ColorFormat.BGR) -> None:
+        self.path = path
+        self.fmt = fmt
+        self._load()
+        self._set_params()
 
     def __iter__(self):
-        """Allows iteration, unpacking over value object"""
-        yield self.data
-        yield self.width
-        yield self.height
-        yield self.channels
+        return (i for i in (self.width, self.height, self.channels))
 
-    def calc_dimensions(self) -> None:
+    def _load(self) -> None:
+        path = self.static_path + self.path
+        img = cv.imread(path, self.fmt)
+        if not img.any():
+            raise FileNotFoundError(f"Img {path} not found")
+        self._data = img
+
+    def _set_params(self) -> None:
+        self.data = self._data
         try:
             self.height, self.width, self.channels = self.data.shape
         except ValueError:
             self.height, self.width = self.data.shape[:2]
+
+    @property
+    def initial(self):
+        return self._data
+
+    def reset(self):
+        self.data = self.initial
+
+    def save(self, img_path: str) -> None:
+        cv.imwrite(self.static_path + img_path, self.data)
+
+    def show(self, window_name: str = "Window") -> None:
+        cv.imshow(window_name, self.data)
+        cv.waitKey(0)
+
+    def crop(self, region: Rect) -> None:
+        self.data = self.data[
+            region.left_top.y : region.right_bottom.y,
+            region.left_top.x : region.right_bottom.x,
+        ]
+
+    def resize_x(self, x_factor: float = 2) -> None:
+        self.data = cv.resize(self.data, None, fx=x_factor, fy=x_factor)
+
+    def cvt_color(self, fmt: ColorFormat) -> None:
+        self.data = cv.cv.cvtColor(self.data, fmt)
 
 
 @dataclass
@@ -208,7 +248,6 @@ class DetectedObjects:
 
     ref_img: Img
     search_img: Img
-    confidence: float
     locations: Optional[List[Rect]] = field(default_factory=list)
 
     def __len__(self) -> int:
@@ -220,15 +259,3 @@ class DetectedObjects:
 
     def remove(self) -> None:
         raise NotImplementedError()
-
-
-@dataclass(frozen=True)
-class RefPath:
-    """
-    #### Attributes
-    :path: str - Path to the reference image
-    :confidence: float - Confidence of the match
-    """
-
-    path: str
-    confidence: float

@@ -1,13 +1,13 @@
 import logging
 
-from bots.albion.navigator.extractor import grab_minimap
+from bots.albion.actions.vision import Vision
 from config import settings
 
 
 def main():
-    # crop = Rect(Coord(100, 100), Coord(800, 800))
-    # BaseVision.live_stream("tests/maps/minimap.png")
-    grab_minimap()
+    vision = Vision()
+    ref_path = vision.ui_elements["mount"]
+    vision.live(ref_path)
 
 
 if __name__ == "__main__":
