@@ -2,9 +2,9 @@ import os
 from unittest import TestCase, skip
 
 from config import settings
-from infra.common.entities import Coord, Img, Polygon, Rect
-from infra.display.window import WindowHandler
-from infra.vision.enums import ColorFormat
+from core.common.entities import Coord, Img, Polygon, Rect
+from core.display.window import WindowHandler
+from core.vision.enums import ColorFormat
 
 from ..utils import (
     convert_img_color,

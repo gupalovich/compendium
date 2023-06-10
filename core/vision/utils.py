@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 
 from config import settings
-from infra.common.entities import Img, Polygon, Rect
+from core.common.entities import Img, Polygon, Rect
 
 from .enums import ColorFormat
 

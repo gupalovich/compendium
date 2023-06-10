@@ -1,4 +1,4 @@
-from infra.vision.utils import load_img
+from core.vision.utils import load_img
 
 from ..vision import find_mount, find_skill
 

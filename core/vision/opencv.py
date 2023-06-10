@@ -3,8 +3,8 @@ from typing import List
 import cv2 as cv
 import numpy as np
 
-from infra.common.entities import Coord, DetectedObjects, Img, Rect
-from infra.display.window import WindowHandler
+from core.common.entities import Coord, DetectedObjects, Img, Rect
+from core.display.window import WindowHandler
 
 from .enums import ColorFormat
 from .utils import convert_img_color, crop_img, draw_rectangles

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from config import settings
-from infra.common.entities import Coord, DetectedObjects, Rect
+from core.common.entities import Coord, DetectedObjects, Rect
 
 from ..opencv import OpenCV
 from ..utils import load_img

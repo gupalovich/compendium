@@ -8,7 +8,7 @@ import win32gui
 import win32ui
 
 from config import settings
-from infra.common.entities import Coord, Img, Rect
+from core.common.entities import Coord, Img, Rect
 
 
 class WindowException(Exception):

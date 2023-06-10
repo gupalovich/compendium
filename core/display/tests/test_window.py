@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from infra.common.entities import Coord, Img, Rect
+from core.common.entities import Coord, Img, Rect
 
 from ..window import WindowFocusException, WindowHandler, WindowNotFoundException
 

@@ -1,6 +1,6 @@
-from infra.common.entities import Coord, Img, Rect
-from infra.vision.opencv import OpenCV
-from infra.vision.utils import load_img
+from core.common.entities import Coord, Img, Rect
+from core.vision.opencv import OpenCV
+from core.vision.utils import load_img
 
 CROPS = {
     "SKILL_PANEL": Rect(Coord(480, 975), Coord(1475, 1065)),

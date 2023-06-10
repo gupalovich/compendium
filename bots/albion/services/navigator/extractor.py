@@ -1,9 +1,9 @@
 import cv2 as cv
 
-from infra.common.entities import Coord, Polygon, Rect
-from infra.display.window import WindowHandler
-from infra.vision.opencv import OpenCV
-from infra.vision.utils import (
+from core.common.entities import Coord, Polygon, Rect
+from core.display.window import WindowHandler
+from core.vision.opencv import OpenCV
+from core.vision.utils import (
     crop_polygon_img,
     draw_circles,
     load_img,

@@ -181,6 +181,9 @@ erDiagram
 ## Version
 ---
 
+    0.0.5 (10.06.2023)
+        - Restructure project architecture
+
     0.0.4 (20.05.2023)
         - Custom YOLO model for ingame object detection 
         - Update infra module
