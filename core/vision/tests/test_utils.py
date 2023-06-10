@@ -2,7 +2,7 @@ import os
 from unittest import TestCase, skip
 
 from config import settings
-from core.common.entities import Coord, Img, Polygon, Rect
+from core.common.entities import Img, Pixel, Polygon, Rect
 from core.display.window import WindowHandler
 from core.vision.enums import ColorFormat
 
@@ -84,10 +84,10 @@ class UtilsTests(TestCase):
         img = load_img(self.img_path)
         width, height = (150, 100)
         test_cases = [
-            {"rect": Rect(left_top=Coord(0, 0), width=width, height=height)},
+            {"rect": Rect(left_top=Pixel(0, 0), width=width, height=height)},
             {
                 "rect": Rect(
-                    left_top=Coord(50, 75), right_bottom=Coord(width + 50, height + 75)
+                    left_top=Pixel(50, 75), right_bottom=Pixel(width + 50, height + 75)
                 )
             },
         ]
@@ -99,7 +99,7 @@ class UtilsTests(TestCase):
     def test_crop_polygon_img(self):
         img = self.window.grab_mss()
         poly = Polygon(
-            [Coord(100, 500), Coord(500, 250), Coord(1000, 600), Coord(500, 800)]
+            [Pixel(100, 500), Pixel(500, 250), Pixel(1000, 600), Pixel(500, 800)]
         )
         width, height = 900, 550
         new_img = crop_polygon_img(img, poly)
@@ -120,8 +120,8 @@ class UtilsTests(TestCase):
 
     def test_draw_rectangles(self):
         img = self.window.grab_mss()
-        left_top = Coord(50, 50)
-        right_bottom = Coord(150, 150)
+        left_top = Pixel(50, 50)
+        right_bottom = Pixel(150, 150)
         rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_rectangles(img, rectangles)
         # Show img
@@ -129,8 +129,8 @@ class UtilsTests(TestCase):
 
     def test_draw_crosshairs(self):
         img = self.window.grab_mss()
-        left_top = Coord(50, 50)
-        right_bottom = Coord(150, 150)
+        left_top = Pixel(50, 50)
+        right_bottom = Pixel(150, 150)
         rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_crosshairs(img, rectangles)
         # Show img
@@ -138,8 +138,8 @@ class UtilsTests(TestCase):
 
     def test_draw_circles(self):
         img = self.window.grab_mss()
-        left_top = Coord(50, 50)
-        right_bottom = Coord(150, 150)
+        left_top = Pixel(50, 50)
+        right_bottom = Pixel(150, 150)
         rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_circles(img, rectangles, radius=20)
         # Show img
@@ -147,8 +147,8 @@ class UtilsTests(TestCase):
 
     def test_draw_lines(self):
         img = self.window.grab_mss()
-        left_top = Coord(50, 50)
-        right_bottom = Coord(150, 150)
+        left_top = Pixel(50, 50)
+        right_bottom = Pixel(150, 150)
         rectangles = [Rect(left_top=left_top, right_bottom=right_bottom)]
         draw_lines(img, rectangles)
         # Show img

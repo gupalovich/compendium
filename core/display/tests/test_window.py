@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from core.common.entities import Coord, Img, Rect
+from core.common.entities import Img, Pixel, Rect
 
 from ..window import WindowFocusException, WindowHandler, WindowNotFoundException
 
@@ -80,7 +80,7 @@ class TestWindowHandler(TestCase):
 
     def test_grab(self):
         window = WindowHandler()
-        rect = Rect(left_top=Coord(100, 100), right_bottom=Coord(200, 200))
+        rect = Rect(left_top=Pixel(100, 100), right_bottom=Pixel(200, 200))
         result = window.grab(region=rect)
         self.assertIsInstance(result, Img)
         self.assertIsInstance(result.data, np.ndarray)

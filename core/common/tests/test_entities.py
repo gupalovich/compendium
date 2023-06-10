@@ -4,14 +4,14 @@ from unittest import TestCase
 import cv2 as cv
 import numpy as np
 
-from ..entities import Color, Coord, DetectedObjects, Img, Polygon, Rect, RefPath
+from ..entities import Color, Detections, Img, Pixel, Polygon, Rect, RefPath
 
 
-class CoordTests(TestCase):
+class PixelTests(TestCase):
     def test_attributes(self):
         x = 10.5
         y = 20.5
-        loc = Coord(x=x, y=y)
+        loc = Pixel(x=x, y=y)
 
         self.assertEqual(loc.x, x)
         self.assertEqual(loc.y, y)
@@ -19,21 +19,21 @@ class CoordTests(TestCase):
     def test_iteration(self):
         x = 10.5
         y = 20.5
-        loc = Coord(x=x, y=y)
+        loc = Pixel(x=x, y=y)
 
         coordinates = list(loc)
         self.assertEqual(coordinates, [x, y])
 
     def test_immutable(self):
-        loc = Coord(x=10.5, y=20.5)
+        loc = Pixel(x=10.5, y=20.5)
 
         with self.assertRaises(AttributeError):
             loc.x = 30.5
 
     def test_equality(self):
-        loc1 = Coord(x=10.5, y=20.5)
-        loc2 = Coord(x=10.5, y=20.5)
-        loc3 = Coord(x=30.5, y=40.5)
+        loc1 = Pixel(x=10.5, y=20.5)
+        loc2 = Pixel(x=10.5, y=20.5)
+        loc3 = Pixel(x=30.5, y=40.5)
 
         self.assertEqual(loc1, loc2)
         self.assertNotEqual(loc1, loc3)
@@ -41,7 +41,7 @@ class CoordTests(TestCase):
     def test_asdict(self):
         x = 10.5
         y = 20.5
-        loc = Coord(x=x, y=y)
+        loc = Pixel(x=x, y=y)
 
         loc_dict = asdict(loc)
         self.assertEqual(loc_dict, {"x": x, "y": y})
@@ -49,8 +49,8 @@ class CoordTests(TestCase):
 
 class RectTests(TestCase):
     def setUp(self) -> None:
-        self.left_top = Coord(x=10.5, y=20.5)
-        self.right_bottom = Coord(x=30.5, y=40.5)
+        self.left_top = Pixel(x=10.5, y=20.5)
+        self.right_bottom = Pixel(x=30.5, y=40.5)
         self.width = 20
         self.height = 20
 
@@ -108,29 +108,29 @@ class RectTests(TestCase):
 class PolygonTests(TestCase):
     def test_valid_polygon(self):
         points = [
-            Coord(x=0, y=0),
-            Coord(x=0, y=1),
-            Coord(x=1, y=1),
-            Coord(x=1, y=0),
+            Pixel(x=0, y=0),
+            Pixel(x=0, y=1),
+            Pixel(x=1, y=1),
+            Pixel(x=1, y=0),
         ]
         polygon = Polygon(points)
         self.assertEqual(polygon.points, points)
 
     def test_invalid_polygon(self):
         points = [
-            Coord(x=0, y=0),
-            Coord(x=0, y=1),
-            Coord(x=1, y=1),
+            Pixel(x=0, y=0),
+            Pixel(x=0, y=1),
+            Pixel(x=1, y=1),
         ]
         with self.assertRaises(ValueError):
             Polygon(points)
 
     def test_as_np_array(self):
         points = [
-            Coord(x=0, y=0),
-            Coord(x=0, y=1),
-            Coord(x=1, y=1),
-            Coord(x=1, y=0),
+            Pixel(x=0, y=0),
+            Pixel(x=0, y=1),
+            Pixel(x=1, y=1),
+            Pixel(x=1, y=0),
         ]
         polygon = Polygon(points)
         expected_np_array = np.array([(0, 0), (0, 1), (1, 1), (1, 0)])
@@ -270,14 +270,14 @@ class ColorTests(TestCase):
         self.assertEqual(color_dict, expected_dict)
 
 
-class DetectedObjectsTests(TestCase):
+class DetectionsTests(TestCase):
     def setUp(self):
         self.ref_img = Img(data=np.zeros((10, 10), dtype=np.uint8))
         self.search_img = Img(data=np.zeros((20, 20), dtype=np.uint8))
         self.confidence = 0.8
-        self.rect1 = Rect(left_top=Coord(x=5, y=5), right_bottom=Coord(x=15, y=15))
-        self.rect2 = Rect(left_top=Coord(x=10, y=10), right_bottom=Coord(x=20, y=20))
-        self.detected_objects = DetectedObjects(
+        self.rect1 = Rect(left_top=Pixel(x=5, y=5), right_bottom=Pixel(x=15, y=15))
+        self.rect2 = Rect(left_top=Pixel(x=10, y=10), right_bottom=Pixel(x=20, y=20))
+        self.detected_objects = Detections(
             ref_img=self.ref_img, search_img=self.search_img, confidence=self.confidence
         )
 

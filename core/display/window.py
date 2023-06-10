@@ -8,7 +8,7 @@ import win32gui
 import win32ui
 
 from config import settings
-from core.common.entities import Coord, Img, Rect
+from core.common.entities import Img, Pixel, Rect
 
 
 class WindowException(Exception):
@@ -55,7 +55,7 @@ class WindowHandler:
     def get_desktop_rect(cls) -> Rect:
         handle = cls.get_desktop_handle()
         left, top, right, bottom = win32gui.GetWindowRect(handle)
-        return Rect(left_top=Coord(left, top), right_bottom=Coord(right, bottom))
+        return Rect(left_top=Pixel(left, top), right_bottom=Pixel(right, bottom))
 
     @classmethod
     def find_window(cls, process_name: str) -> int:
@@ -70,7 +70,7 @@ class WindowHandler:
         """Find window rectangle by process name."""
         hwin = cls.find_window(process_name)
         left, top, right, bottom = win32gui.GetWindowRect(hwin)
-        return Rect(left_top=Coord(left, top), right_bottom=Coord(right, bottom))
+        return Rect(left_top=Pixel(left, top), right_bottom=Pixel(right, bottom))
 
     def focus(self) -> None:
         """Set window to focused state using self.handle"""

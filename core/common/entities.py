@@ -14,40 +14,38 @@ class ValueObject:
 
 
 @dataclass(frozen=True)
-class Coord(ValueObject):
+class Pixel:
     """A 2D coordinate
 
     #### Attributes:
-        x: float
-        y: float
+        x: int
+        y: int
     """
 
-    x: float
-    y: float
+    x: int
+    y: int
 
     def __iter__(self):
-        """Allows iteration, unpacking over value object"""
-        yield self.x
-        yield self.y
+        return (i for i in (self.x, self.y))
 
 
 @dataclass
-class Rect(ValueObject):
+class Rect:
     """A 2d rectangle
 
     #### Attributes:
-        left_top: Coord
-        right_bottom: Optional[Coord] = None
+        left_top: Pixel
+        right_bottom: Optional[Pixel] = None
         width: Optional[float] = None
         height: Optional[float] = None
 
     #### Example:
-        Rect(left_top=Coord(0, 0), right_bottom=Coord(100, 100))
-        Rect(left_top=Coord(0, 0), width=100, height=100)
+        Rect(left_top=Pixel(0, 0), right_bottom=Pixel(100, 100))
+        Rect(left_top=Pixel(0, 0), width=100, height=100)
     """
 
-    left_top: Coord
-    right_bottom: Optional[Coord] = None
+    left_top: Pixel
+    right_bottom: Optional[Pixel] = None
     width: Optional[int] = None
     height: Optional[int] = None
 
@@ -70,15 +68,15 @@ class Rect(ValueObject):
         yield self.height
 
     @property
-    def center(self) -> Coord:
+    def center(self) -> Pixel:
         """Returns the middle point of the rectangle"""
         x = round((self.left_top.x + self.right_bottom.x) / 2)
         y = round((self.left_top.y + self.right_bottom.y) / 2)
-        return Coord(x, y)
+        return Pixel(x, y)
 
-    def calc_right_bottom(self) -> Coord:
+    def calc_right_bottom(self) -> Pixel:
         """The bottom right point of the rectangle"""
-        self.right_bottom = Coord(
+        self.right_bottom = Pixel(
             self.left_top.x + self.width,
             self.left_top.y + self.height,
         )
@@ -94,10 +92,10 @@ class Polygon(ValueObject):
     """A 2d polygon
 
     #### Attributes:
-        points: list[Coord]
+        points: list[Pixel]
     """
 
-    points: list[Coord]
+    points: list[Pixel]
 
     def __post_init__(self):
         if len(self.points) < 4:
@@ -185,14 +183,19 @@ class Img:
     channels: Optional[int] = 1
     static_path = settings.STATIC_PATH
 
-    def __init__(self, path: str, fmt: ColorFormat = ColorFormat.BGR) -> None:
+    def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
         self.path = path
+        self.confidence = conf
         self.fmt = fmt
         self._load()
         self._set_params()
 
     def __iter__(self):
         return (i for i in (self.width, self.height, self.channels))
+
+    @property
+    def initial(self):
+        return self._data
 
     def _load(self) -> None:
         path = self.static_path + self.path
@@ -202,15 +205,11 @@ class Img:
         self._data = img
 
     def _set_params(self) -> None:
-        self.data = self._data
+        self.data = self.initial
         try:
             self.height, self.width, self.channels = self.data.shape
         except ValueError:
             self.height, self.width = self.data.shape[:2]
-
-    @property
-    def initial(self):
-        return self._data
 
     def reset(self):
         self.data = self.initial
@@ -236,14 +235,16 @@ class Img:
 
 
 @dataclass
-class DetectedObjects:
+class Detections:
     """Entity representing a collection of detected locations
 
     #### Attributes:
-        ref_img: Img
-        search_img: Img
-        confidence: float
-        locations: Optional[List[Rect]]
+        :ref_img: Img
+        :search_img: Img
+        :locations: Optional[List[Rect]]
+
+    ### TODO:
+        - make locations hashable (set)
     """
 
     ref_img: Img
@@ -251,8 +252,10 @@ class DetectedObjects:
     locations: Optional[List[Rect]] = field(default_factory=list)
 
     def __len__(self) -> int:
-        """Returns the number of detected objects"""
         return len(self.locations)
+
+    def __iter__(self):
+        yield self.locations
 
     def add(self, rect: Rect) -> None:
         self.locations.append(rect)

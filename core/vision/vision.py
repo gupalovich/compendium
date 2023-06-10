@@ -4,7 +4,7 @@ import cv2 as cv
 import numpy as np
 import pytesseract
 
-from core.common.entities import Coord, DetectedObjects, Img, Rect, RefPath
+from core.common.entities import Detections, Img, Pixel, Rect, RefPath
 from core.display.window import WindowHandler
 from core.vision.utils import load_img
 
@@ -27,7 +27,7 @@ class BaseVision:
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
-    def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> DetectedObjects:
+    def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> Detections:
         ref_width = ref_img.width
         ref_height = ref_img.height
         ref_img_gray = convert_img_color(ref_img, ColorFormat.BGR_GRAY)
@@ -40,7 +40,7 @@ class BaseVision:
             ref_img_gray, search_img_gray, ref_img.confidence
         )
         mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
-        result = DetectedObjects(ref_img, search_img)
+        result = Detections(ref_img, search_img)
 
         for loc_x, loc_y in locations:
             if crop:
@@ -52,7 +52,7 @@ class BaseVision:
 
             if mask[center_y, center_x] != 255:
                 loc = Rect(
-                    left_top=Coord(loc_x, loc_y), width=ref_width, height=ref_height
+                    left_top=Pixel(loc_x, loc_y), width=ref_width, height=ref_height
                 )
                 result.add(loc)
                 # Mask out detected object
@@ -60,9 +60,7 @@ class BaseVision:
 
         return result
 
-    def find_ui(
-        self, ref_img: Img, search_img: Img, crop: Rect = None
-    ) -> DetectedObjects:
+    def find_ui(self, ref_img: Img, search_img: Img, crop: Rect = None) -> Detections:
         result = self.find(ref_img, search_img, crop)
         return result
 
@@ -73,7 +71,7 @@ class BaseVision:
         self,
         ref_path: RefPath,
         exit_key: str = "q",
-        resize: Coord = Coord(1200, 675),
+        resize: Pixel = Pixel(1200, 675),
         crop: Rect = None,
     ) -> None:
         """

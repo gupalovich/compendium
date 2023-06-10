@@ -1,6 +1,6 @@
 import cv2 as cv
 
-from core.common.entities import Coord, Polygon, Rect
+from core.common.entities import Pixel, Polygon, Rect
 from core.display.window import WindowHandler
 from core.vision.utils import (
     crop_polygon_img,
@@ -14,14 +14,14 @@ from core.vision.vision import BaseVision
 
 def extract_map(filename: str) -> None:
     window = WindowHandler()
-    map_center = Coord(962, 585)
-    crop_size = Coord(560, 420)
+    map_center = Pixel(962, 585)
+    crop_size = Pixel(560, 420)
     map_crop = Polygon(
         points=[
-            Coord(map_center.x - crop_size.x, map_center.y),
-            Coord(map_center.x, map_center.y - crop_size.y),
-            Coord(map_center.x + crop_size.x, map_center.y),
-            Coord(map_center.x, map_center.y + crop_size.y),
+            Pixel(map_center.x - crop_size.x, map_center.y),
+            Pixel(map_center.x, map_center.y - crop_size.y),
+            Pixel(map_center.x + crop_size.x, map_center.y),
+            Pixel(map_center.x, map_center.y + crop_size.y),
         ]
     )
     search_img = window.grab()
@@ -30,12 +30,12 @@ def extract_map(filename: str) -> None:
 
 
 def grab_minimap():
-    char_pos = Coord(1710, 912)
+    char_pos = Pixel(1710, 912)
     crop_size = 65
     window = WindowHandler()
     minimap_crop = Rect(
-        left_top=Coord(char_pos.x - crop_size, char_pos.y - crop_size),
-        right_bottom=Coord(char_pos.x + crop_size, char_pos.y + crop_size),
+        left_top=Pixel(char_pos.x - crop_size, char_pos.y - crop_size),
+        right_bottom=Pixel(char_pos.x + crop_size, char_pos.y + crop_size),
     )
     # print(minimap_crop.width, minimap_crop.height)
     # cv.imshow("Debug Screen", ref_img.data)

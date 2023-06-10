@@ -42,6 +42,7 @@ if sys.platform != "win32":
     )
 
 from collections.abc import Callable
+
 # Python 3.8 or higher
 # native imports
 # Python 3.7 or higher
@@ -341,7 +342,7 @@ relative integer values.
 
 If MOUSEEVENTF_ABSOLUTE value is specified, dx and dy contain normalized
 absolute coordinates between 0 and 65,535. The event procedure maps these
-coordinates onto the display surface. Coordinate (0,0) maps onto the upper-left
+coordinates onto the display surface. Pixelinate (0,0) maps onto the upper-left
 corner of the display surface; coordinate (65535,65535) maps onto the
 lower-right corner. In a multimonitor system, the coordinates map to the
 primary monitor.

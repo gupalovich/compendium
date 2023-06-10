@@ -23,7 +23,7 @@ Features of AlbionBot include:
     - Действие атака/сбор
 3. Рефактор
     - load_img - RefPath arg
-    - Coord - Pixel
+    - Pixel - Pixel
     - Rect - Vector
     - Merge vision with display
 2. Навигатор карты

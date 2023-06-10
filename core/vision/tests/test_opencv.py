@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from config import settings
-from core.common.entities import Coord, DetectedObjects, Rect
+from core.common.entities import Detections, Pixel, Rect
 
 from ..utils import load_img
 from ..vision import BaseVision
@@ -33,7 +33,7 @@ class BaseVisionTests(TestCase):
 
     def test_find(self):
         conf = 0.5
-        crop = Rect(Coord(100, 100), Coord(600, 600))
+        crop = Rect(Pixel(100, 100), Pixel(600, 600))
         test_cases = [
             (self.ref_img, self.search_img, conf),
             (self.ref_img, self.search_img, conf, crop),
@@ -42,7 +42,7 @@ class BaseVisionTests(TestCase):
         for test_case in test_cases:
             result = self.opencv.find(*test_case)
             # Test result
-            self.assertIsInstance(result, DetectedObjects)
+            self.assertIsInstance(result, Detections)
             self.assertEqual(result.confidence, test_case[2])
             self.assertEqual(len(result), 1)
             for loc in result.locations:
@@ -59,6 +59,6 @@ class BaseVisionTests(TestCase):
             confidence=conf,
         )
         # Test result
-        self.assertIsInstance(result, DetectedObjects)
+        self.assertIsInstance(result, Detections)
         self.assertEqual(result.confidence, conf)
         self.assertFalse(len(result))
