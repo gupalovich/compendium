@@ -3,14 +3,14 @@ from unittest import TestCase
 from config import settings
 from core.common.entities import Coord, DetectedObjects, Rect
 
-from ..opencv import OpenCV
 from ..utils import load_img
+from ..vision import BaseVision
 
 
-class OpenCVTests(TestCase):
+class BaseVisionTests(TestCase):
     def setUp(self) -> None:
         self.static_path = settings.STATIC_PATH
-        self.opencv = OpenCV()
+        self.opencv = BaseVision()
         self.search_img = load_img("tests/vision/test_screen.png")
         self.search_img_w = 961
         self.search_img_h = 789

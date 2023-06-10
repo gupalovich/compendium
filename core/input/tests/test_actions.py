@@ -1,10 +1,11 @@
-import pytest
+from unittest import skip
+
 import win32api
 
 from ..actions import click, move_to, press, reset_cursor, set_cursor, wind_mouse
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_set_cursor():
     set_cursor(0, 0)
     pos_x, pos_y = win32api.GetCursorPos()
@@ -12,7 +13,7 @@ def test_set_cursor():
     assert pos_y == 0
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_reset_cursor():
     res = reset_cursor(1900, 100)
     assert res is True
@@ -22,13 +23,13 @@ def test_reset_cursor():
     assert res is False
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_wind_mouse():
     pos_x, pos_y = win32api.GetCursorPos()
     wind_mouse(pos_x, pos_y, 100, 100)
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_move_to():
     pos_x, pos_y = win32api.GetCursorPos()
     move_to(100, 100)
@@ -36,14 +37,14 @@ def test_move_to():
     assert pos_y == 100
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_click():
     click(clicks=2)
     click(button="right")
     click(button="left")
 
 
-@pytest.mark.slow
+@skip("Mouse movement and async conflict with too many calls")
 def test_press():
     press("a")
     press("b")

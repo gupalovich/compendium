@@ -6,7 +6,7 @@ from config import settings
 
 def main():
     # crop = Rect(Coord(100, 100), Coord(800, 800))
-    # OpenCV.live_stream("tests/maps/minimap.png")
+    # BaseVision.live_stream("tests/maps/minimap.png")
     grab_minimap()
 
 

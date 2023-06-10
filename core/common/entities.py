@@ -220,3 +220,15 @@ class DetectedObjects:
 
     def remove(self) -> None:
         raise NotImplementedError()
+
+
+@dataclass(frozen=True)
+class RefPath:
+    """
+    #### Attributes
+    :path: str - Path to the reference image
+    :confidence: float - Confidence of the match
+    """
+
+    path: str
+    confidence: float

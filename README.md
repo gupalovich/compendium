@@ -21,6 +21,10 @@ Features of AlbionBot include:
     - Состаяния mount/unmount
     - Распознавание монстров
     - Действие атака/сбор
+3. Рефактор
+    - Coord - Pixel
+    - Rect - Vector
+    - Merge vision with display
 2. Навигатор карты
 3. Tesseract API
 4. Actions

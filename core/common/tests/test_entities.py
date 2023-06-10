@@ -4,7 +4,7 @@ from unittest import TestCase
 import cv2 as cv
 import numpy as np
 
-from ..entities import Color, Coord, DetectedObjects, Img, Polygon, Rect
+from ..entities import Color, Coord, DetectedObjects, Img, Polygon, Rect, RefPath
 
 
 class CoordTests(TestCase):
@@ -299,3 +299,13 @@ class DetectedObjectsTests(TestCase):
     def test_remove(self):
         with self.assertRaises(NotImplementedError):
             self.detected_objects.remove()
+
+
+class RefPathTests(TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_attributes(self):
+        ref_path = RefPath("test_path.png", 0.85)
+        self.assertEqual(ref_path.path, "test_path.png")
+        self.assertEqual(ref_path.confidence, 0.85)
