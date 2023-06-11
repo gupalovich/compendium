@@ -18,7 +18,7 @@ class VisionBaseTests(TestCase):
 
     def test_attributes(self):
         self.assertEqual(self.vision.method, cv.TM_CCOEFF_NORMED)
-        self.assertIsInstance(self.vision.cropped_areas, dict)
+        self.assertIsInstance(self.vision.crop_areas, dict)
         self.assertIsInstance(self.vision.ui_elements, dict)
 
     def test_match_template(self):

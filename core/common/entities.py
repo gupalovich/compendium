@@ -225,6 +225,10 @@ class ImgBase:
         ]
         self._set_dimensions()
 
+    def resize(self, size: Pixel) -> None:
+        self.data = cv.resize(self.data, tuple(size))
+        self._set_dimensions()
+
     def resize_x(self, x_factor: float = 2) -> None:
         self.data = cv.resize(self.data, None, fx=x_factor, fy=x_factor)
         self._set_dimensions()

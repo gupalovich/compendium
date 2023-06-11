@@ -209,6 +209,18 @@ class ImgBaseTests(TestCase):
         for channel_value, expected_value in zip(pixel_color, expected_color):
             self.assertEqual(channel_value, expected_value)
 
+    def test_resize_up(self):
+        size = Pixel(1000, 1500)
+        self.img.resize(size)
+        self.assertEqual(self.img.width, size.x)
+        self.assertEqual(self.img.height, size.y)
+
+    def test_resize_down(self):
+        size = Pixel(100, 150)
+        self.img.resize(size)
+        self.assertEqual(self.img.width, size.x)
+        self.assertEqual(self.img.height, size.y)
+
     def test_resize_x_up(self):
         self.img.resize_x(2)
         self.assertEqual(self.img.width, self.width * 2)

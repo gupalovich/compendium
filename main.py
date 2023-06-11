@@ -1,13 +1,22 @@
 import logging
 
-from bots.albion.actions.vision import Vision
 from config import settings
+from core.common.entities import ImgLoader, Pixel, Rect
+from core.display.vision import VisionLive
 
 
 def main():
-    vision = Vision()
-    ref_path = vision.ui_elements["mount"]
-    vision.live(ref_path)
+    crop_areas = {
+        "skill_panel": Rect(Pixel(480, 975), Pixel(1475, 1065)),
+    }
+    ui_elements = {
+        "mount": ImgLoader("albion/ui/mount_hp_1.png", 0.9),
+        "mount_r": ImgLoader("albion/ui/mount_circle_radian.png", 0.87),
+    }
+
+    # vision_live = VisionLive(ui_elements["mount"], crop_areas["skill_panel"])
+    vision_live = VisionLive(ui_elements["mount"])
+    vision_live.start()
 
 
 if __name__ == "__main__":

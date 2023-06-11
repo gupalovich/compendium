@@ -4,7 +4,7 @@ import cv2 as cv
 import numpy as np
 import pytesseract
 
-from core.common.entities import Img, Pixel, Rect, SearchResult
+from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
 from core.common.enums import ColorFormat
 from core.display.window import WindowHandler
 
@@ -13,7 +13,7 @@ from .utils import draw_rectangles
 
 class VisionBase:
     method = cv.TM_CCOEFF_NORMED
-    cropped_areas = {}
+    crop_areas = {}
     ui_elements = {}
 
     def match_template(
@@ -64,17 +64,30 @@ class VisionBase:
         result = self.find(ref_img, search_img, crop)
         return result
 
+    def find_color(self):
+        """
+        TODO: split into ColorVision, UiVision, TextVision
+        """
+
     def image_to_text(self, search_img: Img, crop: Rect) -> str:
         search_img.crop(crop)
         return pytesseract.image_to_string(search_img.data)
 
-    def live(
-        self,
-        ref_img: Img,
-        exit_key: str = "q",
-        resize: Pixel = Pixel(1200, 675),
-        crop: Rect = None,
-    ) -> None:
+
+class VisionDraw:
+    pass
+
+
+class VisionLive(VisionBase):
+    exit_key = "q"
+    to_log = True
+    resize = Pixel(1200, 675)
+
+    def __init__(self, ref: ImgLoader, crop: Rect = None):
+        self.ref = ref
+        self.crop = crop
+
+    def start(self) -> None:
         """
         TODO:
         - Add new class for such cases
@@ -84,12 +97,12 @@ class VisionBase:
         window = WindowHandler()
         while True:
             search_img = window.grab()
-            result = self.find_ui(ref_img, search_img, crop)
+            result = self.find(self.ref, search_img, self.crop)
             show_img = draw_rectangles(search_img, result.locations)
-            print("Found: ", len(result))
-            show_img = cv.resize(show_img.data, tuple(resize))
-            cv.imshow("Debug Screen", show_img)
-            key = cv.waitKey(1)
-            if key == ord(exit_key):
+            show_img.resize(self.resize)
+            if self.to_log:
+                print("Found objects: ", len(result.locations))
+            cv.imshow("Debug Screen", result.search_img.data)
+            if cv.waitKey(1) == ord(self.exit_key):
                 cv.destroyAllWindows()
                 break
