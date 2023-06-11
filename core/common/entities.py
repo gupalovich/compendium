@@ -211,6 +211,20 @@ class ImgBase:
         ]
         self._set_dimensions()
 
+    def crop_polygon(self, region: Polygon) -> None:
+        """Crop out polygon from image and fill background"""
+        points = region.as_np_array()
+        # Create a binary mask with the polygon shape
+        mask = np.zeros((self.height, self.width), dtype=np.uint8)
+        cv.fillPoly(mask, [points], 255)
+        # Apply the mask to the image
+        masked_img = cv.bitwise_and(self.data, self.data, mask=mask)
+        # Crop out the masked region
+        self.data = masked_img[
+            min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
+        ]
+        self._set_dimensions()
+
     def resize_x(self, x_factor: float = 2) -> None:
         self.data = cv.resize(self.data, None, fx=x_factor, fy=x_factor)
         self._set_dimensions()

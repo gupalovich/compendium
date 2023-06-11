@@ -2,25 +2,9 @@ import os
 import shutil
 
 import cv2 as cv
-import numpy as np
 from PIL import Image
 
-from core.common.entities import Img, Polygon, Rect
-
-
-def crop_polygon_img(img: Img, region: Polygon) -> Img:
-    """Crop out polygon from image and fill background"""
-    points = region.as_np_array()
-    # Create a binary mask with the polygon shape
-    mask = np.zeros(img.data.shape[:2], dtype=np.uint8)
-    cv.fillPoly(mask, [points], 255)
-    # Apply the mask to the image
-    masked_img = cv.bitwise_and(img.data, img.data, mask=mask)
-    # Crop out the masked region
-    cropped_img = masked_img[
-        min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
-    ]
-    return Img(cropped_img)
+from core.common.entities import Img, Rect
 
 
 def draw_rectangles(img: Img, rectangles: list[Rect]):

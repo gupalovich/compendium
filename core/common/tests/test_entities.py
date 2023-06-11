@@ -5,6 +5,7 @@ import cv2 as cv
 import numpy as np
 
 from config import settings
+from core.display.window import WindowHandler
 
 from ..entities import (
     Color,
@@ -190,6 +191,23 @@ class ImgBaseTests(TestCase):
             self.assertEqual(self.img.width, width)
             self.assertEqual(self.img.height, height)
             self.img.reset()
+
+    def test_crop_polygon(self):
+        window = WindowHandler()
+        img = window.grab_mss()
+        region = Polygon(
+            [Pixel(100, 500), Pixel(500, 250), Pixel(1000, 600), Pixel(500, 800)]
+        )
+        width, height = 900, 550
+        img.crop_polygon(region)
+        # Test image was cropped
+        self.assertEqual(img.width, width)
+        self.assertEqual(img.height, height)
+        # Test pixel color at (10, 10)
+        pixel_color = img.data[10, 10]
+        expected_color = (0, 0, 0)
+        for channel_value, expected_value in zip(pixel_color, expected_color):
+            self.assertEqual(channel_value, expected_value)
 
     def test_resize_x_up(self):
         self.img.resize_x(2)
