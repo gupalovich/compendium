@@ -4,6 +4,8 @@ from typing import List, Optional, Tuple
 import cv2 as cv
 import numpy as np
 
+from config import settings
+
 from .enums import ColorFormat
 
 
@@ -170,8 +172,8 @@ class Color(ValueError):
 
 class ImgBase:
     _data: Optional[np.ndarray] = None
-    _path: Optional[str] = ""
     data: Optional[np.ndarray] = None
+    path: Optional[str] = ""
     confidence: Optional[float] = None
     width: Optional[int] = None
     height: Optional[int] = None
@@ -181,41 +183,45 @@ class ImgBase:
     def initial(self):
         return self._data
 
-    @property
-    def path(self):
-        return self.path
-
     def __iter__(self):
         return (i for i in (self.width, self.height, self.channels))
 
     def _set_params(self) -> None:
         self.data = self.initial
+        self._set_dimensions()
+
+    def _set_dimensions(self):
         try:
             self.height, self.width, self.channels = self.data.shape
         except ValueError:
             self.height, self.width = self.data.shape[:2]
+            self.channels = 1
 
     def reset(self):
         self.data = self.initial
+        self._set_dimensions()
 
     def save(self, img_path: str) -> None:
-        cv.imwrite(img_path, self.data)
-
-    def show(self, window_name: str = "Window") -> None:
-        cv.imshow(window_name, self.data)
-        cv.waitKey(0)
+        cv.imwrite(settings.STATIC_PATH + img_path, self.data)
 
     def crop(self, region: Rect) -> None:
         self.data = self.data[
             region.left_top.y : region.right_bottom.y,
             region.left_top.x : region.right_bottom.x,
         ]
+        self._set_dimensions()
 
     def resize_x(self, x_factor: float = 2) -> None:
         self.data = cv.resize(self.data, None, fx=x_factor, fy=x_factor)
+        self._set_dimensions()
 
     def cvt_color(self, fmt: ColorFormat) -> None:
         self.data = cv.cvtColor(self.data, fmt)
+        self._set_dimensions()
+
+    def show(self, window_name: str = "Window") -> None:
+        cv.imshow(window_name, self.data)
+        cv.waitKey(0)
 
 
 class Img(ImgBase):
@@ -223,19 +229,21 @@ class Img(ImgBase):
 
     def __init__(self, data: str) -> None:
         self._data = data
+        self._set_params()
 
 
 class ImgLoader(ImgBase):
     """Use if you don't have an image"""
 
     def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
-        self._path = path
+        self.path = path
         self.confidence = conf
         self.fmt = fmt
         self._load()
+        self._set_params()
 
     def _load(self) -> None:
-        img = cv.imread(self.path, self.fmt)
+        img = cv.imread(settings.STATIC_PATH + self.path, self.fmt)
         if not img.any():
             raise FileNotFoundError(f"Img {self.path} not found")
         self._data = img

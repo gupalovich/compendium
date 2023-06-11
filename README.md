@@ -15,10 +15,8 @@ Features of AlbionBot include:
 ## TODO
 
 0. Тестирование
-    - Img тесты, перенос из utils
-    - SearchResult тесты
-    - Фикс TestWindowHandler
 0. Рефактор
+    - SearchResult - location set
 1. Действия персонажа и цикл сбора:
     - ~~Адаптировать wind_mouse~~
     - Распознавание маунта

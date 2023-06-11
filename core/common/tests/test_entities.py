@@ -1,8 +1,10 @@
-from dataclasses import asdict
-from unittest import TestCase
+import os
+from unittest import TestCase, skip
 
 import cv2 as cv
 import numpy as np
+
+from config import settings
 
 from ..entities import (
     Color,
@@ -128,176 +130,238 @@ class PolygonTests(TestCase):
         np.testing.assert_array_equal(polygon.as_np_array(), expected_np_array)
 
 
+class ImgBaseTests(TestCase):
+    def setUp(self) -> None:
+        self.img_path = "static/tests/vision/test_template.png"
+        self.loaded_img = cv.imread(self.img_path)
+        self.height, self.width, self.channels = self.loaded_img.shape
+        self.img = ImgBase()
+        self._set_img_attributes()
+
+    def _set_img_attributes(self):
+        self.img._data = self.loaded_img
+        self.img._set_params()
+
+    def test_attributes(self):
+        self.assertTrue(np.array_equal(self.img.initial, self.loaded_img))
+        self.assertTrue(np.array_equal(self.img.initial, self.img.data))
+        self.assertFalse(self.img.path)
+        self.assertFalse(self.img.confidence)
+        self.assertEqual(self.img.width, self.width)
+        self.assertEqual(self.img.height, self.height)
+        self.assertEqual(self.img.channels, self.channels)
+
+    def test_iter(self):
+        expected_lst = (self.width, self.height, self.channels)
+        img_lst = tuple(self.img)
+        self.assertEqual(img_lst, expected_lst)
+
+    def test_reset(self):
+        new_data = "123"
+        self.img.data = new_data
+        self.assertEqual(self.img.data, new_data)
+        self.img.reset()
+        self.assertTrue(np.array_equal(self.img.initial, self.img.data))
+
+    def test_save(self):
+        new_img_path = "tests/test_save.png"
+        self.img.save(new_img_path)
+        # Test image was saved
+        img = cv.imread(settings.STATIC_PATH + new_img_path)
+        height, width, channels = img.shape
+        self.assertEqual(width, self.width)
+        self.assertEqual(height, self.height)
+        self.assertEqual(channels, self.channels)
+        # Delete the test image
+        os.remove(settings.STATIC_PATH + new_img_path)
+
+    def test_crop(self):
+        width, height = (150, 100)
+        test_cases = [
+            {"rect": Rect(left_top=Pixel(0, 0), width=width, height=height)},
+            {
+                "rect": Rect(
+                    left_top=Pixel(50, 75), right_bottom=Pixel(width + 50, height + 75)
+                )
+            },
+        ]
+        for case in test_cases:
+            self.img.crop(case["rect"])
+            self.assertEqual(self.img.width, width)
+            self.assertEqual(self.img.height, height)
+            self.img.reset()
+
+    def test_resize_x_up(self):
+        self.img.resize_x(2)
+        self.assertEqual(self.img.width, self.width * 2)
+        self.assertEqual(self.img.height, self.height * 2)
+
+    def test_resize_x_down(self):
+        self.img.resize_x(0.5)
+        self.assertAlmostEqual(self.img.width, self.width / 2, delta=0.5)
+        self.assertAlmostEqual(self.img.height, self.height / 2, delta=0.5)
+
+    def test_cvt_color(self):
+        self.assertEqual(self.img.channels, 3)
+        # convert gray
+        self.img.cvt_color(ColorFormat.BGR_GRAY)
+        self.assertEqual(self.img.channels, 1)
+        # convert bgr
+        self.img.cvt_color(ColorFormat.BGR)
+        self.assertEqual(self.img.channels, 3)
+        # convert bgr-rgb
+        self.img.cvt_color(ColorFormat.BGR_RGB)
+        self.assertEqual(self.img.channels, 3)
+
+    @skip("Popup window")
+    def test_show(self):
+        self.img.show(window_name="Test window")
+
+
 class ImgTests(TestCase):
     def setUp(self) -> None:
         self.img_path = "static/tests/vision/test_template.png"
-        self.img = cv.imread(self.img_path)
-        self.height = self.img.shape[0]
-        self.width = self.img.shape[1]
-        self.channels = self.img.shape[2]
+        self.loaded_img = cv.imread(self.img_path)
+        self.height, self.width, self.channels = self.loaded_img.shape
+        self.img = Img(self.loaded_img)
+
+    def test_init_attributes(self):
+        self.assertTrue(np.array_equal(self.img.initial, self.loaded_img))
+        self.assertTrue(np.array_equal(self.img.initial, self.img.data))
+        self.assertFalse(self.img.path)
+        self.assertFalse(self.img.confidence)
+        self.assertEqual(self.img.width, self.width)
+        self.assertEqual(self.img.height, self.height)
+        self.assertEqual(self.img.channels, self.channels)
+
+
+class ImgLoaderTests(TestCase):
+    def setUp(self) -> None:
+        self.img_path = "tests/vision/test_template.png"
+        self.loaded_img = cv.imread(settings.STATIC_PATH + self.img_path)
+        self.height, self.width, self.channels = self.loaded_img.shape
+
+    def test_loader(self):
+        img = ImgLoader(self.img_path, 0.8, ColorFormat.GRAY)
+        self.assertFalse(np.array_equal(img.initial, self.loaded_img))
+        self.assertTrue(np.array_equal(img.initial, img.data))
+        self.assertEqual(img.path, self.img_path)
+        self.assertEqual(img.confidence, 0.8)
+        self.assertEqual(img.width, self.width)
+        self.assertEqual(img.height, self.height)
+        self.assertEqual(img.channels, 1)
+
+
+class ColorTests(TestCase):
+    def test_color_creation_valid_rgb(self):
+        # Test creating Color object with valid RGB values
+        color = Color(r=255, g=128, b=64)
+        self.assertEqual(color.r, 255)
+        self.assertEqual(color.g, 128)
+        self.assertEqual(color.b, 64)
+        self.assertIsNone(color.a)
+
+    def test_color_creation_valid_rgba(self):
+        # Test creating Color object with valid RGBA values
+        color = Color(r=255, g=128, b=64, a=200)
+        self.assertEqual(color.r, 255)
+        self.assertEqual(color.g, 128)
+        self.assertEqual(color.b, 64)
+        self.assertEqual(color.a, 200)
+
+    def test_color_creation_invalid_rgb(self):
+        # Test creating Color object with invalid RGB values
+        with self.assertRaises(ValueError):
+            Color(r=-1, g=128, b=64)
+
+        with self.assertRaises(ValueError):
+            Color(r=255, g=300, b=64)
+
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=-10)
+
+    def test_color_creation_invalid_rgba(self):
+        # Test creating Color object with invalid RGBA values
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=64, a=-1)
+
+        with self.assertRaises(ValueError):
+            Color(r=255, g=128, b=64, a=300)
+
+    def test_from_rgb(self):
+        # Test creating Color object from RGB values
+        rgb = (100, 150, 200)
+        color = Color.from_rgb(rgb)
+        self.assertEqual(color.r, 100)
+        self.assertEqual(color.g, 150)
+        self.assertEqual(color.b, 200)
+        self.assertIsNone(color.a)
+
+    def test_from_rgb_invalid(self):
+        err_msg = "Invalid RGB values. Expected a tuple of length 3 or 4."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Color.from_rgb((200, 150, 100, 0, 0))
+
+    def test_from_bgr(self):
+        # Test creating Color object from BGR values
+        bgr = (200, 150, 100)
+        color = Color.from_bgr(bgr)
+        self.assertEqual(color.r, 100)
+        self.assertEqual(color.g, 150)
+        self.assertEqual(color.b, 200)
+        self.assertIsNone(color.a)
+
+    def test_from_bgr_invalid(self):
+        err_msg = "Invalid BGR values. Expected a tuple of length 3 or 4."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Color.from_bgr((200, 150, 100, 0, 0))
+
+    def test_to_rgb(self):
+        # Test converting Color object to RGB values
+        color = Color(r=100, g=150, b=200, a=50)
+        rgb = color.to_rgb()
+        self.assertEqual(rgb, (100, 150, 200, 50))
+
+        color = Color(r=100, g=150, b=200)
+        rgb = color.to_rgb()
+        self.assertEqual(rgb, (100, 150, 200))
+
+    def test_to_bgr(self):
+        # Test converting Color object to BGR values
+        color = Color(r=100, g=150, b=200, a=50)
+        bgr = color.to_bgr()
+        self.assertEqual(bgr, (200, 150, 100, 50))
+
+        color = Color(r=100, g=150, b=200)
+        bgr = color.to_bgr()
+        self.assertEqual(bgr, (200, 150, 100))
+
+
+class SearchResultTests(TestCase):
+    def setUp(self):
+        self.ref_img = Img(data=np.zeros((10, 10), dtype=np.uint8))
+        self.search_img = Img(data=np.zeros((20, 20), dtype=np.uint8))
+        self.confidence = 0.8
+        self.rect1 = Rect(left_top=Pixel(x=5, y=5), right_bottom=Pixel(x=15, y=15))
+        self.rect2 = Rect(left_top=Pixel(x=10, y=10), right_bottom=Pixel(x=20, y=20))
+        self.search_result = SearchResult(
+            ref_img=self.ref_img, search_img=self.search_img
+        )
 
     def test_attributes(self):
-        test_cases = [
-            {"data": self.img},
-            {"data": self.img, "conf": 0.8},
-            {"data": self.img, "width": 123, "height": 123},
-        ]
-        for kwargs in test_cases:
-            img = Img(**kwargs)
-            self.assertEqual(img.width, self.width)
-            self.assertEqual(img.height, self.height)
-            self.assertEqual(img.channels, self.channels)
+        self.assertEqual(self.search_result.ref_img, self.ref_img)
+        self.assertEqual(self.search_result.search_img, self.search_img)
+        self.assertEqual(self.search_result.locations, [])
 
-    def test_iteration(self):
-        img = Img(self.img)
-        img_values = list(img)
-        expected_values = [self.img, self.width, self.height, self.channels]
-        self.assertEqual(img_values, expected_values)
+    def test_add(self):
+        self.search_result.add(self.rect1)
+        self.assertEqual(len(self.search_result), 1)
+        self.assertEqual(self.search_result.locations, [self.rect1])
 
+        self.search_result.add(self.rect2)
+        self.assertEqual(len(self.search_result), 2)
+        self.assertEqual(self.search_result.locations, [self.rect1, self.rect2])
 
-# class ColorTests(TestCase):
-#     def test_color_creation_valid_rgb(self):
-#         # Test creating Color object with valid RGB values
-#         color = Color(r=255, g=128, b=64)
-#         self.assertEqual(color.r, 255)
-#         self.assertEqual(color.g, 128)
-#         self.assertEqual(color.b, 64)
-#         self.assertIsNone(color.a)
-
-#     def test_color_creation_valid_rgba(self):
-#         # Test creating Color object with valid RGBA values
-#         color = Color(r=255, g=128, b=64, a=200)
-#         self.assertEqual(color.r, 255)
-#         self.assertEqual(color.g, 128)
-#         self.assertEqual(color.b, 64)
-#         self.assertEqual(color.a, 200)
-
-#     def test_color_creation_invalid_rgb(self):
-#         # Test creating Color object with invalid RGB values
-#         with self.assertRaises(ValueError):
-#             Color(r=-1, g=128, b=64)
-
-#         with self.assertRaises(ValueError):
-#             Color(r=255, g=300, b=64)
-
-#         with self.assertRaises(ValueError):
-#             Color(r=255, g=128, b=-10)
-
-#     def test_color_creation_invalid_rgba(self):
-#         # Test creating Color object with invalid RGBA values
-#         with self.assertRaises(ValueError):
-#             Color(r=255, g=128, b=64, a=-1)
-
-#         with self.assertRaises(ValueError):
-#             Color(r=255, g=128, b=64, a=300)
-
-#     def test_from_rgb(self):
-#         # Test creating Color object from RGB values
-#         rgb = (100, 150, 200)
-#         color = Color.from_rgb(rgb)
-#         self.assertEqual(color.r, 100)
-#         self.assertEqual(color.g, 150)
-#         self.assertEqual(color.b, 200)
-#         self.assertIsNone(color.a)
-
-#     def test_from_rgb_invalid(self):
-#         err_msg = "Invalid RGB values. Expected a tuple of length 3 or 4."
-#         with self.assertRaisesRegex(ValueError, err_msg):
-#             Color.from_rgb((200, 150, 100, 0, 0))
-
-#     def test_from_bgr(self):
-#         # Test creating Color object from BGR values
-#         bgr = (200, 150, 100)
-#         color = Color.from_bgr(bgr)
-#         self.assertEqual(color.r, 100)
-#         self.assertEqual(color.g, 150)
-#         self.assertEqual(color.b, 200)
-#         self.assertIsNone(color.a)
-
-#     def test_from_bgr_invalid(self):
-#         err_msg = "Invalid BGR values. Expected a tuple of length 3 or 4."
-#         with self.assertRaisesRegex(ValueError, err_msg):
-#             Color.from_bgr((200, 150, 100, 0, 0))
-
-#     def test_to_rgb(self):
-#         # Test converting Color object to RGB values
-#         color = Color(r=100, g=150, b=200, a=50)
-#         rgb = color.to_rgb()
-#         self.assertEqual(rgb, (100, 150, 200, 50))
-
-#         color = Color(r=100, g=150, b=200)
-#         rgb = color.to_rgb()
-#         self.assertEqual(rgb, (100, 150, 200))
-
-#     def test_to_bgr(self):
-#         # Test converting Color object to BGR values
-#         color = Color(r=100, g=150, b=200, a=50)
-#         bgr = color.to_bgr()
-#         self.assertEqual(bgr, (200, 150, 100, 50))
-
-#         color = Color(r=100, g=150, b=200)
-#         bgr = color.to_bgr()
-#         self.assertEqual(bgr, (200, 150, 100))
-
-#     def test_asdict(self):
-#         # Test converting Color object to dictionary
-#         color = Color(r=100, g=150, b=200, a=50)
-#         color_dict = asdict(color)
-#         expected_dict = {
-#             "r": 100,
-#             "g": 150,
-#             "b": 200,
-#             "a": 50,
-#         }
-#         self.assertEqual(color_dict, expected_dict)
-
-#         color = Color(r=100, g=150, b=200)
-#         color_dict = asdict(color)
-#         expected_dict = {
-#             "r": 100,
-#             "g": 150,
-#             "b": 200,
-#             "a": None,
-#         }
-#         self.assertEqual(color_dict, expected_dict)
-
-
-# class SearchResultTests(TestCase):
-#     def setUp(self):
-#         self.ref_img = Img(data=np.zeros((10, 10), dtype=np.uint8))
-#         self.search_img = Img(data=np.zeros((20, 20), dtype=np.uint8))
-#         self.confidence = 0.8
-#         self.rect1 = Rect(left_top=Pixel(x=5, y=5), right_bottom=Pixel(x=15, y=15))
-#         self.rect2 = Rect(left_top=Pixel(x=10, y=10), right_bottom=Pixel(x=20, y=20))
-#         self.search_result = SearchResult(
-#             ref_img=self.ref_img, search_img=self.search_img
-#         )
-
-#     def test_attributes(self):
-#         self.assertEqual(self.search_result.ref_img, self.ref_img)
-#         self.assertEqual(self.search_result.search_img, self.search_img)
-#         self.assertEqual(self.search_result.confidence, self.confidence)
-#         self.assertEqual(self.search_result.locations, [])
-
-#     def test_add(self):
-#         self.search_result.add(self.rect1)
-#         self.assertEqual(len(self.search_result), 1)
-#         self.assertEqual(self.search_result.locations, [self.rect1])
-
-#         self.search_result.add(self.rect2)
-#         self.assertEqual(len(self.search_result), 2)
-#         self.assertEqual(self.search_result.locations, [self.rect1, self.rect2])
-
-#     def test_remove(self):
-#         with self.assertRaises(NotImplementedError):
-#             self.search_result.remove()
-
-
-# class RefPathTests(TestCase):
-#     def setUp(self) -> None:
-#         pass
-
-#     def test_attributes(self):
-#         ref_path = RefPath("test_path.png", 0.85)
-#         self.assertEqual(ref_path.path, "test_path.png")
-#         self.assertEqual(ref_path.confidence, 0.85)
+    def test_remove(self):
+        with self.assertRaises(NotImplementedError):
+            self.search_result.remove()
