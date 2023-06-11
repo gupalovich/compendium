@@ -4,7 +4,7 @@ from time import sleep
 import numpy as np
 import win32api
 
-from .core import Keys
+from .keys import Keys
 
 keys = Keys()
 

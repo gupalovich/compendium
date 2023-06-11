@@ -30,10 +30,11 @@ class State(Enum):
         :param STOPPED = auto()
     """
 
-    INITIAL = 0
+    INIT = 0
     STARTED = auto()
     STOPPED = auto()
     # Actions
     MOVING = auto()
-    GATHERING = auto()
     SEARCHING = auto()
+    GATHERING = auto()
+    KILLING = auto()

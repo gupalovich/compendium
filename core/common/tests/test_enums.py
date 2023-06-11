@@ -23,7 +23,7 @@ class StateTests(TestCase):
         self.assertEqual(len(State), self.state_len)
 
     def test_attribute_names(self):
-        self.assertEqual(State.INITIAL.name, "INITIAL")
+        self.assertEqual(State.INIT.name, "INIT")
         self.assertEqual(State.STARTED.name, "STARTED")
         self.assertEqual(State.STOPPED.name, "STOPPED")
         self.assertEqual(State.MOVING.name, "MOVING")
@@ -31,7 +31,7 @@ class StateTests(TestCase):
         self.assertEqual(State.SEARCHING.name, "SEARCHING")
 
     def test_attribute_values(self):
-        self.assertEqual(State.INITIAL.value, 0)
+        self.assertEqual(State.INIT.value, 0)
         self.assertIsInstance(State.STARTED.value, int)
         self.assertIsInstance(State.STOPPED.value, int)
         self.assertIsInstance(State.MOVING.value, int)

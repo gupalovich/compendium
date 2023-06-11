@@ -182,6 +182,9 @@ erDiagram
 ## Version
 ---
 
+    0.0.6 (12.06.2023)
+        - Core parts are mostly complete
+
     0.0.5 (10.06.2023)
         - Restructure project architecture
 
