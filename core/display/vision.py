@@ -4,12 +4,11 @@ import cv2 as cv
 import numpy as np
 import pytesseract
 
-from core.common.entities import Detections, Img, Pixel, Rect, RefPath
+from core.common.entities import Img, Pixel, Rect, SearchResult
+from core.common.enums import ColorFormat
 from core.display.window import WindowHandler
-from core.vision.utils import load_img
 
-from .enums import ColorFormat
-from .utils import convert_img_color, crop_img, draw_rectangles
+from .utils import draw_rectangles
 
 
 class BaseVision:
@@ -27,7 +26,7 @@ class BaseVision:
         locations = list(zip(*locations[::-1]))  # removes empty arrays
         return locations
 
-    def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> Detections:
+    def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> SearchResult:
         ref_width = ref_img.width
         ref_height = ref_img.height
         ref_img_gray = convert_img_color(ref_img, ColorFormat.BGR_GRAY)
@@ -40,7 +39,7 @@ class BaseVision:
             ref_img_gray, search_img_gray, ref_img.confidence
         )
         mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
-        result = Detections(ref_img, search_img)
+        result = SearchResult(ref_img, search_img)
 
         for loc_x, loc_y in locations:
             if crop:
@@ -60,7 +59,7 @@ class BaseVision:
 
         return result
 
-    def find_ui(self, ref_img: Img, search_img: Img, crop: Rect = None) -> Detections:
+    def find_ui(self, ref_img: Img, search_img: Img, crop: Rect = None) -> SearchResult:
         result = self.find(ref_img, search_img, crop)
         return result
 

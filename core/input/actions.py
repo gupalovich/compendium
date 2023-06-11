@@ -39,7 +39,7 @@ def wind_mouse(
     delay=False,
 ):
     """
-    WindMouse algorithm. Calls the move_mouse kwarg with each new step.
+    WindMouse algorithm. Calls the set_cursor with each new step.
     G_0 - magnitude of the gravitational force
     W_0 - magnitude of the wind force fluctuations
     M_0 - maximum step size (velocity clip threshold)

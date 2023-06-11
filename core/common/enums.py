@@ -22,7 +22,7 @@ class ColorFormat:
 
 
 class State(Enum):
-    """Enum states for bot instances
+    """Enum states for Bot instances
 
     #### Available states:
         :param INITIAL = 0

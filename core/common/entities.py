@@ -4,8 +4,6 @@ from typing import List, Optional, Tuple
 import cv2 as cv
 import numpy as np
 
-from config import settings
-
 from .enums import ColorFormat
 
 
@@ -15,11 +13,11 @@ class ValueObject:
 
 @dataclass(frozen=True)
 class Pixel:
-    """A 2D coordinate
+    """A 2D pixel coordinate
 
     #### Attributes:
-        x: int
-        y: int
+        :x: int
+        :y: int
     """
 
     x: int
@@ -34,14 +32,14 @@ class Rect:
     """A 2d rectangle
 
     #### Attributes:
-        left_top: Pixel
-        right_bottom: Optional[Pixel] = None
-        width: Optional[float] = None
-        height: Optional[float] = None
+        :left_top: Pixel
+        :right_bottom: Optional[Pixel] = None
+        :width: Optional[float] = None
+        :height: Optional[float] = None
 
     #### Example:
-        Rect(left_top=Pixel(0, 0), right_bottom=Pixel(100, 100))
-        Rect(left_top=Pixel(0, 0), width=100, height=100)
+        - Rect(left_top=Pixel(0, 0), right_bottom=Pixel(100, 100))
+        - Rect(left_top=Pixel(0, 0), width=100, height=100)
     """
 
     left_top: Pixel
@@ -56,16 +54,12 @@ class Rect:
             )
 
         if self.right_bottom is None:
-            self.calc_right_bottom()
+            self._calc_right_bottom()
         if self.right_bottom and (self.width is None or self.height is None):
-            self.calc_dimensions()
+            self._calc_dimensions()
 
     def __iter__(self):
-        """Allows iteration, unpacking over value object"""
-        yield self.left_top
-        yield self.right_bottom
-        yield self.width
-        yield self.height
+        return (i for i in (self.left_top, self.right_bottom, self.width, self.height))
 
     @property
     def center(self) -> Pixel:
@@ -74,14 +68,14 @@ class Rect:
         y = round((self.left_top.y + self.right_bottom.y) / 2)
         return Pixel(x, y)
 
-    def calc_right_bottom(self) -> Pixel:
+    def _calc_right_bottom(self) -> Pixel:
         """The bottom right point of the rectangle"""
         self.right_bottom = Pixel(
             self.left_top.x + self.width,
             self.left_top.y + self.height,
         )
 
-    def calc_dimensions(self) -> None:
+    def _calc_dimensions(self) -> None:
         """The width and height of the rectangle"""
         self.width = self.right_bottom.x - self.left_top.x
         self.height = self.right_bottom.y - self.left_top.y
@@ -174,35 +168,25 @@ class Color(ValueError):
         return self.b, self.g, self.r, self.a
 
 
-class Img:
+class ImgBase:
     _data: Optional[np.ndarray] = None
+    _path: Optional[str] = ""
     data: Optional[np.ndarray] = None
     confidence: Optional[float] = None
     width: Optional[int] = None
     height: Optional[int] = None
     channels: Optional[int] = 1
-    static_path = settings.STATIC_PATH
-
-    def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
-        self.path = path
-        self.confidence = conf
-        self.fmt = fmt
-        self._load()
-        self._set_params()
-
-    def __iter__(self):
-        return (i for i in (self.width, self.height, self.channels))
 
     @property
     def initial(self):
         return self._data
 
-    def _load(self) -> None:
-        path = self.static_path + self.path
-        img = cv.imread(path, self.fmt)
-        if not img.any():
-            raise FileNotFoundError(f"Img {path} not found")
-        self._data = img
+    @property
+    def path(self):
+        return self.path
+
+    def __iter__(self):
+        return (i for i in (self.width, self.height, self.channels))
 
     def _set_params(self) -> None:
         self.data = self.initial
@@ -215,7 +199,7 @@ class Img:
         self.data = self.initial
 
     def save(self, img_path: str) -> None:
-        cv.imwrite(self.static_path + img_path, self.data)
+        cv.imwrite(img_path, self.data)
 
     def show(self, window_name: str = "Window") -> None:
         cv.imshow(window_name, self.data)
@@ -231,11 +215,34 @@ class Img:
         self.data = cv.resize(self.data, None, fx=x_factor, fy=x_factor)
 
     def cvt_color(self, fmt: ColorFormat) -> None:
-        self.data = cv.cv.cvtColor(self.data, fmt)
+        self.data = cv.cvtColor(self.data, fmt)
+
+
+class Img(ImgBase):
+    """Use if you already have an image"""
+
+    def __init__(self, data: str) -> None:
+        self._data = data
+
+
+class ImgLoader(ImgBase):
+    """Use if you don't have an image"""
+
+    def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
+        self._path = path
+        self.confidence = conf
+        self.fmt = fmt
+        self._load()
+
+    def _load(self) -> None:
+        img = cv.imread(self.path, self.fmt)
+        if not img.any():
+            raise FileNotFoundError(f"Img {self.path} not found")
+        self._data = img
 
 
 @dataclass
-class Detections:
+class SearchResult:
     """Entity representing a collection of detected locations
 
     #### Attributes:

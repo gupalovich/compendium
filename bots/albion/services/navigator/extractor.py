@@ -1,15 +1,9 @@
 import cv2 as cv
 
 from core.common.entities import Pixel, Polygon, Rect
+from core.display.utils import crop_polygon_img, draw_circles
+from core.display.vision import BaseVision
 from core.display.window import WindowHandler
-from core.vision.utils import (
-    crop_polygon_img,
-    draw_circles,
-    load_img,
-    resize_img,
-    save_img,
-)
-from core.vision.vision import BaseVision
 
 
 def extract_map(filename: str) -> None:
