@@ -11,7 +11,7 @@ from core.display.window import WindowHandler
 from .utils import draw_rectangles
 
 
-class BaseVision:
+class VisionBase:
     method = cv.TM_CCOEFF_NORMED
     cropped_areas = {}
     ui_elements = {}
@@ -27,18 +27,19 @@ class BaseVision:
         return locations
 
     def find(self, ref_img: Img, search_img: Img, crop: Rect = None) -> SearchResult:
-        ref_width = ref_img.width
-        ref_height = ref_img.height
-        ref_img_gray = convert_img_color(ref_img, ColorFormat.BGR_GRAY)
-        search_img_gray = convert_img_color(search_img, ColorFormat.BGR_GRAY)
+        ref_width, ref_height = ref_img.width, ref_img.height
+        ref_img.cvt_color(ColorFormat.BGR_GRAY)
+        search_img.cvt_color(ColorFormat.BGR_GRAY)
 
         if crop:
-            search_img_gray = crop_img(search_img_gray, crop)
+            search_img.crop(crop)
 
-        locations = self.match_template(
-            ref_img_gray, search_img_gray, ref_img.confidence
-        )
-        mask = np.zeros(search_img_gray.data.shape[:2], dtype=np.uint8)
+        locations = self.match_template(ref_img, search_img, ref_img.confidence)
+        mask = np.zeros(search_img.data.shape[:2], dtype=np.uint8)
+        # reset images for next search
+        ref_img.reset()
+        search_img.reset()
+
         result = SearchResult(ref_img, search_img)
 
         for loc_x, loc_y in locations:
@@ -64,11 +65,12 @@ class BaseVision:
         return result
 
     def image_to_text(self, search_img: Img, crop: Rect) -> str:
-        return pytesseract.image_to_string(crop_img(search_img, crop))
+        search_img.crop(crop)
+        return pytesseract.image_to_string(search_img.data)
 
     def live(
         self,
-        ref_path: RefPath,
+        ref_img: Img,
         exit_key: str = "q",
         resize: Pixel = Pixel(1200, 675),
         crop: Rect = None,
@@ -82,7 +84,7 @@ class BaseVision:
         window = WindowHandler()
         while True:
             search_img = window.grab()
-            result = self.find_ui(ref_path, search_img, crop)
+            result = self.find_ui(ref_img, search_img, crop)
             show_img = draw_rectangles(search_img, result.locations)
             print("Found: ", len(result))
             show_img = cv.resize(show_img.data, tuple(resize))

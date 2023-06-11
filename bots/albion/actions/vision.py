@@ -1,8 +1,8 @@
 from core.common.entities import ImgLoader, Pixel, Rect
-from core.display.vision import BaseVision
+from core.display.vision import VisionBase
 
 
-class Vision(BaseVision):
+class Vision(VisionBase):
     def __init__(self) -> None:
         self.cropped_areas = {
             "skill_panel": Rect(Pixel(480, 975), Pixel(1475, 1065)),

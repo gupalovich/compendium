@@ -2,7 +2,7 @@ import cv2 as cv
 
 from core.common.entities import Pixel, Polygon, Rect
 from core.display.utils import crop_polygon_img, draw_circles
-from core.display.vision import BaseVision
+from core.display.vision import VisionBase
 from core.display.window import WindowHandler
 
 
@@ -40,7 +40,7 @@ def grab_minimap():
         search_img = resize_img(search_img, zoom_factor=1.55)
         ref_img = window.grab(region=minimap_crop)
         save_img(ref_img, "albion/temp/minimap.png")
-        result = BaseVision.find(ref_img, search_img, confidence=0.75)
+        result = VisionBase.find(ref_img, search_img, confidence=0.75)
         print("FOUND: ", len(result))
         show_img = draw_circles(search_img, result.locations, radius=2)
         # show_img = cv.resize(show_img.data, [1200, 875])

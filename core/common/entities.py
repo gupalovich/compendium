@@ -271,9 +271,6 @@ class SearchResult:
         :ref_img: Img
         :search_img: Img
         :locations: Optional[List[Rect]]
-
-    ### TODO:
-        - make locations hashable (set)
     """
 
     ref_img: Img

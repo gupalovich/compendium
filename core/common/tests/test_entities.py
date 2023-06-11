@@ -194,7 +194,7 @@ class ImgBaseTests(TestCase):
 
     def test_crop_polygon(self):
         window = WindowHandler()
-        img = window.grab_mss()
+        img = window.grab()
         region = Polygon(
             [Pixel(100, 500), Pixel(500, 250), Pixel(1000, 600), Pixel(500, 800)]
         )
