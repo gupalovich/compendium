@@ -101,12 +101,11 @@ class WindowHandler:
         Grab the window with optimized parameters for maximum speed boost.
         This function has 1.5-2x speed boost compared to grab_mss() function.
 
-        Grab all monitors:
-        ---
-        width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
-        height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
-        left = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
-        top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
+        #### Grab all monitors:
+        :width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
+        :height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
+        :left = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
+        :top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
         """
         region = region or self.dimensions
         left, top = region.left_top
