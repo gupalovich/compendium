@@ -24,6 +24,9 @@ class Bot:
     def stop(self):
         self.running = False
 
+    def set_state(self, state: State):
+        self.state = state
+
     def run(self):
         raise NotImplementedError
 
