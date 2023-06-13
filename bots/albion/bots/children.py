@@ -20,7 +20,6 @@ class Visionary(BotChild):
 class Actionist(BotChild):
     def _start(self):
         while self.running:
-            print("here")
             sleep(self.MAIN_LOOP_DELAY)
 
 

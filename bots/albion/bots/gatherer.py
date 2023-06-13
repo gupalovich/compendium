@@ -9,7 +9,8 @@ from .children import Actionist, Navigator, Visionary
 
 
 class Watcher(BotMother):
-    def __init__(self, on_release_type: str = ""):
+    def __init__(self, children: list, on_release_type: str = ""):
+        self.children = children
         self._set_on_release(on_release_type)
 
     def _set_on_release(self, on_release_type: str):
@@ -34,10 +35,6 @@ class Watcher(BotMother):
             return False
         return True
 
-    def start(self):
-        super().start()
-        self._start()
-
     def _start(self):
         listener = keyboard.Listener(on_release=self.on_release)
         listener.start()
@@ -45,21 +42,19 @@ class Watcher(BotMother):
 
 class Gatherer(BotFather):
     def __init__(self):
-        self.watcher = Watcher("gatherer")
         self.visionary = Visionary()
         self.actionist = Actionist()
         self.navigator = Navigator()
         self.children = [self.visionary, self.actionist, self.navigator]
+        self.watcher = Watcher(self.children, "gatherer")
 
     def start(self):
-        super().start()
         self.watcher.start()
-        self._start()
+        super().start()
 
     def _start(self):
         while self.running:
             if not self.watcher.running:
                 self.stop()
-            print(self.visionary.screen)
             # self.update_children_state()
             sleep(self.MAIN_LOOP_DELAY)

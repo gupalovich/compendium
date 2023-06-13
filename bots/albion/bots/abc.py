@@ -5,15 +5,16 @@ from core.common.enums import State
 
 class Bot:
     # contants
+    INIT_SECONDS = 0
     MAIN_LOOP_DELAY = 0.04
-    # threading properties
-    running = False
     # bot properties
+    running = False
     state = None
 
     def start(self):
         print(f"- Started {self.__class__.__name__}")
         self.running = True
+        self._start()
 
     def stop(self):
         print(f"- Stopped {self.__class__.__name__}")
@@ -27,9 +28,20 @@ class Bot:
 
 
 class BotFather(Bot):
-    # contants
-    INIT_SECONDS = 0
-    # properties
+    children = []
+
+    def update_children_state(self):
+        for child in self.children:
+            child.set_state(self.state)
+
+    def prepare_task(self):
+        pass
+
+    def propagate_info(self):
+        pass
+
+
+class BotMother(Bot):
     children = []
 
     def start(self):
@@ -49,25 +61,6 @@ class BotFather(Bot):
         for child in self.children:
             child.stop()
 
-    def update_children_state(self):
-        for child in self.children:
-            child.set_state(self.state)
-
-    def prepare_task(self):
-        pass
-
-    def propagate_info(self):
-        pass
-
-
-class BotMother(Bot):
-    pass
-
 
 class BotChild(Bot):
-    # contants
     INIT_SECONDS = 1
-
-    def start(self):
-        super().start()
-        self._start()
