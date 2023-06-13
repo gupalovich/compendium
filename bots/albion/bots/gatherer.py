@@ -2,11 +2,10 @@ from time import sleep
 
 from pynput import keyboard
 
-# from core.common.enums import State
-from core.display.vision import VisionBase
-from core.display.window import WindowHandler
+from .abc import BotFather, BotMother
+from .children import Actionist, Visionary
 
-from .abc import BotChild, BotFather, BotMother
+# from core.common.enums import State
 
 
 class Watcher(BotMother):
@@ -27,22 +26,6 @@ class Watcher(BotMother):
     def _start(self):
         listener = keyboard.Listener(on_release=self.on_release)
         listener.start()
-
-
-class Visionary(BotChild):
-    def __init__(self) -> None:
-        self.window = WindowHandler()
-        self.vision = VisionBase()
-
-    def _start(self):
-        while self.running:
-            sleep(self.MAIN_LOOP_DELAY)
-
-
-class Actionist(BotChild):
-    def _start(self):
-        while self.running:
-            sleep(self.MAIN_LOOP_DELAY)
 
 
 class Gatherer(BotFather):
