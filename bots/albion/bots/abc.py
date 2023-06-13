@@ -10,11 +10,11 @@ class Bot:
     state = None
 
     def start(self):
-        print(f"- {self.__class__.__name__} started")
+        print(f"- Started {self.__class__.__name__}")
         self.running = True
 
     def stop(self):
-        print(f"- {self.__class__.__name__} stopped")
+        print(f"- Stopped {self.__class__.__name__}")
         self.running = False
 
     def set_state(self, state: State):

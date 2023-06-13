@@ -10,13 +10,27 @@ from .children import Actionist, Visionary
 
 
 class Watcher(BotMother):
-    def __init__(self, on_release=None):
-        self.on_release = on_release or self._on_release
+    def __init__(self, on_release_type: str = None):
+        self._set_on_release(on_release_type)
 
-    def _on_release(self, key):
+    def _set_on_release(self, on_release_type: str):
+        match on_release_type:
+            case "gatherer":
+                self.on_release = self.gatherer_on_release
+            case _:
+                self.on_release = self._on_release
+
+    def gatherer_on_release(self, key: keyboard.Key):
+        if key == keyboard.Key.esc:
+            self.stop()
+            return False
+        return True
+
+    def _on_release(self, key: keyboard.Key):
         if key == keyboard.Key.end:
             self.stop()
             return False
+        return True
 
     def start(self):
         super().start()
@@ -33,12 +47,7 @@ class Gatherer(BotFather):
             "exit": keyboard.Key.esc,
         }
         self.children = [Visionary(), Actionist()]
-        self.watcher = Watcher(self.on_release)
-
-    def on_release(self, key):
-        if key == keyboard.Key.esc:
-            self.stop()
-            return False
+        self.watcher = Watcher("gatherer")
 
     def start(self):
         super().start()
