@@ -10,10 +10,13 @@ from .children import Actionist, Visionary
 
 
 class Watcher(BotMother):
-    def __init__(self, on_release_type: str = None):
+    def __init__(self, on_release_type: str = ""):
         self._set_on_release(on_release_type)
 
     def _set_on_release(self, on_release_type: str):
+        if not isinstance(on_release_type, str):
+            raise ValueError("Incorrect on_release_type: ", on_release_type)
+
         match on_release_type:
             case "gatherer":
                 self.on_release = self.gatherer_on_release
