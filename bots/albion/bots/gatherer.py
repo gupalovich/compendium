@@ -1,48 +1,71 @@
-from threading import Lock, Thread
 from time import sleep
 
-from core.common.enums import State
+from pynput import keyboard
+
+# from core.common.enums import State
+from core.display.vision import VisionBase
+from core.display.window import WindowHandler
+
+from .abc import BotChild, BotFather, BotMother
 
 
-class Bot:
-    # contants
-    INIT_SECONDS = 0
-    # threading properties
-    thread_service = None
-    running = False
-    lock = None
-    # bot properties
-    state = None
-    loop_delay = 0.04
+class Watcher(BotMother):
+    def __init__(self, keys: dict = None):
+        self.key_binds = keys or {
+            "exit": keyboard.Key.esc,
+        }
 
-    def __init__(self):
-        self.lock = Lock()
+    def on_release(self, key):
+        if key == self.key_binds["exit"]:
+            self.stop()
+            return False
 
     def start(self):
-        self.running = True
+        super().start()
+        self._start()
+
+    def _start(self):
+        listener = keyboard.Listener(on_release=self.on_release)
+        listener.start()
+
+
+class Visionary(BotChild):
+    def __init__(self) -> None:
+        self.window = WindowHandler()
+        self.vision = VisionBase()
+
+    def _start(self):
+        while self.running:
+            sleep(self.MAIN_LOOP_DELAY)
+
+
+class Actionist(BotChild):
+    def _start(self):
+        while self.running:
+            sleep(self.MAIN_LOOP_DELAY)
+
+
+class Gatherer(BotFather):
+    def __init__(self):
+        self.key_binds = {
+            "exit": keyboard.Key.esc,
+        }
+        self.children = [Visionary(), Actionist()]
+        self.watcher = Watcher(self.key_binds)
+
+    def start(self):
+        super().start()
+        self.watcher.start()
+        self._start()
+        self.start_children()
 
     def stop(self):
-        self.running = False
+        super().stop()
+        self.stop_children()
 
-    def set_state(self, state: State):
-        self.state = state
-
-    def run(self):
-        raise NotImplementedError
-
-
-class Gatherer(Bot):
-    def __init__(self):
-        super().__init__()
-        print(self.lock)
-
-    def run(self):
-        """
-        1. INIT
-        - Логирование операции
-        -
-
-        """
-        sleep(self.INIT_SECONDS)
+    def _start(self):
         while self.running:
-            sleep(self.loop_delay)
+            sleep(self.MAIN_LOOP_DELAY)
+
+            if not self.watcher.running:
+                self.stop()

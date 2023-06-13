@@ -74,7 +74,7 @@ class VisionBase:
         return pytesseract.image_to_string(search_img.data)
 
 
-class VisionDraw:
+class ImgDraw:
     pass
 
 
