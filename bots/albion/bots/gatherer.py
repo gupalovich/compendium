@@ -8,7 +8,7 @@ from .abc import BotFather, BotMother
 from .children import Actionist, Navigator, Visionary
 
 
-class Watcher(BotMother):
+class Sentinel(BotMother):
     def __init__(self, children: list, on_release_type: str = ""):
         self.children = children
         self._set_on_release(on_release_type)
@@ -46,15 +46,15 @@ class Gatherer(BotFather):
         self.actionist = Actionist()
         self.navigator = Navigator()
         self.children = [self.visionary, self.actionist, self.navigator]
-        self.watcher = Watcher(self.children, "gatherer")
+        self.sentinel = Sentinel(self.children, "gatherer")
 
     def start(self):
-        self.watcher.start()
+        self.sentinel.start()
         super().start()
 
     def _start(self):
         while self.running:
-            if not self.watcher.running:
+            if not self.sentinel.running:
                 self.stop()
             # self.update_children_state()
             sleep(self.MAIN_LOOP_DELAY)
