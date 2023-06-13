@@ -1,4 +1,5 @@
 from time import sleep
+from typing import Callable
 
 from pynput import keyboard
 
@@ -9,13 +10,11 @@ from .children import Actionist, Visionary
 
 
 class Watcher(BotMother):
-    def __init__(self, keys: dict = None):
-        self.key_binds = keys or {
-            "exit": keyboard.Key.esc,
-        }
+    def __init__(self, on_release=None):
+        self.on_release = on_release or self._on_release
 
-    def on_release(self, key):
-        if key == self.key_binds["exit"]:
+    def _on_release(self, key):
+        if key == keyboard.Key.end:
             self.stop()
             return False
 
@@ -34,7 +33,12 @@ class Gatherer(BotFather):
             "exit": keyboard.Key.esc,
         }
         self.children = [Visionary(), Actionist()]
-        self.watcher = Watcher(self.key_binds)
+        self.watcher = Watcher(self.on_release)
+
+    def on_release(self, key):
+        if key == keyboard.Key.esc:
+            self.stop()
+            return False
 
     def start(self):
         super().start()
