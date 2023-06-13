@@ -1,12 +1,11 @@
 from time import sleep
-from typing import Callable
 
 from pynput import keyboard
 
+from core.common.enums import State
+
 from .abc import BotFather, BotMother
 from .children import Actionist, Visionary
-
-# from core.common.enums import State
 
 
 class Watcher(BotMother):
@@ -46,11 +45,10 @@ class Watcher(BotMother):
 
 class Gatherer(BotFather):
     def __init__(self):
-        self.key_binds = {
-            "exit": keyboard.Key.esc,
-        }
-        self.children = [Visionary(), Actionist()]
         self.watcher = Watcher("gatherer")
+        self.visionary = Visionary()
+        self.actionist = Actionist()
+        self.children = [self.visionary, self.actionist]
 
     def start(self):
         super().start()
@@ -64,7 +62,8 @@ class Gatherer(BotFather):
 
     def _start(self):
         while self.running:
-            sleep(self.MAIN_LOOP_DELAY)
-
             if not self.watcher.running:
                 self.stop()
+            self.set_state(State.GATHERING)
+            self.update_children_state()
+            sleep(self.MAIN_LOOP_DELAY)

@@ -28,7 +28,6 @@ class BotFather(Bot):
     # contants
     INIT_SECONDS = 0
     # properties
-    key_binds = []
     children = []
 
     def start_children(self):
@@ -39,8 +38,9 @@ class BotFather(Bot):
         for child in self.children:
             child.stop()
 
-    def feed_children(self):
-        pass
+    def update_children_state(self):
+        for child in self.children:
+            child.set_state(self.state)
 
     def prepare_task(self):
         pass
