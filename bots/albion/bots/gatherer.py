@@ -39,8 +39,8 @@ class Gatherer(BotFather):
     def start(self):
         super().start()
         self.watcher.start()
-        self._start()
         self.start_children()
+        self._start()
 
     def stop(self):
         super().stop()
