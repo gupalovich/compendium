@@ -186,6 +186,12 @@ class ImgBase:
     def __iter__(self):
         return (i for i in (self.width, self.height, self.channels))
 
+    def __repr__(self):
+        msg = (
+            f"<Img(width={self.width}, height={self.height}, channels={self.channels})>"
+        )
+        return msg
+
     def _set_params(self) -> None:
         self.data = self.initial
         self._set_dimensions()

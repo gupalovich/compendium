@@ -10,15 +10,17 @@ class Visionary(BotChild):
     def __init__(self) -> None:
         self.window = WindowHandler()
         self.vision = VisionBase()
+        self.screen = None
 
     def _start(self):
         while self.running:
-            sleep(self.MAIN_LOOP_DELAY)
+            self.screen = self.window.grab()
 
 
 class Actionist(BotChild):
     def _start(self):
         while self.running:
+            print("here")
             sleep(self.MAIN_LOOP_DELAY)
 
 

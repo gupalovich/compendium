@@ -1,3 +1,5 @@
+from threading import Thread
+
 from core.common.enums import State
 
 
@@ -30,8 +32,17 @@ class BotFather(Bot):
     # properties
     children = []
 
+    def start(self):
+        super().start()
+        self.start_children()
+
+    def stop(self):
+        super().stop()
+        self.stop_children()
+
     def start_children(self):
         for child in self.children:
+            child = Thread(target=child.start, args=())
             child.start()
 
     def stop_children(self):
@@ -45,6 +56,9 @@ class BotFather(Bot):
     def prepare_task(self):
         pass
 
+    def propagate_info(self):
+        pass
+
 
 class BotMother(Bot):
     pass
@@ -53,3 +67,7 @@ class BotMother(Bot):
 class BotChild(Bot):
     # contants
     INIT_SECONDS = 1
+
+    def start(self):
+        super().start()
+        self._start()

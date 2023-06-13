@@ -5,7 +5,7 @@ from pynput import keyboard
 from core.common.enums import State
 
 from .abc import BotFather, BotMother
-from .children import Actionist, Visionary
+from .children import Actionist, Navigator, Visionary
 
 
 class Watcher(BotMother):
@@ -48,22 +48,18 @@ class Gatherer(BotFather):
         self.watcher = Watcher("gatherer")
         self.visionary = Visionary()
         self.actionist = Actionist()
-        self.children = [self.visionary, self.actionist]
+        self.navigator = Navigator()
+        self.children = [self.visionary, self.actionist, self.navigator]
 
     def start(self):
         super().start()
         self.watcher.start()
-        self.start_children()
         self._start()
-
-    def stop(self):
-        super().stop()
-        self.stop_children()
 
     def _start(self):
         while self.running:
             if not self.watcher.running:
                 self.stop()
-            self.set_state(State.GATHERING)
-            self.update_children_state()
+            print(self.visionary.screen)
+            # self.update_children_state()
             sleep(self.MAIN_LOOP_DELAY)
