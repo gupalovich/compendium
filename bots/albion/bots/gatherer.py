@@ -1,43 +1,9 @@
 from time import sleep
 
-from pynput import keyboard
-
+from core.common.bots import BotFather, Watcher
 from core.common.enums import State
 
-from .abc import BotFather, BotMother
 from .children import Actionist, Navigator, Visionary
-
-
-class Sentinel(BotMother):
-    def __init__(self, children: list, on_release_type: str = ""):
-        self.children = children
-        self._set_on_release(on_release_type)
-
-    def _set_on_release(self, on_release_type: str):
-        if not isinstance(on_release_type, str):
-            raise ValueError("Incorrect on_release_type: ", on_release_type)
-
-        match on_release_type:
-            case "gatherer":
-                self.on_release = self.gatherer_on_release
-            case _:
-                self.on_release = self._on_release
-
-    def gatherer_on_release(self, key: keyboard.Key):
-        if key == keyboard.Key.esc:
-            self.stop()
-            return False
-        return True
-
-    def _on_release(self, key: keyboard.Key):
-        if key == keyboard.Key.end:
-            self.stop()
-            return False
-        return True
-
-    def _start(self):
-        listener = keyboard.Listener(on_release=self.on_release)
-        listener.start()
 
 
 class Gatherer(BotFather):
@@ -46,15 +12,15 @@ class Gatherer(BotFather):
         self.actionist = Actionist()
         self.navigator = Navigator()
         self.children = [self.visionary, self.actionist, self.navigator]
-        self.sentinel = Sentinel(self.children, "gatherer")
+        self.watcher = Watcher(self.children, "gatherer")
 
     def start(self):
-        self.sentinel.start()
+        self.watcher.start()
         super().start()
 
     def _start(self):
         while self.running:
-            if not self.sentinel.running:
+            if not self.watcher.running:
                 self.stop()
             # self.update_children_state()
             sleep(self.MAIN_LOOP_DELAY)

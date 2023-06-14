@@ -1,9 +1,8 @@
 from time import sleep
 
+from core.common.bots import BotChild
 from core.display.vision import VisionBase
 from core.display.window import WindowHandler
-
-from .abc import BotChild
 
 
 class Visionary(BotChild):
@@ -24,4 +23,6 @@ class Actionist(BotChild):
 
 
 class Navigator(BotChild):
-    pass
+    def _start(self):
+        while self.running:
+            sleep(self.MAIN_LOOP_DELAY)

@@ -8,6 +8,7 @@ from config import settings
 from core.display.window import WindowHandler
 
 from ..entities import (
+    Action,
     Color,
     Img,
     ImgBase,
@@ -16,6 +17,7 @@ from ..entities import (
     Polygon,
     Rect,
     SearchResult,
+    Task,
 )
 from ..enums import ColorFormat
 

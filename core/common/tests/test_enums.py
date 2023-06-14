@@ -17,7 +17,7 @@ class ColorFormatTests(TestCase):
 
 class StateTests(TestCase):
     def setUp(self) -> None:
-        self.state_len = 6
+        self.state_len = 7
 
     def test_attribute_length(self):
         self.assertEqual(len(State), self.state_len)

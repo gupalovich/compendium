@@ -298,3 +298,36 @@ class SearchResult:
 
     def remove(self) -> None:
         raise NotImplementedError()
+
+
+@dataclass
+class Action:
+    """
+    TODO
+    """
+
+    func: callable
+    args: tuple
+    result: SearchResult
+
+    def __repr__(self) -> str:
+        return f"<Action(func={self.func}, args={self.args}, result={self.result})>"
+
+
+class Task:
+    """Entity representing a bot task"""
+
+    """
+    TODO
+    """
+
+    def __init__(self, name: str, nodes: List[Action]) -> None:
+        self.name = name
+        self.nodes = enumerate(nodes)
+        self.current_node = None
+
+    def __repr__(self) -> str:
+        return f"<Task(name={self.name}, current_node={self.current_node}>"
+
+    def __iter__(self):
+        yield self.nodes
