@@ -14,17 +14,10 @@ Features of AlbionBot include:
 
 ## TODO
 
-0. Семья
-    Task
-    name
-    current_node
-    nodes
-    final_result
-
-    Action
-    name
-    func
-    result
+0. Таски
+    - В зависимоси от состояния отца, начинается распределение задач.
+    - Отец добавляет в self.tasks задачи
+        - Если нет задач, идет переход на следующее состояние
 
 0. Тестирование
     - draw функций

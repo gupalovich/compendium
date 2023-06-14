@@ -38,3 +38,10 @@ class State(Enum):
     SEARCHING = auto()
     GATHERING = auto()
     KILLING = auto()
+
+
+class TaskStatus:
+    IDLE = 0
+    STARTED = auto()
+    FINISHED = auto()
+    FAILED = auto()

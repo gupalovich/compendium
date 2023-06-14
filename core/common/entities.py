@@ -6,7 +6,7 @@ import numpy as np
 
 from config import settings
 
-from .enums import ColorFormat
+from .enums import ColorFormat, State, TaskStatus
 
 
 class ValueObject:
@@ -300,34 +300,51 @@ class SearchResult:
         raise NotImplementedError()
 
 
+# class Task:
+#     """Entity representing a bot task"""
+
+#     def __init__(self, name: str, nodes: List[Action]) -> None:
+#         self.name = name
+#         self.nodes = enumerate(nodes)
+#         self.current_node = None
+
+#     def __repr__(self) -> str:
+#         return f"<Task(name={self.name}, current_node={self.current_node}>"
+
+# def __repr__(self) -> str:
+#     return f"<Action(func={self.func}, args={self.args}, result={self.result})>"
+
+#     def __iter__(self):
+#         yield self.nodes
+
+
 @dataclass
-class Action:
-    """
-    TODO
-    """
-
+class SubTask:
     func: callable
-    args: tuple
-    result: SearchResult
+    args: tuple = ()
+    kwargs: dict = {}
+    result = None
 
-    def __repr__(self) -> str:
-        return f"<Action(func={self.func}, args={self.args}, result={self.result})>"
+    def start(self):
+        result = self.func(*self.args, **self.kwargs)
+        return result
 
 
+@dataclass
 class Task:
-    """Entity representing a bot task"""
+    name: str
+    nodes: List[SubTask]
+    one_off: bool
+    use_state: State | None
+    status: TaskStatus = TaskStatus.IDLE
 
-    """
-    TODO
-    """
+    def start(self):
+        pass
 
-    def __init__(self, name: str, nodes: List[Action]) -> None:
-        self.name = name
-        self.nodes = enumerate(nodes)
-        self.current_node = None
 
-    def __repr__(self) -> str:
-        return f"<Task(name={self.name}, current_node={self.current_node}>"
+class Action(SubTask):
+    result: bool
 
-    def __iter__(self):
-        yield self.nodes
+
+class Search(SubTask):
+    result: SearchResult

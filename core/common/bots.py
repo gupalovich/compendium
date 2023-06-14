@@ -23,6 +23,7 @@ class Bot:
         self.running = False
 
     def set_state(self, state: State):
+        print(f"\n- Set state {state} for {self.__class__.__name__}\n")
         self.state = state
 
     def _start(self):
@@ -35,12 +36,6 @@ class BotFather(Bot):
     def update_children_state(self):
         for child in self.children:
             child.set_state(self.state)
-
-    def prepare_task(self):
-        pass
-
-    def propagate_info(self):
-        pass
 
 
 class BotMother(Bot):
