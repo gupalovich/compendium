@@ -46,6 +46,8 @@ class Gatherer(BotFather):
         pass
 
     def _start(self):
+        """Сделаю пока что проще на if/else создать подходящюю таску"""
+
         while self.running:
             if not self.watcher.running:
                 self.stop()

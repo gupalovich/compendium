@@ -1,7 +1,7 @@
 import cv2 as cv
 
-from core.common.entities import Pixel, Polygon, Rect
-from core.display.utils import crop_polygon_img, draw_circles
+from core.common.entities import ImgLoader, Pixel, Polygon, Rect
+from core.display.utils import draw_circles
 from core.display.vision import VisionBase
 from core.display.window import WindowHandler
 
@@ -19,11 +19,12 @@ def extract_map(filename: str) -> None:
         ]
     )
     search_img = window.grab()
-    ref_img = crop_polygon_img(search_img, map_crop)
-    save_img(ref_img, f"maps/{filename}.png")
+    search_img.crop_polygon(map_crop)
+    search_img.save(f"maps/{filename}.png")
 
 
 def grab_minimap():
+    vision = VisionBase()
     char_pos = Pixel(1710, 912)
     crop_size = 65
     window = WindowHandler()
@@ -31,16 +32,17 @@ def grab_minimap():
         left_top=Pixel(char_pos.x - crop_size, char_pos.y - crop_size),
         right_bottom=Pixel(char_pos.x + crop_size, char_pos.y + crop_size),
     )
+    search_img = ImgLoader("albion/maps/mase_knoll.png")
+    search_img.resize_x(x_factor=1.55)
     # print(minimap_crop.width, minimap_crop.height)
     # cv.imshow("Debug Screen", ref_img.data)
     # cv.waitKey(0)
     # cv.destroyAllWindows()
     while True:
-        search_img = load_img("albion/maps/mase_knoll.png")
-        search_img = resize_img(search_img, zoom_factor=1.55)
         ref_img = window.grab(region=minimap_crop)
-        save_img(ref_img, "albion/temp/minimap.png")
-        result = VisionBase.find(ref_img, search_img, confidence=0.75)
+        ref_img.confidence = 0.75
+        ref_img.save("albion/temp/minimap.png")
+        result = vision.find(ref_img, search_img)
         print("FOUND: ", len(result))
         show_img = draw_circles(search_img, result.locations, radius=2)
         # show_img = cv.resize(show_img.data, [1200, 875])

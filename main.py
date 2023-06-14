@@ -1,6 +1,6 @@
 import logging
 
-from bots.albion.bots.gatherer import Gatherer
+from bots.albion.services.navigator import grab_minimap
 from config import settings
 
 
@@ -17,8 +17,10 @@ def main():
     # vision_live = VisionLive(ui_elements["mount"])
     # vision_live.start()
 
-    gatherer = Gatherer()
-    gatherer.start()
+    # gatherer = Gatherer()
+    # gatherer.start()
+
+    grab_minimap()
 
 
 if __name__ == "__main__":

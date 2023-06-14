@@ -279,5 +279,6 @@ supervisord.conf
 # Project
 config.ini
 static/temp/*
+static/albion/temp/*
 yolov5
 *.cache
