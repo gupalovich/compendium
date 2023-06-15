@@ -25,6 +25,9 @@ class VectorBase:
     def __eq__(self, other):
         return tuple(self) == tuple(other)
 
+    def __hash__(self):
+        return hash(tuple(self))
+
     def __abs__(self):
         return math.hypot(self.x, self.y)
 

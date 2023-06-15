@@ -78,7 +78,7 @@ def pathing(char_pos: Pixel, node: Pixel):
 class NodeMapper:
     """Simplify way of mapping nodes to the map"""
 
-    mark_color = (0, 0, 0)
+    node_color = (255, 255, 0)
     exit_key = "q"
 
     def __init__(self, map_path: str, nodes: List[Pixel] = None):
@@ -87,7 +87,10 @@ class NodeMapper:
         self.nodes = nodes or []
 
     def add_node(self, node: Pixel):
+        if node in self.nodes:
+            return
         self.nodes.append(node)
+        print("Added node: ", node)
 
     def remove_node(self, node: Pixel):
         self.nodes.remove(node)
@@ -99,11 +102,10 @@ class NodeMapper:
 
     def start(self):
         while True:
-            self.map = draw_circles(self.map, self.nodes, color=self.mark_color)
+            self.map = draw_circles(self.map, self.nodes, color=self.node_color)
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):
-                print(self.nodes)
                 cv.destroyAllWindows()
                 break
 

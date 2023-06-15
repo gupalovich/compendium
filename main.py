@@ -21,7 +21,6 @@ def main():
     # gatherer.start()
 
     # find_character_on_map()
-    from core.common.entities import Pixel
 
     node_mapper = NodeMapper(
         "albion/maps/mase_knoll.png",
