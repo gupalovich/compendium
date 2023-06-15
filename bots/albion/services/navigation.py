@@ -5,6 +5,7 @@ from typing import List
 
 import cv2 as cv
 
+from config import settings
 from core.common.entities import ImgLoader, Pixel, Polygon, Rect, Vector2d
 from core.display.utils import draw_circles
 from core.display.vision import VisionBase
@@ -97,7 +98,7 @@ class NodeMapper:
         self.nodes.remove(node)
 
     def save_nodes(self):
-        filename = "static/" + self.map_path.split(".")[0] + "_nodes.txt"
+        filename = settings.STATIC_PATH + self.map_path.split(".")[0] + "_nodes.txt"
         with open(filename, "w+", encoding="utf-8") as file:
             file.write(str(self.nodes))
 
@@ -112,7 +113,6 @@ class NodeMapper:
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):
-                self.save_nodes()
                 cv.destroyAllWindows()
                 break
 
