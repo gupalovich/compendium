@@ -1,0 +1,1 @@
+[Pixel(x=508, y=316), Pixel(x=397, y=365), Pixel(x=512, y=483), Pixel(x=682, y=434), Pixel(x=467, y=372), Pixel(x=479, y=451)]

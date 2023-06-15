@@ -1,4 +1,5 @@
 import math
+import os
 from time import sleep
 from typing import List
 
@@ -95,6 +96,11 @@ class NodeMapper:
     def remove_node(self, node: Pixel):
         self.nodes.remove(node)
 
+    def save_nodes(self):
+        filename = "static/" + self.map_path.split(".")[0] + "_nodes.txt"
+        with open(filename, "w+", encoding="utf-8") as file:
+            file.write(str(self.nodes))
+
     def click_event(self, event, x, y, flags, param):
         if event == cv.EVENT_LBUTTONDOWN:
             pixel = Pixel(x, y)
@@ -106,6 +112,7 @@ class NodeMapper:
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):
+                self.save_nodes()
                 cv.destroyAllWindows()
                 break
 
