@@ -1,6 +1,6 @@
 import logging
 
-from bots.albion.services.navigator import grab_minimap
+from bots.albion.services.navigation import NodeMapper, find_character_on_map
 from config import settings
 
 
@@ -20,7 +20,13 @@ def main():
     # gatherer = Gatherer()
     # gatherer.start()
 
-    grab_minimap()
+    # find_character_on_map()
+    from core.common.entities import Pixel
+
+    node_mapper = NodeMapper(
+        "albion/maps/mase_knoll.png",
+    )
+    node_mapper.start()
 
 
 if __name__ == "__main__":

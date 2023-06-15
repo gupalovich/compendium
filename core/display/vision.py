@@ -60,10 +60,6 @@ class VisionBase:
 
         return result
 
-    def find_ui(self, ref_img: Img, search_img: Img, crop: Rect = None) -> SearchResult:
-        result = self.find(ref_img, search_img, crop)
-        return result
-
     def find_color(self):
         """
         TODO: split into ColorVision, UiVision, TextVision

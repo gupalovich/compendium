@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
@@ -14,19 +15,33 @@ class ValueObject:
 
 
 @dataclass(frozen=True)
-class Pixel:
-    """A 2D pixel coordinate
-
-    #### Attributes:
-        :x: int
-        :y: int
-    """
-
+class VectorBase:
     x: int
     y: int
 
     def __iter__(self):
         return (i for i in (self.x, self.y))
+
+    def __eq__(self, other):
+        return tuple(self) == tuple(other)
+
+    def __abs__(self):
+        return math.hypot(self.x, self.y)
+
+    def __bool__(self):
+        return bool(abs(self))
+
+
+class Vector2d(VectorBase):
+    def angle(self):
+        return math.atan2(self.y, self.x)
+
+    def angle_degree(self):
+        return math.degrees(self.angle())
+
+
+class Pixel(VectorBase):
+    """A Pixel in pixel-coordinate system"""
 
 
 @dataclass
@@ -59,6 +74,9 @@ class Rect:
             self._calc_right_bottom()
         if self.right_bottom and (self.width is None or self.height is None):
             self._calc_dimensions()
+
+    def __repr__(self) -> str:
+        return f"<Rect(left_top=({self.left_top.x}, {self.left_top.y}), right_bottom=({self.right_bottom.x}, {self.right_bottom.y}), width={self.width}, height={self.height}>"
 
     def __iter__(self):
         return (i for i in (self.left_top, self.right_bottom, self.width, self.height))
