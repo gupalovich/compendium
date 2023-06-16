@@ -1,6 +1,6 @@
 import logging
 
-from bots.albion.services.navigation import NodeMapper, find_character_on_map
+from bots.albion.services.navigation import ImgExtractor, NodeMapper
 from config import settings
 
 
@@ -22,10 +22,14 @@ def main():
 
     # find_character_on_map()
 
-    node_mapper = NodeMapper(
-        "albion/maps/mase_knoll.png",
-    )
-    node_mapper.start()
+    # node_mapper = NodeMapper(
+    #     "albion/maps/mase_knoll.png",
+    # )
+    # node_mapper.start()
+
+    extractor = ImgExtractor()
+    img = extractor.extract("map", "test")
+    img.show()
 
 
 if __name__ == "__main__":

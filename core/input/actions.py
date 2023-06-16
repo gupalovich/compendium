@@ -4,6 +4,8 @@ from time import sleep
 import numpy as np
 import win32api
 
+from core.common.entities import Pixel
+
 from .keys import Keys
 
 keys = Keys()
@@ -114,3 +116,8 @@ def press(key: str, delay=0) -> None:
     keys.directKey(key, keys.key_release)
     if delay:
         sleep(delay)
+
+
+def move_click(position: Pixel):
+    move_to(position.x, position.y)
+    click()
