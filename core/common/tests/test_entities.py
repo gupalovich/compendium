@@ -394,5 +394,7 @@ class SearchResultTests(TestCase):
         self.assertEqual(self.search_result.locations, [self.rect1, self.rect2])
 
     def test_remove(self):
-        with self.assertRaises(NotImplementedError):
-            self.search_result.remove()
+        self.search_result.add(self.rect1)
+        self.assertEqual(len(self.search_result), 1)
+        self.search_result.remove(self.rect1)
+        self.assertEqual(len(self.search_result), 0)

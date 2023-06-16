@@ -37,10 +37,10 @@ class VectorBase:
 
 
 class Vector2d(VectorBase):
-    def angle(self):
+    def angle(self) -> float:
         return math.atan2(self.y, self.x)
 
-    def angle_degree(self):
+    def angle_degree(self) -> float:
         return math.degrees(self.angle())
 
 
@@ -126,15 +126,6 @@ class Polygon(ValueObject):
 
 @dataclass(frozen=True)
 class Color(ValueError):
-    """A color respresenting value object
-
-    #### Attributes:
-        r: int
-        g: int
-        b: int
-        a: Optional[int] = None
-    """
-
     r: int
     g: int
     b: int
@@ -218,7 +209,7 @@ class ImgBase:
         """
         TODO: merge with reset
         """
-        self.data = self.initial
+        self.data = copy.deepcopy(self.initial)
         self._set_dimensions()
 
     def _set_dimensions(self):
@@ -229,8 +220,7 @@ class ImgBase:
             self.channels = 1
 
     def reset(self):
-        self.data = copy.deepcopy(self.initial)
-        self._set_dimensions()
+        self._set_params()
 
     def save(self, img_path: str) -> None:
         cv.imwrite(settings.STATIC_PATH + img_path, self.data)
@@ -274,16 +264,12 @@ class ImgBase:
 
 
 class Img(ImgBase):
-    """Use if you already have an image"""
-
     def __init__(self, data: str) -> None:
         self._data = data
         self._set_params()
 
 
 class ImgLoader(ImgBase):
-    """Use if you don't have an image"""
-
     def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
         self.path = path
         self.confidence = conf
@@ -325,8 +311,8 @@ class SearchResult:
     def add(self, rect: Rect) -> None:
         self.locations.append(rect)
 
-    def remove(self) -> None:
-        raise NotImplementedError()
+    def remove(self, rect: Rect) -> None:
+        self.locations.remove(rect)
 
 
 # class Task:
