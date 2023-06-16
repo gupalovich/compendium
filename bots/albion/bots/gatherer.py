@@ -1,7 +1,6 @@
 from time import sleep
 
 from core.common.bots import BotFather, Watcher
-from core.common.entities import Action, Search, Task
 from core.common.enums import State
 
 from .children import Actionist, Navigator, Visionary
@@ -19,25 +18,6 @@ class Gatherer(BotFather):
         ]
         self.watcher = Watcher(self.children, "gatherer")
 
-        self.tasks = [
-            Task(
-                "Find main character",
-                nodes=[
-                    Search(self.prepare_tasks, args=(self.visionary.screen)),
-                    Action(self.prepare_tasks),
-                ],
-                one_off=False,
-                use_state=None,
-            ),
-            Task(
-                "To mount",
-                nodes=[],
-                one_off=False,
-                use_state=State.INIT,
-            ),
-        ]
-        self.active_tasks = []
-
     def start(self):
         self.watcher.start()
         super().start()
@@ -53,8 +33,7 @@ class Gatherer(BotFather):
                 self.stop()
 
             if self.state is None:
-                if not self.tasks:
-                    self.set_state(State.INIT)
+                self.set_state(State.INIT)
             elif self.state == State.INIT:
                 pass
             elif self.state == State.SEARCHING:

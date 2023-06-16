@@ -8,7 +8,6 @@ from config import settings
 from core.display.window import WindowHandler
 
 from ..entities import (
-    Action,
     Color,
     Img,
     ImgBase,
@@ -17,7 +16,6 @@ from ..entities import (
     Polygon,
     Rect,
     SearchResult,
-    Task,
 )
 from ..enums import ColorFormat
 
@@ -384,6 +382,7 @@ class SearchResultTests(TestCase):
         self.assertEqual(self.search_result.ref_img, self.ref_img)
         self.assertEqual(self.search_result.search_img, self.search_img)
         self.assertEqual(self.search_result.locations, [])
+        self.assertEqual(self.search_result.count, 0)
 
     def test_add(self):
         self.search_result.add(self.rect1)
