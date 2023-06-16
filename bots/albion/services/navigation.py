@@ -1,4 +1,5 @@
 import math
+from time import sleep, time
 from typing import List
 
 import cv2 as cv
@@ -56,7 +57,8 @@ class ImgExtractor:
         )
         return region
 
-    def extract(self, img_type: str, save_filename: str) -> Img:
+    def extract(self, img_type: str, save_filename: str = "") -> Img:
+        save_filename = save_filename or img_type
         img = self.window.grab()
         crop_func, save_path = self.img_types.get(img_type)
         region = crop_func()
@@ -88,6 +90,7 @@ class NodeWalker:
             Pixel(x=596, y=526),
             Pixel(x=590, y=525),
         ]
+        self.cooldowns = {}
 
     def node_vector(self, char_pos: Pixel, node_pos: Pixel) -> Vector2d:
         return Vector2d(x=node_pos.x - char_pos.x, y=char_pos.y - node_pos.y)
@@ -104,31 +107,38 @@ class NodeWalker:
         y = int(origin.y - distance * math.sin(radians))
         return Pixel(x, y)
 
+    def get_closest_node_index(self, char_pos: Pixel) -> int:
+        closest_distance = float("inf")
+        closest_index = None
+        for i, node in enumerate(self.nodes):
+            node_vector = self.node_vector(char_pos, node)
+            node_dist = self.node_distance(node_vector)
+            if node_dist < closest_distance:
+                closest_distance = node_dist
+                closest_index = i
+        return closest_index
+
     def start(self):
         vision = VisionBase()
         extractor = ImgExtractor()
         search_img = ImgLoader("albion/maps/mase_knoll.png")
 
-        i = 0
-
         while self.nodes:
             search_img.reset()
 
-            ref_img = extractor.extract("minimap", "minimap")
+            ref_img = extractor.extract("minimap")
             ref_img.confidence = 0.72
             ref_img.resize_x(0.69)
 
             result = vision.find(ref_img, search_img)
-            print(result)
 
-            if not len(result):
-                from time import sleep
-
+            if not result.count:
                 sleep(0.1)
                 continue
 
             search_img = draw_circles(search_img, result.locations)
             search_img = draw_circles(search_img, self.nodes, color=(255, 255, 0))
+            search_img = draw_circles(search_img, self.cooldowns, color=(0, 0, 0))
 
             search_img.resize_x(1.2)
 
@@ -139,7 +149,21 @@ class NodeWalker:
                 break
 
             char_pos = result.locations[0].center
-            node = self.nodes[i]
+
+            available_nodes = [
+                node for node in self.nodes if node not in self.cooldowns
+            ]
+            if self.cooldowns:
+                current_time = time()
+                # Update cooldowns and remove expired ones
+                self.cooldowns = {
+                    node: cooldown_time
+                    for node, cooldown_time in self.cooldowns.items()
+                    if cooldown_time > current_time
+                }
+
+            closest_index = self.get_closest_node_index(char_pos)
+            node = self.nodes[closest_index]
             node_vector = self.node_vector(char_pos, node)
             node_dist = self.node_distance(node_vector)
             node_dir = self.node_direction(node_vector)
@@ -151,9 +175,11 @@ class NodeWalker:
 
             if 2 < node_dist < 50:
                 move_click(node_dir)
+                # Set the cooldown for the node (e.g., 5 seconds)
+                cooldown_time = time() + 5
+                self.cooldowns[node] = cooldown_time
             if node_dist < 2:
-                self.nodes.pop(i)
-                i += 1
+                self.nodes.remove(node)
 
 
 class NodeMapper:
@@ -186,7 +212,8 @@ class NodeMapper:
         with open(filename, "w+", encoding="utf-8") as file:
             file.write(str(self.nodes))
 
-    def click_event(self, event, x, y, flags, param):
+    def click_event(self, event, x, y, *args):
+        # pylint: disable=unused-argument
         if event == cv.EVENT_LBUTTONDOWN:
             pixel = Pixel(x, y)
             self.add_node(pixel)

@@ -8,7 +8,7 @@ import numpy as np
 
 from config import settings
 
-from .enums import ColorFormat, State, TaskStatus
+from .enums import ColorFormat
 
 
 class ValueObject:
@@ -311,6 +311,10 @@ class SearchResult:
     ref_img: Img
     search_img: Img
     locations: Optional[List[Rect]] = field(default_factory=list)
+
+    @property
+    def count(self):
+        return len(self.locations)
 
     def __len__(self) -> int:
         return len(self.locations)
