@@ -1,3 +1,4 @@
+import copy
 import math
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
@@ -214,6 +215,9 @@ class ImgBase:
         return msg
 
     def _set_params(self) -> None:
+        """
+        TODO: merge with reset
+        """
         self.data = self.initial
         self._set_dimensions()
 
@@ -225,7 +229,7 @@ class ImgBase:
             self.channels = 1
 
     def reset(self):
-        self.data = self.initial
+        self.data = copy.deepcopy(self.initial)
         self._set_dimensions()
 
     def save(self, img_path: str) -> None:

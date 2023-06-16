@@ -25,6 +25,7 @@ Features of AlbionBot include:
     - input actions - поменять аргументы с x, y на Pixel
     - убрать WindowHandler из зависимостей классов
     - draw функции в Img или ImgDraw
+    - Remove SearchResult ref_img, search_img
 
 0. Тестирование
     - Добавить изолированность, последовательность к input actions

@@ -30,10 +30,13 @@ def draw_crosshairs(img: Img, rectangles: list[Rect]):
 
 
 def draw_circles(
-    img: Img, positions: list[Rect | Pixel], radius: int = 1, color=(0, 0, 255)
+    img: Img,
+    positions: list[Rect | Pixel],
+    radius: int = 1,
+    thickness: int = 1,
+    color=(0, 0, 255),
 ):
     line_type = cv.LINE_4
-    thickness = 2
 
     for pos in positions:
         if isinstance(pos, Rect):

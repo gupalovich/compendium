@@ -6,6 +6,7 @@ import cv2 as cv
 from config import settings
 from core.common.entities import Img, ImgLoader, Pixel, Polygon, Rect, Vector2d
 from core.display.utils import draw_circles
+from core.display.vision import VisionBase
 from core.display.window import WindowHandler
 from core.input.actions import move_click
 
@@ -47,7 +48,7 @@ class ImgExtractor:
         return region
 
     def minimap_crop(self) -> Rect:
-        origin = Pixel(1714, 916)
+        origin = Pixel(1710, 910)
         radius = 65
         region = Rect(
             left_top=Pixel(origin.x - radius, origin.y - radius),
@@ -71,6 +72,23 @@ class ImgExtractor:
 
 
 class NodeWalker:
+    def __init__(self):
+        self.nodes = [
+            Pixel(x=585, y=521),
+            Pixel(x=586, y=510),
+            Pixel(x=590, y=501),
+            Pixel(x=601, y=501),
+            Pixel(x=610, y=505),
+            Pixel(x=619, y=508),
+            Pixel(x=629, y=506),
+            Pixel(x=619, y=515),
+            Pixel(x=613, y=520),
+            Pixel(x=611, y=526),
+            Pixel(x=604, y=526),
+            Pixel(x=596, y=526),
+            Pixel(x=590, y=525),
+        ]
+
     def node_vector(self, char_pos: Pixel, node_pos: Pixel) -> Vector2d:
         return Vector2d(x=node_pos.x - char_pos.x, y=char_pos.y - node_pos.y)
 
@@ -86,17 +104,56 @@ class NodeWalker:
         y = int(origin.y - distance * math.sin(radians))
         return Pixel(x, y)
 
-    def start(self, char_pos: Pixel, node: Pixel):
-        node = self.node_vector(char_pos, node)
-        node_dist = self.node_distance(node)
-        node_dir = self.node_direction(node)
+    def start(self):
+        vision = VisionBase()
+        extractor = ImgExtractor()
+        search_img = ImgLoader("albion/maps/mase_knoll.png")
 
-        print("Node Vector: ", node)
-        print("Node Distance: ", node_dist)
-        print("Node Direction: ", node_dir, "\n")
+        i = 0
 
-        if 2 < node_dist < 50:
-            move_click(node_dir)
+        while self.nodes:
+            search_img.reset()
+
+            ref_img = extractor.extract("minimap", "minimap")
+            ref_img.confidence = 0.72
+            ref_img.resize_x(0.69)
+
+            result = vision.find(ref_img, search_img)
+            print(result)
+
+            if not len(result):
+                from time import sleep
+
+                sleep(0.1)
+                continue
+
+            search_img = draw_circles(search_img, result.locations)
+            search_img = draw_circles(search_img, self.nodes, color=(255, 255, 0))
+
+            search_img.resize_x(1.2)
+
+            cv.imshow("Debug Screen", search_img.data)
+            key = cv.waitKey(1)
+            if key == ord("q"):
+                cv.destroyAllWindows()
+                break
+
+            char_pos = result.locations[0].center
+            node = self.nodes[i]
+            node_vector = self.node_vector(char_pos, node)
+            node_dist = self.node_distance(node_vector)
+            node_dir = self.node_direction(node_vector)
+
+            print("Node: ", node)
+            print("Node Vector: ", node_vector)
+            print("Node Distance: ", node_dist)
+            print("Node Direction: ", node_dir, "\n")
+
+            if 2 < node_dist < 50:
+                move_click(node_dir)
+            if node_dist < 2:
+                self.nodes.pop(i)
+                i += 1
 
 
 class NodeMapper:
@@ -140,54 +197,6 @@ class NodeMapper:
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):
+                print(self.nodes)
                 cv.destroyAllWindows()
                 break
-
-
-# def find_character_on_map():
-#     vision = VisionBase()
-#     window = WindowHandler()
-#     nodes = [
-#         Pixel(x=552, y=574),
-#         Pixel(x=547, y=584),
-#         Pixel(x=543, y=592),
-#         Pixel(x=539, y=600),
-#         Pixel(x=536, y=610),
-#         Pixel(x=526, y=608),
-#         Pixel(x=515, y=605),
-#         Pixel(x=512, y=592),
-#         Pixel(x=516, y=584),
-#         Pixel(x=522, y=579),
-#         Pixel(x=526, y=573),
-#         Pixel(x=528, y=562),
-#         Pixel(x=523, y=556),
-#         Pixel(x=518, y=545),
-#         Pixel(x=512, y=532),
-#         Pixel(x=518, y=526),
-#         Pixel(x=529, y=528),
-#         Pixel(x=536, y=533),
-#         Pixel(x=544, y=543),
-#         Pixel(x=553, y=548),
-#         Pixel(x=558, y=555),
-#     ]
-#     i = 0
-#     while nodes:
-#         search_img = ImgLoader("albion/maps/mase_knoll.png")
-#         ref_img = window.grab(region=minimap_crop())
-#         ref_img.confidence = 0.73
-#         ref_img.resize_x(0.71)
-#         # ref_img.save("albion/temp/minimap.png")
-#         result = vision.find(ref_img, search_img)
-#         char_pos = result.locations[0].center
-
-#         # pathing(char_pos, nodes[i])
-#         # i += 1
-
-#         search_img = draw_circles(search_img, result.locations)
-#         search_img = draw_circles(search_img, nodes, color=(0, 0, 0))
-#         search_img.resize(Pixel(1500, 1500))
-#         cv.imshow("Debug Screen", search_img.data)
-#         key = cv.waitKey(1)
-#         if key == ord("q"):
-#             cv.destroyAllWindows()
-#             break
