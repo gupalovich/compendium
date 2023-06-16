@@ -65,8 +65,7 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
     Filter neural network class annotations, based on train_data/images placement
     Copy annotations to the appropriate label directory for training and validation set
 
-    Parameters
-    ---
+    ### Parameters
     image_dir : str
         Path to the directory with images
     annotations_dir : str
@@ -74,19 +73,16 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
     output_dir : str
         Path to the directory with labels
 
-    Example:
-    ---
+    ### Example:
     image_dir = "./data/train_data/images"
     annotations_dir = "./data/annotations"
     output_dir = "./data/train_data/labels"
 
     organize_annotations(image_dir, annotations_dir, output_dir)
 
-    TODO:
-    ---
+    ### TODO: Test
         - Make it a class, Split into smaller functions
         - Improve automation: Image placement randomization with fixed val_size
-        - Test
     """
 
     # Get the list of images in the train and val directories
@@ -129,13 +125,10 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
 def mirror_images(image_dir: str) -> None:
     """Flip images horizonally
 
-    Example:
-    ---
+    ### Example:
     mirror_images("data/test_data")
 
-    TODO:
-    ---
-    - Test
+    ### TODO: Test
     """
 
     image_files = os.listdir(image_dir)

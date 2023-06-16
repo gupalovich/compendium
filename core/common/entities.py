@@ -206,9 +206,6 @@ class ImgBase:
         return msg
 
     def _set_params(self) -> None:
-        """
-        TODO: merge with reset
-        """
         self.data = copy.deepcopy(self.initial)
         self._set_dimensions()
 

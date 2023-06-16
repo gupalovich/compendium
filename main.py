@@ -33,10 +33,16 @@ def main():
     # )
     # node_mapper.start()
 
-    from bots.albion.services.navigation import NodeWalker
+    # from bots.albion.services.navigation import NodeWalker
 
-    node_walker = NodeWalker()
-    node_walker.start()
+    # node_walker = NodeWalker()
+    # node_walker.start()
+
+    from bots.albion.services.vision import YoloVision
+
+    model_file_path = "ai/albion/models/best_albion1.0.engine"
+    yolo_vision = YoloVision(model_file_path)
+    yolo_vision.start()
 
 
 if __name__ == "__main__":

@@ -1,90 +1,87 @@
 from time import time
 
 import cv2 as cv
-import mss
-import numpy as np
 import torch
-from win32gui import FindWindow, GetWindowRect, SetForegroundWindow
 
-window_handle = FindWindow(None, "Albion Online Client")
-window_rect = GetWindowRect(window_handle)
-SetForegroundWindow(window_handle)
-
-x0, y0, _, _ = window_rect
-w, h = 1920, 1080
+from core.common.entities import Img, Pixel
+from core.common.enums import ColorFormat
+from core.display.window import WindowHandler
 
 
-def Screen_Shot(left=0, top=0, width=1920, height=1080):
-    stc = mss.mss()
-    scr = stc.grab({"left": left, "top": top, "width": width, "height": height})
-    stc.close()
-    img = np.array(scr)
-    img = cv.cvtColor(img, cv.IMREAD_COLOR)
+class YoloVision:
+    classes = [
+        "Heretic",
+        "Elemental",
+        "Sandstone",
+        "Rough Stone",
+        "Limestone",
+        "Birch",
+        "Chestnut",
+        "Logs",
+        "Copper Ore",
+        "Tin Ore",
+    ]
 
-    return img
+    def __init__(self, model_path: str, classes: list[str] = None):
+        self.model = None
+        self.model_path = model_path
+        self.classes = classes or self.classes
+        self.window = WindowHandler()
+        self._init_model()
 
+    def _init_model(self):
+        self.model = torch.hub.load("ultralytics/yolov5", "custom", self.model_path)
+        self.model.cuda()
+        self.model.multi_label = False
 
-model_file_path = "data/models/best_albion1.0.engine"
-model = torch.hub.load("ultralytics/yolov5", "custom", model_file_path)
-model.cuda()
-model.multi_label = False
+    def find(self, search_img: Img):
+        search_img.cvt_color(ColorFormat.BGR_RGB)
+        search_img.resize(Pixel(640, 640))
 
+        results = self.model(search_img.data)
+        search_img.reset()
+        return results
 
-classes = [
-    "Heretic",
-    "Elemental",
-    "Sandstone",
-    "Rough Stone",
-    "Limestone",
-    "Birch",
-    "Chestnut",
-    "Logs",
-    "Copper Ore",
-    "Tin Ore",
-]
+    def start(self):
+        loop_time = time()
+        while True:
+            search_img = self.window.grab()
+            results = self.find(search_img)
 
-loop_time = time()
-while True:
-    screenshot = Screen_Shot(0, 0, 1920, 1080)
-    screenshot = cv.cvtColor(screenshot, cv.COLOR_BGR2RGB)
-    screenshot_resized = cv.resize(screenshot, (640, 640))
-
-    results = model(screenshot_resized.copy())
-
-    labels, cord = (
-        results.xyxyn[0][:, -1].cpu().numpy(),
-        results.xyxyn[0][:, :-1].cpu().numpy(),
-    )
-
-    n = len(labels)
-
-    for i in range(n):
-        row = cord[i]
-        if row[4] >= 0.65:
-            x1, y1, x2, y2 = (
-                int(row[0] * w),
-                int(row[1] * h),
-                int(row[2] * w),
-                int(row[3] * h),
-            )
-            bgr = (0, 255, 0)
-            cv.rectangle(screenshot, (x1, y1), (x2, y2), bgr, 2)
-            cv.putText(
-                screenshot,
-                classes[int(labels[i])],
-                (x1, y1),
-                cv.FONT_HERSHEY_SIMPLEX,
-                0.9,
-                bgr,
-                2,
+            labels, cord = (
+                results.xyxyn[0][:, -1].cpu().numpy(),
+                results.xyxyn[0][:, :-1].cpu().numpy(),
             )
 
-    screenshot = cv.cvtColor(screenshot, cv.COLOR_RGB2BGR)
-    cv.imshow("YOLOv5", screenshot)
+            n = len(labels)
 
-    print("FPS {}".format(1.0 / (time() - loop_time)))
-    loop_time = time()
-    key = cv.waitKey(1)
-    if key == ord("q"):
-        cv.destroyAllWindows()
-        break
+            for i in range(n):
+                row = cord[i]
+                if row[4] >= 0.65:
+                    x1, y1, x2, y2 = (
+                        int(row[0] * 1920),
+                        int(row[1] * 1080),
+                        int(row[2] * 1920),
+                        int(row[3] * 1080),
+                    )
+                    bgr = (0, 255, 0)
+                    cv.rectangle(search_img.data, (x1, y1), (x2, y2), bgr, 2)
+                    cv.putText(
+                        search_img.data,
+                        self.classes[int(labels[i])],
+                        (x1, y1),
+                        cv.FONT_HERSHEY_SIMPLEX,
+                        0.9,
+                        bgr,
+                        2,
+                    )
+
+            cv.imshow("YOLOv5", search_img.data)
+
+            print("FPS {}".format(1.0 / (time() - loop_time)))
+            loop_time = time()
+
+            key = cv.waitKey(1)
+            if key == ord("q"):
+                cv.destroyAllWindows()
+                break

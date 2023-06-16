@@ -187,7 +187,6 @@ class NodeMapper:
     Simplify way of mapping nodes to the map
 
     TODO: NodeMapper based on character position and keybind
-
     """
 
     node_color = (255, 255, 0)

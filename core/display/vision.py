@@ -62,7 +62,7 @@ class VisionBase:
 
     def find_color(self):
         """
-        TODO: split into ColorVision, UiVision, TextVision
+        TODO: split into ColorVision, TextVision
         """
 
     def image_to_text(self, search_img: Img, crop: Rect) -> str:
@@ -70,11 +70,7 @@ class VisionBase:
         return pytesseract.image_to_string(search_img.data)
 
 
-class ImgDraw:
-    pass
-
-
-class VisionLive(VisionBase):
+class VisionLive:
     exit_key = "q"
     to_log = True
     resize = Pixel(1200, 675)
@@ -85,15 +81,13 @@ class VisionLive(VisionBase):
 
     def start(self) -> None:
         """
-        TODO:
-        - Add new class for such cases
-        - Add fps counter
-        - Add object found logger
+        TODO: Add fps counter
         """
+        vision = VisionBase()
         window = WindowHandler()
         while True:
             search_img = window.grab()
-            result = self.find(self.ref, search_img, self.crop)
+            result = vision.find(self.ref, search_img, self.crop)
             show_img = draw_rectangles(search_img, result.locations)
             show_img.resize(self.resize)
             if self.to_log:
