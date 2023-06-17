@@ -1,19 +1,26 @@
-from threading import Thread
+from threading import Lock, Thread
+from time import sleep
 
 from pynput import keyboard
 
+from core.common.entities import Img
 from core.common.enums import State
+from core.display.vision import Vision
 
 
 class Bot:
     # contants
     INIT_SECONDS = 0
     MAIN_LOOP_DELAY = 0.04
+    PAUSE_DELAY = 0.2
     # bot properties
     running = False
     state = None
+    # vision properties
+    search_img = None
 
     def start(self):
+        sleep(self.INIT_SECONDS)
         print(f"- Started {self.__class__.__name__}")
         self.running = True
         self._start()
@@ -23,24 +30,37 @@ class Bot:
         self.running = False
 
     def set_state(self, state: State):
-        print(f"\n- Set state {state} for {self.__class__.__name__}\n")
+        print(f"- Set state {state} for {self.__class__.__name__}")
         self.state = state
 
     def _start(self):
         """Process loop"""
 
 
-class BotFather(Bot):
+class BotParent(Bot):
+    window = None
     children = []
+
+
+class BotFather(BotParent):
+    def set_state(self, state: State):
+        super().set_state(state)
+        self.update_children_state()
+
+    def update_search_img(self):
+        self.search_img = self.window.grab()
+        self.update_children_search_img()
 
     def update_children_state(self):
         for child in self.children:
             child.set_state(self.state)
 
+    def update_children_search_img(self):
+        for child in self.children:
+            child.update_search_img(self.search_img)
 
-class BotMother(Bot):
-    children = []
 
+class BotMother(BotParent):
     def start(self):
         super().start()
         self.start_children()
@@ -60,7 +80,14 @@ class BotMother(Bot):
 
 
 class BotChild(Bot):
-    INIT_SECONDS = 1
+    def __init__(self, vision: Vision) -> None:
+        self.lock = Lock()
+        self.vision = vision()
+
+    def update_search_img(self, img: Img):
+        self.lock.acquire()
+        self.search_img = img
+        self.lock.release()
 
 
 class Watcher(BotMother):

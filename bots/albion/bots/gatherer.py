@@ -2,19 +2,17 @@ from time import sleep
 
 from core.common.bots import BotFather, Watcher
 from core.common.enums import State
+from core.display.window import WindowHandler
 
-from .children import Actionist, Navigator, Visionary
+from .children import Mounter
 
 
 class Gatherer(BotFather):
     def __init__(self):
-        self.visionary = Visionary()
-        self.actionist = Actionist()
-        self.navigator = Navigator()
+        self.window = WindowHandler()
+        self.mounter = Mounter()
         self.children = [
-            self.visionary,
-            # self.actionist,
-            # self.navigator,
+            self.mounter,
         ]
         self.watcher = Watcher(self.children, "gatherer")
 
@@ -22,23 +20,21 @@ class Gatherer(BotFather):
         self.watcher.start()
         super().start()
 
-    def prepare_tasks(self):
-        pass
-
     def _start(self):
-        """Сделаю пока что проще на if/else создать подходящюю таску"""
-
         while self.running:
             if not self.watcher.running:
                 self.stop()
 
+            self.update_search_img()
+
             if self.state is None:
-                self.set_state(State.INIT)
+                self.set_state(State.MOUNTING)
             elif self.state == State.INIT:
                 pass
+            elif self.state == State.MOUNTING:
+                if self.mounter.state == State.DONE:
+                    self.set_state(State.SEARCHING)
             elif self.state == State.SEARCHING:
-                pass
-            elif self.state == State.MOVING:
                 pass
             elif self.state == State.GATHERING:
                 pass

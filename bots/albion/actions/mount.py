@@ -12,11 +12,7 @@ ref_images = {
 }
 
 
-class ServiceVision(Vision):
-    """Base class for service vision, which inherits from Vision. Used by bot services."""
-
-
-class MountVision(ServiceVision):
+class MountVision(Vision):
     """Vision for mounts."""
 
     def find_mount(self, search_img: Img) -> SearchResult:
@@ -35,3 +31,7 @@ class MountVision(ServiceVision):
 
     def is_mounted(self, search_img: Img) -> bool:
         return self._check_mount_status("skill_teleport", "skill_panel", search_img)
+
+
+class MountActions:
+    pass

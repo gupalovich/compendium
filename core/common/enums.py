@@ -36,8 +36,11 @@ class State(Enum):
     # Actions
     MOVING = auto()
     SEARCHING = auto()
+    MOUNTING = auto()
     GATHERING = auto()
     KILLING = auto()
+    # States
+    DONE = auto()
 
 
 class TaskStatus:

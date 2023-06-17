@@ -1,7 +1,6 @@
 import logging
 
 from config import settings
-from core.display.window import WindowHandler
 
 
 def main():
@@ -17,8 +16,10 @@ def main():
     # vision_live = VisionLive(ui_elements["mount"])
     # vision_live.start()
 
-    # gatherer = Gatherer()
-    # gatherer.start()
+    from bots.albion.bots.gatherer import Gatherer
+
+    gatherer = Gatherer()
+    gatherer.start()
 
     # find_character_on_map()
 
@@ -44,18 +45,6 @@ def main():
     # model_file_path = "ai/albion/models/best_albion1.0.engine"
     # yolo_vision = YoloVision(model_file_path)
     # yolo_vision.start()
-
-    import time
-
-    from bots.albion.services.mounting import MountingService
-
-    while True:
-        window = WindowHandler()
-        mounting = MountingService()
-        mounting.update_search_img(window.grab())
-        mounting.start()
-
-        time.sleep(0.1)
 
 
 if __name__ == "__main__":
