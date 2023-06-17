@@ -11,10 +11,8 @@ from core.display.window import WindowHandler
 from .utils import draw_rectangles
 
 
-class VisionBase:
+class Vision:
     method = cv.TM_CCOEFF_NORMED
-    crop_areas = {}
-    ui_elements = {}
 
     def match_template(
         self, ref_img: Img, search_img: Img, confidence: float = 0.65
@@ -83,7 +81,7 @@ class VisionLive:
         """
         TODO: Add fps counter
         """
-        vision = VisionBase()
+        vision = Vision()
         window = WindowHandler()
         while True:
             search_img = window.grab()

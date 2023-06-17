@@ -1,6 +1,7 @@
 import logging
 
 from config import settings
+from core.display.window import WindowHandler
 
 
 def main():
@@ -46,7 +47,9 @@ def main():
 
     from bots.albion.services.mounting import MountingService
 
+    window = WindowHandler()
     mounting = MountingService()
+    mounting.update_search_img(window.grab())
     mounting.start()
 
 

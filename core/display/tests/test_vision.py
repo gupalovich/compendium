@@ -5,21 +5,19 @@ import cv2 as cv
 from config import settings
 from core.common.entities import ImgLoader, Pixel, Rect, SearchResult
 
-from ..vision import VisionBase
+from ..vision import Vision
 
 
-class VisionBaseTests(TestCase):
+class VisionTests(TestCase):
     def setUp(self) -> None:
         self.static_path = settings.STATIC_PATH
-        self.vision = VisionBase()
+        self.vision = Vision()
         self.search_img = ImgLoader("tests/vision/test_screen.png")
         self.ref_img = ImgLoader("tests/vision/test_template.png", conf=0.5)
         self.ref_img1 = ImgLoader("tests/vision/test_template1.png", conf=0.5)
 
     def test_attributes(self):
         self.assertEqual(self.vision.method, cv.TM_CCOEFF_NORMED)
-        self.assertIsInstance(self.vision.crop_areas, dict)
-        self.assertIsInstance(self.vision.ui_elements, dict)
 
     def test_match_template(self):
         result = self.vision.match_template(

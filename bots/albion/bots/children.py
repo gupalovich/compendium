@@ -1,14 +1,14 @@
 from time import sleep
 
 from core.common.bots import BotChild
-from core.display.vision import VisionBase
+from core.display.vision import Vision
 from core.display.window import WindowHandler
 
 
 class Visionary(BotChild):
     def __init__(self) -> None:
         self.window = WindowHandler()
-        self.vision = VisionBase()
+        self.vision = Vision()
         self.screen = None
 
     def _start(self):

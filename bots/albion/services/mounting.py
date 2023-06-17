@@ -1,15 +1,16 @@
 from threading import Lock
 
 from core.common.entities import Img
-from core.display.vision import VisionBase
+
+from ..actions.vision import MountVision, ServiceVision
 
 
 class Service:
     search_img = None
 
-    def __init__(self, vision: VisionBase = None) -> None:
+    def __init__(self, vision: ServiceVision) -> None:
         self.lock = Lock()
-        self.vision = vision
+        self.vision = vision()
 
     def update_search_img(self, img: Img):
         self.lock.acquire()
@@ -22,7 +23,7 @@ class Service:
 
 class MountingService(Service):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(MountVision)
 
     def is_mounted(self):
         pass
@@ -35,3 +36,4 @@ class MountingService(Service):
 
     def start(self) -> None:
         print("Mounting service started")
+        print(self.vision)

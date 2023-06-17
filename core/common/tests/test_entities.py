@@ -281,6 +281,10 @@ class ImgLoaderTests(TestCase):
         self.assertEqual(img.height, self.height)
         self.assertEqual(img.channels, 1)
 
+    def test_loader_not_found(self):
+        with self.assertRaises(FileNotFoundError):
+            ImgLoader("not_found.png", 0.8, ColorFormat.GRAY)
+
 
 class ColorTests(TestCase):
     def test_color_creation_valid_rgb(self):

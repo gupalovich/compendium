@@ -7,7 +7,7 @@ import cv2 as cv
 from config import settings
 from core.common.entities import Img, ImgLoader, Pixel, Polygon, Rect, Vector2d
 from core.display.utils import draw_circles
-from core.display.vision import VisionBase
+from core.display.vision import Vision
 from core.display.window import WindowHandler
 from core.input.actions import move_click
 
@@ -119,7 +119,7 @@ class NodeWalker:
         return closest_index
 
     def start(self):
-        vision = VisionBase()
+        vision = Vision()
         extractor = ImgExtractor()
         search_img = ImgLoader("albion/maps/mase_knoll.png")
 

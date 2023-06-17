@@ -276,8 +276,8 @@ class ImgLoader(ImgBase):
 
     def _load(self) -> None:
         img = cv.imread(settings.STATIC_PATH + self.path, self.fmt)
-        if not img.any():
-            raise FileNotFoundError(f"Img {self.path} not found")
+        if img is None or not img.any():
+            raise FileNotFoundError(f"Can't load img from this path: {self.path}")
         self._data = img
 
 
