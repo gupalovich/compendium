@@ -45,12 +45,17 @@ def main():
     # yolo_vision = YoloVision(model_file_path)
     # yolo_vision.start()
 
+    import time
+
     from bots.albion.services.mounting import MountingService
 
-    window = WindowHandler()
-    mounting = MountingService()
-    mounting.update_search_img(window.grab())
-    mounting.start()
+    while True:
+        window = WindowHandler()
+        mounting = MountingService()
+        mounting.update_search_img(window.grab())
+        mounting.start()
+
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":

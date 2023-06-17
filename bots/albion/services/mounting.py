@@ -25,9 +25,6 @@ class MountingService(Service):
     def __init__(self) -> None:
         super().__init__(MountVision)
 
-    def is_mounted(self):
-        pass
-
     def mount(self):
         pass
 
@@ -35,5 +32,9 @@ class MountingService(Service):
         pass
 
     def start(self) -> None:
-        print("Mounting service started")
-        print(self.vision)
+        if self.vision.is_mounting(self.search_img):
+            print("Mounting")
+        elif self.vision.is_mounted(self.search_img):
+            print("On mount")
+        else:
+            print("Gonna mount")

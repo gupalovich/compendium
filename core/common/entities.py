@@ -299,11 +299,17 @@ class SearchResult:
     def count(self):
         return len(self.locations)
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.locations)
 
     def __iter__(self):
-        yield self.locations
+        return (i for i in self.locations)
+
+    def __repr__(self):
+        return f"<SearchResult(count={self.count}, locations={self.locations})>"
+
+    def __bool__(self):
+        return bool(self.count)
 
     def add(self, rect: Rect) -> None:
         self.locations.append(rect)

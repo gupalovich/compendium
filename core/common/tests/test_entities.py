@@ -382,6 +382,31 @@ class SearchResultTests(TestCase):
             ref_img=self.ref_img, search_img=self.search_img
         )
 
+    def test_len(self):
+        self.assertEqual(len(self.search_result), 0)
+        self.search_result.add(self.rect1)
+        self.assertEqual(len(self.search_result), 1)
+
+    def test_iter(self):
+        self.search_result.add(self.rect1)
+        self.search_result.add(self.rect2)
+        r1, r2 = self.search_result
+        self.assertEqual(r1, self.rect1)
+        self.assertEqual(r2, self.rect2)
+
+    def test_bool(self):
+        self.assertFalse(self.search_result)
+        self.search_result.add(self.rect1)
+        self.assertTrue(self.search_result)
+
+    def test_repr(self):
+        self.search_result.add(self.rect1)
+        self.search_result.add(self.rect2)
+        self.assertEqual(
+            repr(self.search_result),
+            f"<SearchResult(count={self.search_result.count}, locations=[{self.rect1}, {self.rect2}])>",
+        )
+
     def test_attributes(self):
         self.assertEqual(self.search_result.ref_img, self.ref_img)
         self.assertEqual(self.search_result.search_img, self.search_img)

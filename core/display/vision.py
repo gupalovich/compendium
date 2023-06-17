@@ -41,20 +41,21 @@ class Vision:
         result = SearchResult(ref_img, search_img)
 
         for loc_x, loc_y in locations:
-            if crop:
-                loc_x += crop.left_top.x
-                loc_y += crop.left_top.y
-
             center_x = loc_x + ref_width // 2
             center_y = loc_y + ref_height // 2
 
             if mask[center_y, center_x] != 255:
+                # Mask out detected object
+                mask[loc_y : loc_y + ref_height, loc_x : loc_x + ref_width] = 255
+
+                if crop:
+                    loc_x += crop.left_top.x
+                    loc_y += crop.left_top.y
+
                 loc = Rect(
                     left_top=Pixel(loc_x, loc_y), width=ref_width, height=ref_height
                 )
                 result.add(loc)
-                # Mask out detected object
-                mask[loc_y : loc_y + ref_height, loc_x : loc_x + ref_width] = 255
 
         return result
 
