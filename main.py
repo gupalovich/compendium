@@ -38,11 +38,16 @@ def main():
     # node_walker = NodeWalker()
     # node_walker.start()
 
-    from bots.albion.services.vision import YoloVision
+    # from bots.albion.services.vision import YoloVision
 
-    model_file_path = "ai/albion/models/best_albion1.0.engine"
-    yolo_vision = YoloVision(model_file_path)
-    yolo_vision.start()
+    # model_file_path = "ai/albion/models/best_albion1.0.engine"
+    # yolo_vision = YoloVision(model_file_path)
+    # yolo_vision.start()
+
+    from bots.albion.services.mounting import MountingService
+
+    mounting = MountingService()
+    mounting.start()
 
 
 if __name__ == "__main__":
