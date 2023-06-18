@@ -6,18 +6,19 @@ from pynput import keyboard
 from core.common.entities import Img
 from core.common.enums import State
 from core.display.vision import Vision
+from core.display.window import WindowHandler
 
 
 class Bot:
     # contants
-    INIT_SECONDS = 0
-    MAIN_LOOP_DELAY = 0.04
-    PAUSE_DELAY = 0.2
+    INIT_SECONDS: float = 0
+    PAUSE_DELAY: float = 0.2
+    MAIN_LOOP_DELAY: float = 0.04
     # bot properties
-    running = False
-    state = None
+    running: bool = False
+    state: State = State.INIT
     # vision properties
-    search_img = None
+    search_img: Img = None
 
     def start(self):
         sleep(self.INIT_SECONDS)
@@ -29,17 +30,17 @@ class Bot:
         print(f"- Stopped {self.__class__.__name__}")
         self.running = False
 
+    def _start(self):
+        """Process loop"""
+
     def set_state(self, state: State):
         print(f"- Set state {state} for {self.__class__.__name__}")
         self.state = state
 
-    def _start(self):
-        """Process loop"""
-
 
 class BotParent(Bot):
-    window = None
-    children = []
+    window: WindowHandler = None
+    children: list["BotChild"] = []
 
 
 class BotFather(BotParent):
@@ -80,6 +81,8 @@ class BotMother(BotParent):
 
 
 class BotChild(Bot):
+    targets: dict = {}
+
     def __init__(self, vision: Vision) -> None:
         self.lock = Lock()
         self.vision = vision()

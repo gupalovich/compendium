@@ -11,10 +11,10 @@ class Gatherer(BotFather):
     def __init__(self):
         self.window = WindowHandler()
         self.mounter = Mounter()
-        self.children = [
+        self.children += [
             self.mounter,
         ]
-        self.watcher = Watcher(self.children, "gatherer")
+        self.watcher = Watcher(self.children, on_release_type="gatherer")
 
     def start(self):
         self.watcher.start()
@@ -34,11 +34,5 @@ class Gatherer(BotFather):
             elif self.state == State.MOUNTING:
                 if self.mounter.state == State.DONE:
                     self.set_state(State.SEARCHING)
-            elif self.state == State.SEARCHING:
-                pass
-            elif self.state == State.GATHERING:
-                pass
-            elif self.state == State.KILLING:
-                pass
 
             sleep(self.MAIN_LOOP_DELAY)

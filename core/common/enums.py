@@ -31,20 +31,12 @@ class State(Enum):
     """
 
     INIT = 0
-    STARTED = auto()
-    STOPPED = auto()
-    # Actions
-    MOVING = auto()
     SEARCHING = auto()
     MOUNTING = auto()
     GATHERING = auto()
     KILLING = auto()
-    # States
-    DONE = auto()
-
-
-class TaskStatus:
+    # Status
     IDLE = 0
-    STARTED = auto()
-    FINISHED = auto()
+    READY = auto()
+    DONE = auto()
     FAILED = auto()
