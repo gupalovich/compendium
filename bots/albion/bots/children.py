@@ -1,5 +1,3 @@
-from time import sleep
-
 from core.common.bots import BotChild
 from core.common.enums import State
 
@@ -30,6 +28,18 @@ class Mounter(BotChild):
 class Navigator(BotChild):
     def __init__(self) -> None:
         super().__init__(MountVision)
+
+    def manage_state(self):
+        match (self.state):
+            case State.IDLE:
+                # Update character info on map
+                pass
+            case State.START:
+                # Move character from node to node
+                # save node history
+                pass
+            case State.DONE:
+                pass
 
 
 class Gatherer(BotChild):

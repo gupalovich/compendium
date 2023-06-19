@@ -35,18 +35,25 @@ class GathererStateManager(BotFather):
                 # Check game client, weight, location, etc...
                 self.set_state(State.MOUNTING)
             case State.MOUNTING:
-                self.manage_active_child(
-                    self.mounter,
-                    next_state=State.NAVIGATING,
-                )
+                if self.gatherer.targets:
+                    self.manage_active_child(
+                        self.mounter,
+                        next_state=State.GATHERING,
+                    )
+                else:
+                    self.manage_active_child(
+                        self.mounter,
+                        next_state=State.NAVIGATING,
+                    )
             case State.NAVIGATING:
                 self.manage_active_child(
                     self.navigator,
-                    next_state=State.GATHERING,
+                    next_state=State.MOUNTING,
                 )
                 if self.gatherer.targets:
                     self.navigator.set_state(State.DONE)
             case State.GATHERING:
+                # IF character mounted, logical error
                 self.manage_active_child(
                     self.gatherer,
                     next_state=State.MOUNTING,
