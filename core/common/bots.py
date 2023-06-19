@@ -51,10 +51,10 @@ class BotParent(Bot):
 class BotChild(Bot):
     targets: dict = {}
 
-    def __init__(self, vision: Vision, actions: Actions) -> None:
-        self.lock = Lock()
-        self.vision = vision()
+    def __init__(self, actions: Actions, vision: Vision) -> None:
         self.actions = actions()
+        self.vision = vision()
+        self.lock = Lock()
 
     def update_search_img(self, img: Img):
         self.lock.acquire()

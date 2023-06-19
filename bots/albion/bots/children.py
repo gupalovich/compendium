@@ -7,7 +7,7 @@ from ..actions.vision import GathererVision, MounterVision, NavigatorVision
 
 class Mounter(BotChild):
     def __init__(self) -> None:
-        super().__init__(MounterVision, MounterActions)
+        super().__init__(MounterActions, MounterVision)
 
     def manage_state(self):
         match (self.state):
@@ -27,7 +27,7 @@ class Mounter(BotChild):
 
 class Navigator(BotChild):
     def __init__(self) -> None:
-        super().__init__(NavigatorVision, NavigatorActions)
+        super().__init__(NavigatorActions, NavigatorVision)
 
     def manage_state(self):
         # Update character info on map
@@ -44,7 +44,7 @@ class Navigator(BotChild):
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
-        super().__init__(GathererVision, GathererActions)
+        super().__init__(GathererActions, GathererVision)
 
     def manage_state(self):
         # Detect targets
