@@ -30,9 +30,9 @@ class Navigator(BotChild):
         super().__init__(MountVision)
 
     def manage_state(self):
+        # Update character info on map
         match (self.state):
             case State.IDLE:
-                # Update character info on map
                 pass
             case State.START:
                 # Move character from node to node
@@ -47,10 +47,15 @@ class Gatherer(BotChild):
         super().__init__(MountVision)
 
     def manage_state(self):
+        # Detect targets
+        # update self targets
         match (self.state):
             case State.IDLE:
                 pass
             case State.START:
+                # If targets monster in nearby radius
+                # Kill monster until there's none
+                # Else: Do gathering
                 if not self.targets:
                     self.set_state(State.DONE)
             case State.DONE:
