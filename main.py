@@ -16,9 +16,9 @@ def main():
     # vision_live = VisionLive(ui_elements["mount"])
     # vision_live.start()
 
-    from bots.albion.bots.gatherer import Gatherer
+    from bots.albion.bots.gatherer import GathererFather
 
-    gatherer = Gatherer()
+    gatherer = GathererFather()
     gatherer.start()
 
     # find_character_on_map()

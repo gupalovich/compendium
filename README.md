@@ -46,93 +46,145 @@ Features of AlbionBot include:
 ## Алгоритм
 ---
 
-### Сущности
+### GathererStateManager
+    - Обновляет search_img детей
+    - Меняет глобальное состояние и детей
 
-    История об отце, матери и 3 детей, которые пошли в лес собирать грибы.
-    Так уж получилось, что все они не ладят друг с другом и вынуждены передавать свои слова и идеи отцу, а он, в свою очередь, подходящим сыновьям.
-    С ними ещё пошла мать, беспокоясь, чтобы семейство не заблудилось в лесу.
+### Searcher (если Bot Father не подойдёт)
+    - Постоянный поиск ресурсов и монстров
 
-    Отец (Gatherer) -  говорит, какие грибы нужно собирать и передает слова одного брата другому.
+### Killer
+    - Killer vision
+    - Убийство монстров в радиусе
 
-    Мать (Watcher) - говорит семейству, когда смеркается и пора ехать обратно.
+### Gather
+    - Gatherer Vision
+    - Сбор ресурсов
 
-    Старший сын (Visionary) - занимается поиском грибов
+### Navigator
+    - Navigator Vision
+    - Поиск позиции персонажа на карте
+    - Движение по пути
+    - Сохранение истории node_history
+    - Остановка если найден ресурс
+    - После сбора продолжение пути
 
-    Сын помладше (Actionist) - собирает грибы и кучер по совместительству и вообще мастер на все руки
+### Mounter
+    - Mount Vision
+    - Ищет коня
+    - Садиться на лошадь
+    - Слезть с коня если найден ресур
 
-    Младшенький (Navigator) - молодой картограф
+
+```
+# GathererFather
+active_child
+set_active_children
+active child = self child
+self.child.set_state (Start)
+check_active_child
+if active child state is done:
+    switch to next state
+
+
+If self state is none:
+    self set state Init
+    self children set state Idle
+
+Else if self state Init
+    Check game client
+    Check weight
+    Check Inventory capacity
+    Check location
+
+Else if self state Mounting
+    If self Mounter state Idle
+        Mounter set state Start
+        set active child to Mounter
+    If self Mounter state Done
+        self Mounter state Idle
+        self set state Navigating
+
+Else if self state Navigating
+    If self Navigator state Idle
+        Navigator set state Start
+        set active child to Navigator
+    
+    If self Gatherer targets
+        set Navigator state Idle
+        self set state Gathering
+
+Else if self state Gathering:
+    If self Killer targets:
+        self Gatherer set state Idle
+        self set state Killing
+        continue
+
+    If self Gatherer targets and state Idle
+        self Gatherer set state Start
+
+Else if self state Killing
+If self Killer targets:
+    If self Killer state Idle
+        self Killer set state Start
+Else
+    self Killer set state Idle
+    self set state Gathering
+    continue
 
 
 
-0. Абстрактные Bot
-    - абстрактная сущность
-    - содержит общие атрибуты, константы, методы
-1. Bot Father
-    - Определяет расписание
-    - создаёт детей (менеджер процессов)
-    - кормит детей (менеджер состояния)
-    - приглашает наблюдателя (Watcher)
-    - обработка и сохранение действий детей (логирование)
-    - Изменение расписания детей (state)
-    - Забирает результат (targets) и передает другому ребенку
-2. Bot mother
-    - Говорит, когда пора идти домой
-4. Visionary
-    - Ищет грибы и опасности
-    - поиск объектов без или с state?
-    - хватает картинку
-    - ищет соответствия на картинке
-5. Actionist
-    - Определяет решение цели
-    - действие в зависимости от state и targets
-6. Navigator
-    - прокладывает путь для отца и детей
-    - указывает куда двигаться другому ребенку (action propagation)
+# Mounter
 
-### Цикл Gatherer
+If self state Idle
+    pass
 
-1. Старт
-    - определить местонахождение
-    - определить вес персонажа
-    - определить износ экипировки
-    - найти/вызвать и сесть на маунта
+Else if self state Start
+    If self targets and self mounted
+        If not self mounted
+            self set state Done
+        Else
+            self dismount
+    Else
+        If self mounted
+            self set state Done
+        Else
+            Mount
 
-0. Если все хорошо, переход на поиск
+Else if self state Done
+    sleep
 
-2. Поиск
-    - определить цель поиска
-    - найти ресурс
 
-0. Поиск -> Если ресурс не найден
 
-3. Движение
-    - определить местонахождение
-    - переместиться на следующий node
+# Navigator
 
-0. Поиск -> Если ресурс найден
+If self state Idle
+    do vision without action
 
-4. Подготовка
-    - найти монстров поблизости
-    - определить ближайший ресурс
+Else if self state Start
+If self targets
+    update node history
+    self set state Done
+    Continue
+Else
+    move from node to node
+    update node history
 
-0. Подготовка -> Если найден монстр
+Else if state Done
+    Sleep
 
-5. Зачистка
-    - определить ближайшую цель
-    - атака
-    - подтверждение убийства
-    - поиск целей n раз
-    - переход в Поиск
 
-0. Подготовка -> Если не найден монстр
+# Gatherer
 
-6. Сбор
-    - переместиться к ресурсу
-    - слезть с лошади
-    - собрать ресурс
-    - залезть на лошадь
-    - переход в Поиск
+Detect targets
+update self targets
 
+if self state Start
+    If targets monster in nearby radius
+        Kill monster until there's none
+    Else
+        Do gathering
+```
 
 
 ## GIT

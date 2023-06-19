@@ -16,7 +16,7 @@ class Bot:
     MAIN_LOOP_DELAY: float = 0.04
     # bot properties
     running: bool = False
-    state: State = State.INIT
+    state: State = None
     # vision properties
     search_img: Img = None
 
@@ -37,28 +37,59 @@ class Bot:
         print(f"- Set state {state} for {self.__class__.__name__}")
         self.state = state
 
+    def manage_state(self):
+        """State sequence logic"""
+
 
 class BotParent(Bot):
-    window: WindowHandler = None
     children: list["BotChild"] = []
 
 
+class BotChild(Bot):
+    targets: dict = {}
+
+    def __init__(self, vision: Vision) -> None:
+        self.lock = Lock()
+        self.vision = vision()
+
+    def update_search_img(self, img: Img):
+        self.lock.acquire()
+        self.search_img = img
+        self.lock.release()
+
+
 class BotFather(BotParent):
-    def set_state(self, state: State):
-        super().set_state(state)
-        self.update_children_state()
+    window: WindowHandler = None
+    active_child: BotChild = None
+
+    def manage_active_child(self, child: BotChild, next_state: State):
+        if child.state == State.IDLE:
+            self.active_child = child
+            self.active_child.set_state(State.START)
+        if child.state == State.DONE:
+            self.active_child.set_state(State.IDLE)
+            self.active_child = None
+            self.set_state(next_state)
+
+    def set_start_active_child(self, child: BotChild):
+        self.stop_active_child()
+        self.active_child = child
+        self.active_child.set_state(State.START)
+
+    def stop_active_child(self):
+        if self.active_child and self.active_child.state == State.DONE:
+            self.active_child.set_state(State.IDLE)
 
     def update_search_img(self):
         self.search_img = self.window.grab()
-        self.update_children_search_img()
-
-    def update_children_state(self):
-        for child in self.children:
-            child.set_state(self.state)
 
     def update_children_search_img(self):
         for child in self.children:
             child.update_search_img(self.search_img)
+
+    def set_children_state(self, state: State):
+        for child in self.children:
+            child.set_state(state)
 
 
 class BotMother(BotParent):
@@ -78,19 +109,6 @@ class BotMother(BotParent):
     def stop_children(self):
         for child in self.children:
             child.stop()
-
-
-class BotChild(Bot):
-    targets: dict = {}
-
-    def __init__(self, vision: Vision) -> None:
-        self.lock = Lock()
-        self.vision = vision()
-
-    def update_search_img(self, img: Img):
-        self.lock.acquire()
-        self.search_img = img
-        self.lock.release()
 
 
 class Watcher(BotMother):

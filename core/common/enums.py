@@ -22,21 +22,15 @@ class ColorFormat:
 
 
 class State(Enum):
-    """Enum states for Bot instances
+    """Enum states for Bot instances"""
 
-    #### Available states:
-        :param INITIAL = 0
-        :param STARTED = auto()
-        :param STOPPED = auto()
-    """
-
-    INIT = 0
+    INIT = auto()
     SEARCHING = auto()
+    NAVIGATING = auto()
     MOUNTING = auto()
     GATHERING = auto()
     KILLING = auto()
     # Status
-    IDLE = 0
-    READY = auto()
+    IDLE = auto()
+    START = auto()
     DONE = auto()
-    FAILED = auto()

@@ -4,17 +4,40 @@ from core.common.bots import BotFather, Watcher
 from core.common.enums import State
 from core.display.window import WindowHandler
 
-from .children import Mounter
+from .children import Gatherer, Mounter, Navigator
 
 
-class Gatherer(BotFather):
+class GathererFather(BotFather):
     def __init__(self):
         self.window = WindowHandler()
         self.mounter = Mounter()
-        self.children += [
-            self.mounter,
-        ]
+        self.navigator = Navigator()
+        self.gatherer = Gatherer()
+        self.children += [self.mounter, self.navigator, self.gatherer]
         self.watcher = Watcher(self.children, on_release_type="gatherer")
+
+    def manage_state(self):
+        match (self.state):
+            case None:
+                self.set_state(State.INIT)
+                self.set_children_state(State.IDLE)
+            case State.INIT:
+                # Check game client, weight, location, etc...
+                self.set_state(State.MOUNTING)
+            case State.MOUNTING:
+                self.manage_active_child(
+                    self.mounter,
+                    next_state=State.NAVIGATING,
+                )
+            case State.NAVIGATING:
+                self.manage_active_child(
+                    self.navigator,
+                    next_state=State.NAVIGATING,
+                )
+            case State.GATHERING:
+                pass
+            case _:
+                self.set_state(None)
 
     def start(self):
         self.watcher.start()
@@ -26,13 +49,7 @@ class Gatherer(BotFather):
                 self.stop()
 
             self.update_search_img()
-
-            if self.state is None:
-                self.set_state(State.MOUNTING)
-            elif self.state == State.INIT:
-                pass
-            elif self.state == State.MOUNTING:
-                if self.mounter.state == State.DONE:
-                    self.set_state(State.SEARCHING)
+            self.update_children_search_img()
+            self.manage_state()
 
             sleep(self.MAIN_LOOP_DELAY)

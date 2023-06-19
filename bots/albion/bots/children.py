@@ -11,33 +11,39 @@ class Mounter(BotChild):
         super().__init__(MountVision)
         self.actions = MountActions()
 
+    def manage_state(self):
+        match (self.state):
+            case State.IDLE:
+                pass
+            case State.START:
+                if self.vision.is_mounting(self.search_img):
+                    print("Mounting")
+                elif self.vision.is_mounted(self.search_img):
+                    print("On mount")  # release control
+                else:
+                    print("Gonna mount")
+                self.set_state(State.DONE)
+            case State.DONE:
+                pass
+
     def _start(self):
         while self.running:
-            if self.state != State.MOUNTING:
-                sleep(self.PAUSE_DELAY)
-                continue
-
-            if self.vision.is_mounting(self.search_img):
-                print("Mounting")
-            elif self.vision.is_mounted(self.search_img):
-                print("On mount")  # release control
-            else:
-                print("Gonna mount")
-                sleep(1)
-                self.set_state(State.DONE)
+            self.manage_state()
+            sleep(self.MAIN_LOOP_DELAY)
 
 
 class Navigator(BotChild):
+    def __init__(self) -> None:
+        super().__init__(MountVision)
+
     def _start(self):
         while self.running:
             sleep(self.MAIN_LOOP_DELAY)
 
 
-class Killer(BotChild):
-    """
-    passive/aggressive mode
-    if not in_control - deeper sleep
-    """
+class Gatherer(BotChild):
+    def __init__(self) -> None:
+        super().__init__(MountVision)
 
     def _start(self):
         while self.running:
