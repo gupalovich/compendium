@@ -4,7 +4,7 @@ from core.common.bots import BotFather, Watcher
 from core.common.enums import State
 from core.display.window import WindowHandler
 
-from .children import Gatherer, Mounter, Navigator
+from .children import BotChild, Gatherer, Mounter, Navigator
 
 
 class GathererFather(BotFather):
@@ -15,6 +15,15 @@ class GathererFather(BotFather):
         self.gatherer = Gatherer()
         self.children += [self.mounter, self.navigator, self.gatherer]
         self.watcher = Watcher(self.children, on_release_type="gatherer")
+
+    def manage_active_child(self, child: BotChild, next_state: State):
+        if child.state == State.IDLE:
+            self.active_child = child
+            self.active_child.set_state(State.START)
+        if child.state == State.DONE:
+            self.active_child.set_state(State.IDLE)
+            self.active_child = None
+            self.set_state(next_state)
 
     def manage_state(self):
         match (self.state):

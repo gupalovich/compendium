@@ -26,25 +26,12 @@ class Mounter(BotChild):
             case State.DONE:
                 pass
 
-    def _start(self):
-        while self.running:
-            self.manage_state()
-            sleep(self.MAIN_LOOP_DELAY)
-
 
 class Navigator(BotChild):
     def __init__(self) -> None:
         super().__init__(MountVision)
 
-    def _start(self):
-        while self.running:
-            sleep(self.MAIN_LOOP_DELAY)
-
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
         super().__init__(MountVision)
-
-    def _start(self):
-        while self.running:
-            sleep(self.MAIN_LOOP_DELAY)

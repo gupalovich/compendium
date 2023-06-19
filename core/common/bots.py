@@ -31,7 +31,9 @@ class Bot:
         self.running = False
 
     def _start(self):
-        """Process loop"""
+        while self.running:
+            self.manage_state()
+            sleep(self.MAIN_LOOP_DELAY)
 
     def set_state(self, state: State):
         print(f"- Set state {state} for {self.__class__.__name__}")
@@ -61,24 +63,6 @@ class BotChild(Bot):
 class BotFather(BotParent):
     window: WindowHandler = None
     active_child: BotChild = None
-
-    def manage_active_child(self, child: BotChild, next_state: State):
-        if child.state == State.IDLE:
-            self.active_child = child
-            self.active_child.set_state(State.START)
-        if child.state == State.DONE:
-            self.active_child.set_state(State.IDLE)
-            self.active_child = None
-            self.set_state(next_state)
-
-    def set_start_active_child(self, child: BotChild):
-        self.stop_active_child()
-        self.active_child = child
-        self.active_child.set_state(State.START)
-
-    def stop_active_child(self):
-        if self.active_child and self.active_child.state == State.DONE:
-            self.active_child.set_state(State.IDLE)
 
     def update_search_img(self):
         self.search_img = self.window.grab()
