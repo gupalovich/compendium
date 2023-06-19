@@ -1,12 +1,13 @@
 from core.common.bots import BotChild
 from core.common.enums import State
 
-from ..actions.mount import MountActions, MountVision
+from ..actions.input import GathererActions, MounterActions, NavigatorActions
+from ..actions.vision import GathererVision, MounterVision, NavigatorVision
 
 
 class Mounter(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision, MountActions)
+        super().__init__(MounterVision, MounterActions)
 
     def manage_state(self):
         match (self.state):
@@ -26,7 +27,7 @@ class Mounter(BotChild):
 
 class Navigator(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision, MountActions)
+        super().__init__(NavigatorVision, NavigatorActions)
 
     def manage_state(self):
         # Update character info on map
@@ -43,7 +44,7 @@ class Navigator(BotChild):
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision, MountActions)
+        super().__init__(GathererVision, GathererActions)
 
     def manage_state(self):
         # Detect targets
