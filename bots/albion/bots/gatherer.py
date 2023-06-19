@@ -7,7 +7,7 @@ from core.display.window import WindowHandler
 from .children import BotChild, Gatherer, Mounter, Navigator
 
 
-class GathererFather(BotFather):
+class GathererStateManager(BotFather):
     def __init__(self):
         self.window = WindowHandler()
         self.mounter = Mounter()
@@ -24,6 +24,7 @@ class GathererFather(BotFather):
             self.active_child.set_state(State.IDLE)
             self.active_child = None
             self.set_state(next_state)
+        sleep(1)
 
     def manage_state(self):
         match (self.state):
@@ -41,12 +42,15 @@ class GathererFather(BotFather):
             case State.NAVIGATING:
                 self.manage_active_child(
                     self.navigator,
-                    next_state=State.NAVIGATING,
+                    next_state=State.GATHERING,
                 )
+                if self.gatherer.targets:
+                    self.navigator.set_state(State.DONE)
             case State.GATHERING:
-                pass
-            case _:
-                self.set_state(None)
+                self.manage_active_child(
+                    self.gatherer,
+                    next_state=State.MOUNTING,
+                )
 
     def start(self):
         self.watcher.start()

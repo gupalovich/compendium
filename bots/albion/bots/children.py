@@ -35,3 +35,13 @@ class Navigator(BotChild):
 class Gatherer(BotChild):
     def __init__(self) -> None:
         super().__init__(MountVision)
+
+    def manage_state(self):
+        match (self.state):
+            case State.IDLE:
+                pass
+            case State.START:
+                if not self.targets:
+                    self.set_state(State.DONE)
+            case State.DONE:
+                pass
