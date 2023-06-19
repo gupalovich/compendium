@@ -6,8 +6,7 @@ from ..actions.mount import MountActions, MountVision
 
 class Mounter(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision)
-        self.actions = MountActions()
+        super().__init__(MountVision, MountActions)
 
     def manage_state(self):
         match (self.state):
@@ -27,7 +26,7 @@ class Mounter(BotChild):
 
 class Navigator(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision)
+        super().__init__(MountVision, MountActions)
 
     def manage_state(self):
         # Update character info on map
@@ -44,7 +43,7 @@ class Navigator(BotChild):
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
-        super().__init__(MountVision)
+        super().__init__(MountVision, MountActions)
 
     def manage_state(self):
         # Detect targets

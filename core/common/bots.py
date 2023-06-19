@@ -7,6 +7,7 @@ from core.common.entities import Img
 from core.common.enums import State
 from core.display.vision import Vision
 from core.display.window import WindowHandler
+from core.input.actions import Actions
 
 
 class Bot:
@@ -50,9 +51,10 @@ class BotParent(Bot):
 class BotChild(Bot):
     targets: dict = {}
 
-    def __init__(self, vision: Vision) -> None:
+    def __init__(self, vision: Vision, actions: Actions) -> None:
         self.lock = Lock()
         self.vision = vision()
+        self.actions = actions()
 
     def update_search_img(self, img: Img):
         self.lock.acquire()

@@ -33,10 +33,5 @@ class MountVision(Vision):
         return self._check_mount_status("skill_teleport", "skill_panel", search_img)
 
 
-class Actions:
-    def __init__(self) -> None:
-        pass
-
-
 class MountActions:
     pass
