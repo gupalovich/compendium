@@ -92,6 +92,7 @@ class NodeWalker:
             Pixel(x=590, y=525),
         ]
         self.cooldowns = {}
+        self.extractor = ImgExtractor()
 
     def node_vector(self, char_pos: Pixel, node_pos: Pixel) -> Vector2d:
         return Vector2d(x=node_pos.x - char_pos.x, y=char_pos.y - node_pos.y)
@@ -119,17 +120,20 @@ class NodeWalker:
                 closest_index = i
         return closest_index
 
+    def prepare_minimap(self) -> Img:
+        minimap = self.extractor.extract("minimap")
+        minimap.confidence = 0.72
+        minimap.resize_x(0.69)
+        return minimap
+
     def start(self):
         vision = Vision()
-        extractor = ImgExtractor()
         search_img = ImgLoader("albion/maps/mase_knoll.png")
 
         while self.nodes:
             search_img.reset()
 
-            ref_img = extractor.extract("minimap")
-            ref_img.confidence = 0.72
-            ref_img.resize_x(0.69)
+            ref_img = self.prepare_minimap()
 
             result = vision.find(ref_img, search_img)
 
