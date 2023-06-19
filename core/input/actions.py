@@ -115,7 +115,7 @@ class Actions:
             sleep(random.uniform(0.1, 0.25))
             self.keys.directMouse(buttons=buttons[button]["release"])
 
-    def press(self, key: str, delay=0) -> None:
+    def press(self, key: str, delay: float = 0) -> None:
         self.keys.directKey(key)
         sleep(random.uniform(0.1, 0.25))
         self.keys.directKey(key, self.keys.key_release)

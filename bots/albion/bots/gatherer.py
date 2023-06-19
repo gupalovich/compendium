@@ -24,7 +24,6 @@ class GathererStateManager(BotFather):
             self.active_child.set_state(State.IDLE)
             self.active_child = None
             self.set_state(next_state)
-        sleep(1)
 
     def manage_state(self):
         match (self.state):

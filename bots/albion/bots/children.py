@@ -10,19 +10,13 @@ class Mounter(BotChild):
         super().__init__(MounterActions, MounterVision)
 
     def manage_state(self):
-        match (self.state):
-            case State.IDLE:
+        if self.state == State.START:
+            if self.vision.is_mounting(self.search_img):
                 pass
-            case State.START:
-                if self.vision.is_mounting(self.search_img):
-                    print("Mounting")
-                elif self.vision.is_mounted(self.search_img):
-                    print("On mount")  # release control
-                else:
-                    print("Gonna mount")
+            elif self.vision.is_mounted(self.search_img):
                 self.set_state(State.DONE)
-            case State.DONE:
-                pass
+            else:
+                self.actions.mount()
 
 
 class Navigator(BotChild):
