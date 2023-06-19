@@ -225,6 +225,9 @@ erDiagram
 ## Version
 ---
 
+    0.0.7 (19.06.2023)
+        - Complete albion bot - Gatherer state loop
+
     0.0.6 (12.06.2023)
         - Core parts are mostly complete
 

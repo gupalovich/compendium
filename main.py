@@ -12,10 +12,6 @@ def main():
     #     "mount_r": ImgLoader("albion/ui/mount_circle_radian.png", 0.87),
     # }
 
-    # # vision_live = VisionLive(ui_elements["mount"], crop_areas["skill_panel"])
-    # vision_live = VisionLive(ui_elements["mount"])
-    # vision_live.start()
-
     from bots.albion.bots.gatherer import GathererStateManager
 
     gatherer = GathererStateManager()

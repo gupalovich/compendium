@@ -1,3 +1,5 @@
+from time import sleep
+
 from core.common.bots import BotChild
 from core.common.enums import State
 
@@ -17,6 +19,8 @@ class Mounter(BotChild):
                 self.set_state(State.DONE)
             else:
                 self.actions.mount()
+        else:
+            sleep(0.2)
 
 
 class Navigator(BotChild):

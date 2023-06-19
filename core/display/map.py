@@ -6,10 +6,11 @@ import cv2 as cv
 
 from config import settings
 from core.common.entities import Img, ImgLoader, Pixel, Polygon, Rect, Vector2d
-from core.display.utils import draw_circles
-from core.display.vision import Vision
-from core.display.window import WindowHandler
 from core.input.actions import Actions
+
+from .utils import draw_circles
+from .vision import Vision
+from .window import WindowHandler
 
 actions = Actions()
 
@@ -26,8 +27,6 @@ class ImgExtractor:
         extractor = ImgExtractor() \n
         img = extractor.extract("map", "filename") \n
         img.show()
-
-    ### TODO: tests
     """
 
     def __init__(self) -> None:
