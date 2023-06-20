@@ -8,6 +8,7 @@ import torch
 
 from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
 from core.common.enums import ColorFormat
+from core.display.utils import draw_rectangles
 from core.display.window import WindowHandler
 
 from .utils import draw_rectangles
@@ -84,6 +85,8 @@ class YoloVision:
         "Copper Ore",
         "Tin Ore",
     ]
+    resolution = Rect(left_top=Pixel(0, 0), width=1920, height=1080)
+    confidence = 0.65
 
     def __init__(self, model_path: str, classes: list[str] = None):
         self.model = None
@@ -102,47 +105,42 @@ class YoloVision:
         search_img.resize(Pixel(640, 640))
 
         results = self.model(search_img.data)
+        labels, cord = (
+            results.xyxyn[0][:, -1].cpu().numpy(),
+            results.xyxyn[0][:, :-1].cpu().numpy(),
+        )
+
+        filtered_result = []
+        n = len(labels)
+        for i in range(n):
+            row = cord[i]
+            if row[4] >= self.confidence:
+                label = self.classes[int(labels[i])]
+                x1, y1, x2, y2 = (
+                    int(row[0] * self.resolution.width),
+                    int(row[1] * self.resolution.height),
+                    int(row[2] * self.resolution.width),
+                    int(row[3] * self.resolution.height),
+                )
+                filtered_result.append(
+                    Rect(
+                        left_top=Pixel(x1, y1), right_bottom=Pixel(x2, y2), label=label
+                    ),
+                )
         search_img.reset()
-        return results
+        return filtered_result
 
     def start(self):
         loop_time = time()
         while True:
             search_img = self.window.grab()
-            results = self.find(search_img)
-
-            labels, cord = (
-                results.xyxyn[0][:, -1].cpu().numpy(),
-                results.xyxyn[0][:, :-1].cpu().numpy(),
-            )
-
-            n = len(labels)
-
-            for i in range(n):
-                row = cord[i]
-                if row[4] >= 0.65:
-                    x1, y1, x2, y2 = (
-                        int(row[0] * 1920),
-                        int(row[1] * 1080),
-                        int(row[2] * 1920),
-                        int(row[3] * 1080),
-                    )
-                    bgr = (0, 255, 0)
-                    cv.rectangle(search_img.data, (x1, y1), (x2, y2), bgr, 2)
-                    cv.putText(
-                        search_img.data,
-                        self.classes[int(labels[i])],
-                        (x1, y1),
-                        cv.FONT_HERSHEY_SIMPLEX,
-                        0.9,
-                        bgr,
-                        2,
-                    )
-
-            cv.imshow("YOLOv5", search_img.data)
+            result = self.find(search_img)
 
             print("FPS {}".format(1.0 / (time() - loop_time)))
             loop_time = time()
+
+            draw_rectangles(search_img, result, with_label=True)
+            cv.imshow("YOLOv5", search_img.data)
 
             key = cv.waitKey(1)
             if key == ord("q"):

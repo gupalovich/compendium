@@ -67,6 +67,7 @@ class Rect:
     right_bottom: Optional[Pixel] = None
     width: Optional[int] = None
     height: Optional[int] = None
+    label: Optional[str] = ""
 
     def __post_init__(self):
         if self.right_bottom is None and (self.width is None or self.height is None):
@@ -80,7 +81,7 @@ class Rect:
             self._calc_dimensions()
 
     def __repr__(self) -> str:
-        return f"<Rect(left_top=({self.left_top.x}, {self.left_top.y}), right_bottom=({self.right_bottom.x}, {self.right_bottom.y}), width={self.width}, height={self.height}>"
+        return f"<Rect({self.label}, left_top=({self.left_top.x}, {self.left_top.y}), width={self.width}, height={self.height}>"
 
     def __iter__(self):
         return (i for i in (self.left_top, self.right_bottom, self.width, self.height))
