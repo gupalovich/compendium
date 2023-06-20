@@ -73,23 +73,9 @@ class Vision:
 
 
 class YoloVision:
-    classes = [
-        "Heretic",
-        "Elemental",
-        "Sandstone",
-        "Rough Stone",
-        "Limestone",
-        "Birch",
-        "Chestnut",
-        "Logs",
-        "Copper Ore",
-        "Tin Ore",
-    ]
     resolution = Rect(left_top=Pixel(0, 0), width=1920, height=1080)
-    confidence = 0.65
 
-    def __init__(self, model_path: str, classes: list[str] = None):
-        self.model = None
+    def __init__(self, model_path: str, classes: list[str]):
         self.model_path = model_path
         self.classes = classes or self.classes
         self.window = WindowHandler()
@@ -100,7 +86,7 @@ class YoloVision:
         self.model.cuda()
         self.model.multi_label = False
 
-    def find(self, search_img: Img):
+    def find(self, search_img: Img, confidence: float = 0.65) -> List[Rect]:
         search_img.cvt_color(ColorFormat.BGR_RGB)
         search_img.resize(Pixel(640, 640))
 
@@ -114,7 +100,7 @@ class YoloVision:
         n = len(labels)
         for i in range(n):
             row = cord[i]
-            if row[4] >= self.confidence:
+            if row[4] >= confidence:
                 label = self.classes[int(labels[i])]
                 x1, y1, x2, y2 = (
                     int(row[0] * self.resolution.width),
@@ -134,7 +120,7 @@ class YoloVision:
         loop_time = time()
         while True:
             search_img = self.window.grab()
-            result = self.find(search_img)
+            result = self.find(search_img, confidence=0.8)
 
             print("FPS {}".format(1.0 / (time() - loop_time)))
             loop_time = time()

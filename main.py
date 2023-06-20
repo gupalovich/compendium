@@ -38,8 +38,20 @@ def main():
 
     from core.display.vision import YoloVision
 
+    classes = [
+        "Heretic",
+        "Elemental",
+        "Sandstone",
+        "Rough Stone",
+        "Limestone",
+        "Birch",
+        "Chestnut",
+        "Logs",
+        "Copper Ore",
+        "Tin Ore",
+    ]
     model_file_path = "ai/albion/models/best_albion1.0.engine"
-    yolo_vision = YoloVision(model_file_path)
+    yolo_vision = YoloVision(model_file_path, classes)
     yolo_vision.start()
 
 

@@ -1,5 +1,5 @@
 from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
-from core.display.vision import Vision
+from core.display.vision import Vision, YoloVision
 
 crop_areas = {
     "skill_panel": Rect(Pixel(475, 960), Pixel(1480, 1080)),
@@ -36,4 +36,25 @@ class NavigatorVision(Vision):
 
 
 class GathererVision(Vision):
-    pass
+    model_file_path = "ai/albion/models/best_albion1.0.engine"
+    classes = [
+        "Heretic",
+        "Elemental",
+        "Sandstone",
+        "Rough Stone",
+        "Limestone",
+        "Birch",
+        "Chestnut",
+        "Logs",
+        "Copper Ore",
+        "Tin Ore",
+    ]
+
+    def __init__(self) -> None:
+        self.yolo_vision = YoloVision(self.model_file_path, self.classes)
+
+    def find_resources(self):
+        pass
+
+    def find_monsters(self):
+        pass
