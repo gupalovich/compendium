@@ -5,7 +5,7 @@ from typing import List
 import cv2 as cv
 
 from config import settings
-from core.common.entities import Img, ImgLoader, Pixel, Polygon, Rect, Vector2d
+from core.common.entities import Img, ImgLoader, Node, Pixel, Polygon, Rect, Vector2d
 from core.input.actions import Actions
 
 from .utils import draw_circles
@@ -75,24 +75,52 @@ class ImgExtractor:
 
 
 class NodeWalker:
+    char_location = None
+    current_node = None
+
     def __init__(self):
         self.nodes = [
-            Pixel(x=585, y=521),
-            Pixel(x=586, y=510),
-            Pixel(x=590, y=501),
-            Pixel(x=601, y=501),
-            Pixel(x=610, y=505),
-            Pixel(x=619, y=508),
-            Pixel(x=629, y=506),
-            Pixel(x=619, y=515),
-            Pixel(x=613, y=520),
-            Pixel(x=611, y=526),
-            Pixel(x=604, y=526),
-            Pixel(x=596, y=526),
-            Pixel(x=590, y=525),
+            Node(x=585, y=521),
+            Node(x=586, y=510),
+            # Node(x=590, y=501),
+            # Node(x=601, y=501),
+            # Node(x=610, y=505),
+            # Node(x=619, y=508),
+            # Node(x=629, y=506),
+            # Node(x=619, y=515),
+            # Node(x=613, y=520),
+            # Node(x=611, y=526),
+            # Node(x=604, y=526),
+            # Node(x=596, y=526),
+            # Node(x=590, y=525),
         ]
         self.cooldowns = {}
+        self.vision = Vision()
         self.extractor = ImgExtractor()
+
+    def prepare_map(self) -> Img:
+        search_img = ImgLoader("albion/maps/mase_knoll.png")
+        return search_img
+
+    def prepare_minimap(self) -> Img:
+        ref_img = self.extractor.extract("minimap")
+        ref_img.confidence = 0.72
+        ref_img.resize_x(0.69)
+        return ref_img
+
+    def update_character_location(self, search_img: Img) -> Pixel:
+        ref_img = self.prepare_minimap()
+        result = self.vision.find(ref_img, search_img)
+        for rect in result:
+            char_pos = rect.center
+            new_char_pos = self.char_location - char_pos
+            if self.char_location:
+                if 30 >= char_pos.x >= 30:
+                    pass
+            else:
+                self.char_location = char_pos
+
+        return result.locations[0] if result.count else None
 
     def node_vector(self, char_pos: Pixel, node_pos: Pixel) -> Vector2d:
         return Vector2d(x=node_pos.x - char_pos.x, y=char_pos.y - node_pos.y)
@@ -120,12 +148,6 @@ class NodeWalker:
                 closest_index = i
         return closest_index
 
-    def prepare_minimap(self) -> Img:
-        minimap = self.extractor.extract("minimap")
-        minimap.confidence = 0.72
-        minimap.resize_x(0.69)
-        return minimap
-
     def start(self):
         vision = Vision()
         search_img = ImgLoader("albion/maps/mase_knoll.png")
@@ -142,8 +164,8 @@ class NodeWalker:
                 continue
 
             search_img = draw_circles(search_img, result.locations)
-            search_img = draw_circles(search_img, self.nodes, color=(255, 255, 0))
-            search_img = draw_circles(search_img, self.cooldowns, color=(0, 0, 0))
+            search_img = draw_circles(search_img, self.nodes, bgr=(255, 255, 0))
+            search_img = draw_circles(search_img, self.cooldowns, bgr=(0, 0, 0))
 
             search_img.resize_x(1.2)
 
@@ -224,7 +246,7 @@ class NodeMapper:
 
     def start(self):
         while True:
-            self.map = draw_circles(self.map, self.nodes, color=self.node_color)
+            self.map = draw_circles(self.map, self.nodes, bgr=self.node_color)
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):
