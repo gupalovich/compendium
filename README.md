@@ -36,38 +36,6 @@ Key Features of Compendium:
     - поддержка изометрических игр
     - поддержка 1/3rd person games
 
-## Алгоритм
----
-
-### GathererStateManager
-    - Обновляет search_img детей
-    - Меняет глобальное состояние и детей
-
-### Searcher (если Bot Father не подойдёт)
-    - Постоянный поиск ресурсов и монстров
-
-### Killer
-    - Killer vision
-    - Убийство монстров в радиусе
-
-### Gather
-    - Gatherer Vision
-    - Сбор ресурсов
-
-### Navigator
-    - Navigator Vision
-    - Поиск позиции персонажа на карте
-    - Движение по пути
-    - Сохранение истории node_history
-    - Остановка если найден ресурс
-    - После сбора продолжение пути
-
-### Mounter
-    - Mount Vision
-    - Ищет коня
-    - Садиться на лошадь
-    - Слезть с коня если найден ресур
-
 
 ## GIT
 ---
@@ -126,54 +94,6 @@ erDiagram
 ```
 
 
-## Project structure
----
-
-    bot/
-    ├── app/
-    │   ├── actions/
-    │   │   ├── gather_resources.py
-    │   │   ├── move_to_town.py
-    │   │   ├── stash_resources.py
-    │   │   └── craft.py
-    |   ├── database/
-    |   │   ├── migrations/
-    |   │   ├── core.py
-    |   │   ├── models.py
-    |   │   ├── repositories.py
-    |   │   └── unit_of_work.py
-    │   ├── domain/
-    │   │   ├── entities.py
-    │   │   ├── rules.py
-    │   │   └── value_objects.py
-    │   ├── services/
-    │   │   └── ocr.py
-    │   └── bot.py
-    ├── infra/
-    │   ├── async/
-    │   │   ├── asyncio.py
-    │   │   └── threading.py
-    │   ├── common/
-    |   |   ├── decorators.py
-    |   |   ├── entities.py
-    │   │   └── utils.py
-    │   ├── devices/
-    |   |   ├── display/
-    │   │   |   ├── camera.py
-    │   │   |   └── window.py
-    |   |   ├── input/
-    │   │   |   ├── mouse.py
-    │   │   |   └── keyboard.py
-    |   |   ├── vision/
-    │   │   |   ├── opencv.py
-    │   │   |   └── tesseract.py
-    ├── static/
-    |   ├── icons/
-    |   ├── items/
-    |   └── ui/
-    ├── main.py
-    ├── config.ini
-    └── README.md
 
 ## Neural network training
 ---
