@@ -1,16 +1,16 @@
-# AlbionBot
+# Compendium
 
-AlbionBot is a Python-based bot for the popular MMORPG, Albion Online. Using image recognition and machine learning, AlbionBot automates resource gathering, transportation, and crafting to help players optimize their in-game experience.
+Compendium is a Python-based framework for creating bots using AI vision technology. It provides a comprehensive set of tools and libraries to simplify the development of automation bots that rely on image recognition and machine learning.
 
-Built with Domain-Driven Design principles, AlbionBot's codebase is organized into distinct layers that separate business logic from infrastructure concerns. The domain layer contains the core logic of the bot, while the infrastructure layer handles external dependencies such as image recognition and database interactions.
+Key Features of Compendium:
 
-Features of AlbionBot include:
-
-- Automated resource gathering and transportation
-- Crafting automation
-- Win32 API integration for keyboard and mouse input
-- Image recognition with OCR technology
-- Customizable rules engine for defining bot behavior
+- Powerful AI Vision: Utilize advanced image recognition and machine learning algorithms to analyze and interpret visual data.
+- Flexible Bot Creation: Build bots for various applications and games, leveraging AI vision capabilities for automation tasks.
+- Domain-Driven Design: Apply the principles of DDD to organize your bot's codebase into distinct layers, separating business logic from infrastructure concerns.
+- Extensive Documentation: Access detailed documentation and tutorials to guide you through the bot creation process.
+- Customizable Rules Engine: Define and customize bot behavior using a flexible and intuitive rules engine.
+- Win32 API Integration: Seamlessly integrate with the Win32 API to control keyboard and mouse input for precise automation.
+- Scalable and Performant: Design and develop bots that can handle large-scale tasks efficiently.
 
 ## TODO
 
