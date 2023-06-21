@@ -78,13 +78,13 @@ class YoloVision:
     def __init__(self, model_path: str, classes: list[str]):
         self.model_path = model_path
         self.classes = classes or self.classes
-        self.window = WindowHandler()
-        self._init_model()
+        self.model = self.load_model()
 
-    def _init_model(self):
-        self.model = torch.hub.load("ultralytics/yolov5", "custom", self.model_path)
-        self.model.cuda()
-        self.model.multi_label = False
+    def load_model(self):
+        model = torch.hub.load("ultralytics/yolov5", "custom", self.model_path)
+        model.cuda()
+        model.multi_label = False
+        return model
 
     def find(self, search_img: Img, confidence: float = 0.65) -> List[Rect]:
         search_img.cvt_color(ColorFormat.BGR_RGB)
@@ -117,9 +117,10 @@ class YoloVision:
         return filtered_result
 
     def start(self):
+        window = WindowHandler()
         loop_time = time()
         while True:
-            search_img = self.window.grab()
+            search_img = window.grab()
             result = self.find(search_img, confidence=0.8)
 
             print("FPS {}".format(1.0 / (time() - loop_time)))

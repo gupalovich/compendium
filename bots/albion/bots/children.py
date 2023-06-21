@@ -44,7 +44,15 @@ class Gatherer(BotChild):
     def __init__(self) -> None:
         super().__init__(GathererActions, GathererVision)
 
+    def update_target(self):
+        self.targets = {
+            "resources": [],
+            "monsters": [],
+        }
+
     def manage_state(self):
+        if self.search_img:
+            self.targets = self.vision.yolo.find(self.search_img, confidence=0.8)
         # Detect targets
         # update self targets
         match (self.state):

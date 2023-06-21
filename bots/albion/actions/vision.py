@@ -49,9 +49,7 @@ class GathererVision(Vision):
         "Copper Ore",
         "Tin Ore",
     ]
-
-    def __init__(self) -> None:
-        self.yolo_vision = YoloVision(self.model_file_path, self.classes)
+    yolo = YoloVision(model_file_path, classes)
 
     def find_resources(self):
         pass

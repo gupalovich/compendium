@@ -14,15 +14,8 @@ Features of AlbionBot include:
 
 ## TODO
 
-0. Таски
-    - В зависимоси от состояния отца, начинается распределение задач.
-    - Отец добавляет в self.tasks задачи
-        - Если нет задач, идет переход на следующее состояние
-    - Пропагация action_task из Navigator и Visionary, c приоритетом
-    
 0. Рефактор
     - Код из меин перевести в отдельные e2e тесты
-    - input actions - поменять аргументы с x, y на Pixel
     - убрать WindowHandler из зависимостей классов
     - draw функции в Img или ImgDraw
     - Remove SearchResult ref_img, search_img
@@ -76,12 +69,11 @@ Features of AlbionBot include:
     - Слезть с коня если найден ресур
 
 
-
 ## GIT
 ---
 
     # Origin
-    git remote add origin git@github.com:gupalovich/albion-bot.git
+    git remote add origin git@github.com:gupalovich/compendium.git
 
 ## Architecture
 ---
