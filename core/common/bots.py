@@ -14,7 +14,7 @@ class Bot:
     # contants
     INIT_SECONDS: float = 0
     PAUSE_DELAY: float = 0.2
-    MAIN_LOOP_DELAY: float = 0.04
+    MAIN_LOOP_DELAY: float = 0.03
     # bot properties
     running: bool = False
     state: State = None
@@ -36,8 +36,10 @@ class Bot:
             self.manage_state()
             sleep(self.MAIN_LOOP_DELAY)
 
-    def set_state(self, state: State):
-        print(f"- Set state {state} for {self.__class__.__name__}")
+    def set_state(self, state: State, state_type: str = "state"):
+        if state_type == "state":
+            print("")
+        print(f"- Set {state_type} [{state.name}] for {self.__class__.__name__}")
         self.state = state
 
     def manage_state(self):
@@ -55,6 +57,9 @@ class BotChild(Bot):
         self.actions = actions()
         self.vision = vision()
         self.lock = Lock()
+
+    def set_state(self, state: State, state_type: str = "status"):
+        super().set_state(state, state_type)
 
     def update_search_img(self, img: Img):
         self.lock.acquire()

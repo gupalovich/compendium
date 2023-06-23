@@ -1,5 +1,13 @@
+from time import sleep
+
 from core.common.entities import Pixel
 from core.input.actions import Actions
+
+
+def log(task: str, delay: float = 0):
+    print(f"- {task}")
+    if delay:
+        sleep(delay)
 
 
 class AlbionActions(Actions):

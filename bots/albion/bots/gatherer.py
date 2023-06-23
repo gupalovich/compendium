@@ -41,12 +41,11 @@ class GathererStateManager(BotFather):
             case State.NAVIGATING:
                 self.manage_active_child(
                     self.navigator,
-                    next_state=State.MOUNTING,
+                    next_state=State.GATHERING,
                 )
                 if self.gatherer.targets:
                     self.navigator.set_state(State.DONE)
             case State.GATHERING:
-                # IF character mounted, logical error
                 self.manage_active_child(
                     self.gatherer,
                     next_state=State.MOUNTING,
@@ -64,5 +63,3 @@ class GathererStateManager(BotFather):
             self.update_search_img()
             self.update_children_search_img()
             self.manage_state()
-
-            sleep(self.MAIN_LOOP_DELAY)

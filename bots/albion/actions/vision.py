@@ -57,5 +57,8 @@ class GathererVision(Vision):
     def find_nearby_monsters(self):
         pass
 
-    def is_gathering(self):
-        pass
+    def is_gathering(self, search_img: Img) -> bool:
+        ref_img = ref_images.get("cast_bar")
+        crop = crop_areas.get("casting")
+        result = self.find(ref_img, search_img, crop)
+        return bool(result)
