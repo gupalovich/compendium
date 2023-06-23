@@ -17,8 +17,8 @@ class GathererStateManager(BotFather):
         self.watcher = Watcher(self.children, on_release_type="gatherer")
 
     def manage_active_child(self, child: BotChild, next_state: State):
+        self.active_child = child
         if child.state == State.IDLE:
-            self.active_child = child
             self.active_child.set_state(State.START)
         if child.state == State.DONE:
             self.active_child.set_state(State.IDLE)
@@ -32,7 +32,7 @@ class GathererStateManager(BotFather):
                 self.set_children_state(State.IDLE)
             case State.INIT:
                 # Check game client, weight, location, etc...
-                self.set_state(State.MOUNTING)
+                self.set_state(State.GATHERING)
             case State.MOUNTING:
                 self.manage_active_child(
                     self.mounter,
@@ -48,7 +48,7 @@ class GathererStateManager(BotFather):
             case State.GATHERING:
                 self.manage_active_child(
                     self.gatherer,
-                    next_state=State.MOUNTING,
+                    next_state=State.NAVIGATING,
                 )
 
     def start(self):

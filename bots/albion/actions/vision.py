@@ -1,4 +1,4 @@
-from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
+from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult, Vector2d
 from core.display.vision import Vision, YoloVision
 
 crop_areas = {
@@ -50,6 +50,20 @@ class GathererVision(Vision):
         "Tin Ore",
     ]
     yolo = YoloVision(model_file_path, classes)
+
+    def find_closest(self, result: list[Rect]):
+        char_pos = Pixel(1920 / 2, 1080 / 2)
+
+        closest_obj = None
+        closest_distance = float("inf")
+
+        for obj in result:
+            distance = abs(abs(char_pos) - abs(obj.center))
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_obj = obj
+
+        return closest_obj
 
     def find_resource_nodes(self):
         pass

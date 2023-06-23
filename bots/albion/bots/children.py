@@ -39,18 +39,17 @@ class Gatherer(BotChild):
         if not self.state:
             return
 
-        self.targets = self.vision.yolo.find(self.search_img, confidence=0.8)
-        print(self.targets)
+        self.targets = self.vision.yolo.find(self.search_img, confidence=0.7)
 
         if self.state == State.START:
             is_gathering = self.vision.is_gathering(self.search_img)
-
             if self.targets:
-                self.actions.gather(self.targets[0].center)  # find closest target
-                log("Trying to gather", delay=1)
+                target = self.vision.find_closest(self.targets)
+                self.actions.gather(target.center)
+                log(f"Trying to gather [{target.label}]")
             if is_gathering:
                 log("Gathering", delay=0.3)
-            if not is_gathering and self.targets:
+            if not is_gathering and not self.targets:
                 log("Done gathering")
                 self.set_state(State.DONE)
         else:
