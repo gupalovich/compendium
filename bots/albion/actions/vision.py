@@ -51,8 +51,11 @@ class GathererVision(Vision):
     ]
     yolo = YoloVision(model_file_path, classes)
 
-    def find_resources(self):
+    def find_resource_nodes(self):
         pass
 
-    def find_monsters(self):
+    def find_nearby_monsters(self):
+        pass
+
+    def is_gathering(self):
         pass

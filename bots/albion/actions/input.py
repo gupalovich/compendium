@@ -1,18 +1,15 @@
+from core.common.entities import Pixel
 from core.input.actions import Actions
 
 
 class AlbionActions(Actions):
-    """Common actions for albion bot"""
+    keybinds = {"mount": "a"}
 
-
-class MounterActions(AlbionActions):
     def mount(self):
-        self.press("a", delay=0.3)
+        self.press(self.keybinds["mount"], delay=0.3)
 
+    def dismount(self):
+        self.press(self.keybinds["mount"], delay=0.3)
 
-class NavigatorActions(AlbionActions):
-    pass
-
-
-class GathererActions(AlbionActions):
-    pass
+    def gather(self, resource_node: Pixel) -> None:
+        self.move_click(resource_node)

@@ -3,13 +3,13 @@ from time import sleep
 from core.common.bots import BotChild
 from core.common.enums import State
 
-from ..actions.input import GathererActions, MounterActions, NavigatorActions
+from ..actions.input import AlbionActions
 from ..actions.vision import GathererVision, MounterVision, NavigatorVision
 
 
 class Mounter(BotChild):
     def __init__(self) -> None:
-        super().__init__(MounterActions, MounterVision)
+        super().__init__(AlbionActions, MounterVision)
 
     def manage_state(self):
         if self.state == State.START:
@@ -25,7 +25,7 @@ class Mounter(BotChild):
 
 class Navigator(BotChild):
     def __init__(self) -> None:
-        super().__init__(NavigatorActions, NavigatorVision)
+        super().__init__(AlbionActions, NavigatorVision)
 
     def manage_state(self):
         # Update character info on map
@@ -42,7 +42,7 @@ class Navigator(BotChild):
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
-        super().__init__(GathererActions, GathererVision)
+        super().__init__(AlbionActions, GathererVision)
 
     def update_target(self):
         self.targets = {
