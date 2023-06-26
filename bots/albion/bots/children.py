@@ -60,9 +60,9 @@ class Gatherer(BotChild):
     def find_targets(self):
         """Filter out monster/resources from target labels"""
 
-    def find_closest_target(self, result: list[Rect]):
+    def get_closest_target(self, locations: list[Rect]):
         origin = Pixel(1920 / 2, 1080 / 2)
-        return find_closest(origin, result)
+        return find_closest(origin, locations)
 
     def manage_state(self):
         if not self.state:
@@ -74,7 +74,7 @@ class Gatherer(BotChild):
             is_gathering = self.vision.is_gathering(self.search_img)
 
             if self.targets:
-                target = self.find_closest_target(self.targets)
+                target = self.get_closest_target(self.targets)
                 self.actions.gather(target.center)
                 log(f"Trying to gather [{target.label}]")
             if is_gathering:
@@ -127,8 +127,14 @@ class Navigator(BotChild):
         ref_img.resize_x(0.69)
         return ref_img
 
+    def create_node_vector(self, node: Node, current_pos: Pixel) -> Vector2d:
+        return Vector2d(node.x - current_pos.x, current_pos.y - node.y)
+
+    def get_node_vector_distance(self, vector: Vector2d) -> float:
+        return abs(vector)
+
     def node_to_pixel_direction(self, node: Node, current_pos: Pixel) -> Pixel:
-        node_vector = Vector2d(node.x - current_pos.x, current_pos.y - node.y)
+        node_vector = self.create_node_vector(node, current_pos)
         res_x, res_y = 1920, 1080
         origin_skew = 100
         origin = Pixel(res_x / 2, res_y / 2 - origin_skew)
