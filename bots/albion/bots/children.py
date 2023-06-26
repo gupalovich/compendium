@@ -9,7 +9,9 @@ from ..actions.vision import GathererVision, MounterVision, NavigatorVision
 
 class Mounter(BotChild):
     def __init__(self) -> None:
-        super().__init__(AlbionActions, MounterVision)
+        super().__init__()
+        self.action = AlbionActions()
+        self.vision = MounterVision()
 
     def manage_state(self):
         if self.state == State.START:
@@ -30,16 +32,16 @@ class Mounter(BotChild):
 
 class Gatherer(BotChild):
     def __init__(self) -> None:
-        super().__init__(AlbionActions, GathererVision)
-
-    def update_target(self):
-        self.targets = []
+        super().__init__()
+        self.actions = AlbionActions()
+        self.vision = GathererVision()
+        self.yolo = self.vision.load_model()
 
     def manage_state(self):
         if not self.state:
             return
 
-        self.targets = self.vision.yolo.find(self.search_img, confidence=0.7)
+        self.targets = self.yolo.find(self.search_img, confidence=0.7)
 
         if self.state == State.START:
             is_gathering = self.vision.is_gathering(self.search_img)
@@ -58,7 +60,9 @@ class Gatherer(BotChild):
 
 class Navigator(BotChild):
     def __init__(self) -> None:
-        super().__init__(AlbionActions, NavigatorVision)
+        super().__init__()
+        self.actions = AlbionActions()
+        self.vision = NavigatorVision()
 
     def manage_state(self):
         # Update character info on map

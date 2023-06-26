@@ -18,16 +18,10 @@ Key Features of Compendium:
     - Код из меин перевести в отдельные e2e тесты
     - убрать WindowHandler из зависимостей классов
     - draw функции в Img или ImgDraw
-    - Remove SearchResult ref_img, search_img
 
 0. Тестирование
-    - Добавить изолированность, последовательность к input actions
+    - Добавить изолированность к input actions
 1. Действия персонажа и цикл сбора:
-    - ~~Адаптировать wind_mouse~~
-    - Распознавание маунта
-    - Состаяния mount/unmount
-    - Распознавание монстров
-    - Действие атака/сбор
 2. Навигатор карты
     - Тестирование
 10. Рефакторинг модуля мыши/клавиатуры
@@ -63,36 +57,6 @@ flowchart LR
     C --> D[Телепорт]
     D --> E{Очистка}
 ```
-
-```mermaid
----
-title: Entities and Value Objects
----
-erDiagram
-    Resource {
-        string name
-    }
-    ResourceNode {
-        string name
-        list images
-        int durability
-    }
-    Image {
-        string name
-        string path
-    }
-    Inventory {
-        string name
-        int size
-        int weight
-        list items
-    }
-    Item {
-        string name
-        float unit_weight
-    }
-```
-
 
 
 ## Neural network training

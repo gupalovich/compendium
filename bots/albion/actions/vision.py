@@ -1,4 +1,4 @@
-from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult, Vector2d
+from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
 from core.display.vision import Vision, YoloVision
 
 crop_areas = {
@@ -49,7 +49,10 @@ class GathererVision(Vision):
         "Copper Ore",
         "Tin Ore",
     ]
-    yolo = YoloVision(model_file_path, classes)
+
+    def load_model(self):
+        yolo = YoloVision(self.model_file_path, self.classes)
+        return yolo
 
     def find_closest(self, result: list[Rect]):
         char_pos = Pixel(1920 / 2, 1080 / 2)
@@ -65,11 +68,8 @@ class GathererVision(Vision):
 
         return closest_obj
 
-    def find_resource_nodes(self):
-        pass
-
-    def find_nearby_monsters(self):
-        pass
+    def find_targets(self):
+        """Filter out monster/resources from target labels"""
 
     def is_gathering(self, search_img: Img) -> bool:
         ref_img = ref_images.get("cast_bar")

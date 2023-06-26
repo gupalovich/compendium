@@ -52,10 +52,10 @@ class BotParent(Bot):
 
 class BotChild(Bot):
     targets: dict = {}
+    actions: Actions = None
+    vision: Vision = None
 
-    def __init__(self, actions: Actions, vision: Vision) -> None:
-        self.actions = actions()
-        self.vision = vision()
+    def __init__(self) -> None:
         self.lock = Lock()
 
     def set_state(self, state: State, state_type: str = "status"):
