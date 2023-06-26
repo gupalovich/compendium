@@ -32,10 +32,10 @@ class MounterVision(Vision):
 
 
 class NavigatorVision(Vision):
-    def locate_character_on_map(self):
+    def locate_character_on_map(self, search_img: Img) -> Pixel:
         pass
 
-    def find_closest_node_to_character(self):
+    def find_closest_node_to_character(self) -> Pixel:
         pass
 
 

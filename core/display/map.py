@@ -64,10 +64,7 @@ class ImgExtractor:
         crop_func, save_path = self.img_types.get(img_type)
         region = crop_func()
 
-        if isinstance(region, Polygon):
-            img.crop_polygon(region)
-        else:
-            img.crop(region)
+        img.crop(region)
 
         img.save(save_path.format(save_filename))
 
@@ -177,9 +174,6 @@ class NodeWalker:
 
             char_pos = result.locations[0].center
 
-            available_nodes = [
-                node for node in self.nodes if node not in self.cooldowns
-            ]
             if self.cooldowns:
                 current_time = time()
                 # Update cooldowns and remove expired ones

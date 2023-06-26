@@ -15,7 +15,6 @@ Key Features of Compendium:
 ## TODO
 
 0. Рефактор
-    - ImgExtractor
     - Новая NodeWalker start функция для бота с возможностью вывода картинки наверх
     - отрефакторить find_closest и get_closest_node_index
     - BotChild targets добавить типы
