@@ -12,4 +12,4 @@ class TestConfig(TestCase):
         self.assertIsInstance(settings.DEBUG, bool)
         self.assertIsInstance(settings.STATIC_PATH, str)
         self.assertTrue(settings.STATIC_PATH.endswith("/"))
-        self.assertTrue(settings.PROCESS_NAME)
+        self.assertTrue(settings.CLIENT)

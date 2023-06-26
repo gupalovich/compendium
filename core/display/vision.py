@@ -6,12 +6,13 @@ import numpy as np
 import pytesseract
 import torch
 
+from config import settings
 from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
 from core.common.enums import ColorFormat
 from core.display.utils import draw_rectangles
 from core.display.window import WindowHandler
 
-from .utils import draw_rectangles
+from .utils import draw_circles, draw_rectangles
 
 
 class Vision:

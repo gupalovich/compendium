@@ -48,8 +48,6 @@ class BotParent(Bot):
 
 
 class BotChild(Bot):
-    targets: dict = {}
-
     def __init__(self) -> None:
         self.lock = Lock()
 
