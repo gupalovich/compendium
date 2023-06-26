@@ -38,3 +38,24 @@ class NavigatorTests(TestCase):
                 self.navigator.node_to_pixel_direction(node, current_pos),
                 expected_result,
             )
+
+    def test_get_closest_node(self):
+        origin = Pixel(1920 / 2, 1080 / 2)
+        self.navigator.nodes = [
+            Node(origin.x - 100, origin.y - 100),
+            Node(origin.x - 200, origin.y - 200),
+            Node(origin.x - 300, origin.y - 300),
+        ]
+        cases = [  # char_pos, expected_result
+            (origin, self.navigator.nodes[0]),
+            (Pixel(origin.x + 100, origin.y + 100), self.navigator.nodes[0]),
+            (Pixel(origin.x - 149, origin.y - 149), self.navigator.nodes[0]),
+            (Pixel(origin.x - 150, origin.y - 150), self.navigator.nodes[1]),
+            (Pixel(origin.x - 249, origin.y - 249), self.navigator.nodes[1]),
+            (Pixel(origin.x - 250, origin.y - 250), self.navigator.nodes[2]),
+        ]
+        for char_pos, expected_result in cases:
+            self.assertEqual(
+                self.navigator.get_closest_node(char_pos),
+                expected_result,
+            )

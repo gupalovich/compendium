@@ -113,7 +113,6 @@ class Navigator(BotChild):
         self.actions = AlbionActions()
         self.cluster = self.load_cluster()
         self.nodes = self.load_cluster_nodes()
-        self.current_node = None
         self.node_cooldowns = {}
 
     def load_cluster(self) -> Img:
@@ -139,8 +138,8 @@ class Navigator(BotChild):
         y = int(origin.y - radius * math.sin(radians))
         return Pixel(x, y)
 
-    def get_closest_node(self):
-        pass
+    def get_closest_node(self, char_pos: Pixel) -> Node:
+        return find_closest(char_pos, self.nodes)
 
     def manage_nodes(self):
         pass
