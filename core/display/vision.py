@@ -163,3 +163,49 @@ class LiveVision:
             if cv.waitKey(1) == ord(self.exit_key):
                 cv.destroyAllWindows()
                 break
+
+
+class NodeMapper:
+    """
+    Simplify way of mapping nodes to the map
+
+    TODO: NodeMapper based on character position and keybind
+    """
+
+    node_color = (255, 255, 0)
+    exit_key = "q"
+
+    def __init__(self, map_path: str, nodes: List[Pixel] = None):
+        self.map_path = map_path
+        self.map = ImgLoader(map_path)
+        self.nodes = nodes or []
+
+    def add_node(self, node: Pixel):
+        if node in self.nodes:
+            return
+        self.nodes.append(node)
+        print("Added node: ", node)
+
+    def remove_node(self, node: Pixel):
+        raise NotImplementedError()
+
+    def save_nodes(self):
+        filename = settings.STATIC_PATH + self.map_path.split(".")[0] + "_nodes.txt"
+        with open(filename, "w+", encoding="utf-8") as file:
+            file.write(str(self.nodes))
+
+    def click_event(self, event, x, y, *args):
+        # pylint: disable=unused-argument
+        if event == cv.EVENT_LBUTTONDOWN:
+            pixel = Pixel(x, y)
+            self.add_node(pixel)
+
+    def start(self):
+        while True:
+            self.map = draw_circles(self.map, self.nodes, bgr=self.node_color)
+            cv.imshow("NodeMapper Screen", self.map.data)
+            cv.setMouseCallback("NodeMapper Screen", self.click_event)
+            if cv.waitKey(1) == ord(self.exit_key):
+                print(self.nodes)
+                cv.destroyAllWindows()
+                break
