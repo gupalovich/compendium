@@ -1,6 +1,8 @@
 from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
 from core.display.vision import Vision
 
+from .utils import extract_minimap
+
 crop_areas = {
     "skill_panel": Rect(Pixel(475, 960), Pixel(1480, 1080)),
     "casting": Rect(Pixel(630, 540), Pixel(1255, 780)),
@@ -32,15 +34,22 @@ class MounterVision(Vision):
 
 
 class NavigatorVision(Vision):
-    def locate_character_on_map(self, search_img: Img) -> Pixel:
-        pass
+    def load_current_map(self) -> Img:
+        """TODO: use map text detection instead of hardcoded image"""
+        return ImgLoader("albion/maps/mase_knoll.png")
+
+    def prepare_minimap(self, search_img: Img) -> Img:
+        ref_img = extract_minimap(search_img)
+        ref_img.confidence = 0.72
+        ref_img.resize_x(0.69)
+        return ref_img
 
     def find_closest_node_to_character(self) -> Pixel:
         pass
 
 
 class GathererVision(Vision):
-    def find_closest(self, result: list[Rect]):
+    def find_closest_target(self, result: list[Rect]):
         char_pos = Pixel(1920 / 2, 1080 / 2)
 
         closest_obj = None

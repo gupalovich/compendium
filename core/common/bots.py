@@ -5,9 +5,7 @@ from pynput import keyboard
 
 from core.common.entities import Img
 from core.common.enums import State
-from core.display.vision import Vision
 from core.display.window import WindowHandler
-from core.input.actions import Actions
 
 
 class Bot:
@@ -51,8 +49,6 @@ class BotParent(Bot):
 
 class BotChild(Bot):
     targets: dict = {}
-    actions: Actions = None
-    vision: Vision = None
 
     def __init__(self) -> None:
         self.lock = Lock()

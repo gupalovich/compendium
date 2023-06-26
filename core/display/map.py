@@ -79,31 +79,21 @@ class NodeWalker:
         self.nodes = [
             Node(x=585, y=521),
             Node(x=586, y=510),
-            # Node(x=590, y=501),
-            # Node(x=601, y=501),
-            # Node(x=610, y=505),
-            # Node(x=619, y=508),
-            # Node(x=629, y=506),
-            # Node(x=619, y=515),
-            # Node(x=613, y=520),
-            # Node(x=611, y=526),
-            # Node(x=604, y=526),
-            # Node(x=596, y=526),
-            # Node(x=590, y=525),
+            Node(x=590, y=501),
+            Node(x=601, y=501),
+            Node(x=610, y=505),
+            Node(x=619, y=508),
+            Node(x=629, y=506),
+            Node(x=619, y=515),
+            Node(x=613, y=520),
+            Node(x=611, y=526),
+            Node(x=604, y=526),
+            Node(x=596, y=526),
+            Node(x=590, y=525),
         ]
         self.cooldowns = {}
         self.vision = Vision()
         self.extractor = ImgExtractor()
-
-    def prepare_map(self) -> Img:
-        search_img = ImgLoader("albion/maps/mase_knoll.png")
-        return search_img
-
-    def prepare_minimap(self) -> Img:
-        ref_img = self.extractor.extract("minimap")
-        ref_img.confidence = 0.72
-        ref_img.resize_x(0.69)
-        return ref_img
 
     def update_character_location(self, search_img: Img) -> Pixel:
         ref_img = self.prepare_minimap()

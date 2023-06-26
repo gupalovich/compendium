@@ -1,4 +1,4 @@
-from core.common.entities import Img, ImgLoader, Node, Pixel, Polygon, Rect, Vector2d
+from core.common.entities import Img, Pixel, Polygon, Rect
 
 
 @property
@@ -31,9 +31,11 @@ def extract_map(img: Img, save_path: str = "") -> Img:
     save_path = save_path or "albion/maps/map.png"
     img.crop(map_crop)
     img.save(save_path)
+    return img
 
 
 def extract_minimap(img: Img, save_path: str = "") -> Img:
     save_path = save_path or "albion/temp/minimap.png"
     img.crop(minimap_crop)
     img.save(save_path)
+    return img

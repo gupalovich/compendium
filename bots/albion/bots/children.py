@@ -61,7 +61,7 @@ class Gatherer(BotChild):
         if self.state == State.START:
             is_gathering = self.vision.is_gathering(self.search_img)
             if self.targets:
-                target = self.vision.find_closest(self.targets)
+                target = self.vision.find_closest_target(self.targets)
                 self.actions.gather(target.center)
                 log(f"Trying to gather [{target.label}]")
             if is_gathering:
