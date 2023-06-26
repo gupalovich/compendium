@@ -315,6 +315,9 @@ class SearchResult:
     def __iter__(self):
         return (i for i in self.locations)
 
+    def __getitem__(self, index):
+        return self.locations[index]
+
     def __repr__(self):
         return f"<SearchResult(count={self.count}, locations={self.locations})>"
 

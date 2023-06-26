@@ -1,5 +1,5 @@
 import math
-from time import sleep
+from time import sleep, time
 
 from core.common.bots import BotChild
 from core.common.entities import Img, ImgLoader, Node, Pixel, Rect, Vector2d
@@ -111,6 +111,7 @@ class Navigator(BotChild):
     def __init__(self) -> None:
         super().__init__()
         self.actions = AlbionActions()
+        self.vision = AlbionVision()
         self.cluster = self.load_cluster()
         self.nodes = self.load_cluster_nodes()
         self.node_cooldowns = {}
@@ -130,11 +131,7 @@ class Navigator(BotChild):
     def create_node_vector(self, node: Node, current_pos: Pixel) -> Vector2d:
         return Vector2d(node.x - current_pos.x, current_pos.y - node.y)
 
-    def get_node_vector_distance(self, vector: Vector2d) -> float:
-        return abs(vector)
-
-    def node_to_pixel_direction(self, node: Node, current_pos: Pixel) -> Pixel:
-        node_vector = self.create_node_vector(node, current_pos)
+    def node_vector_to_pixel_direction(self, node_vector: Vector2d) -> Pixel:
         res_x, res_y = 1920, 1080
         origin_skew = 100
         origin = Pixel(res_x / 2, res_y / 2 - origin_skew)
@@ -147,8 +144,38 @@ class Navigator(BotChild):
     def get_closest_node(self, char_pos: Pixel) -> Node:
         return find_closest(char_pos, self.nodes)
 
+    def find_character_on_map(self) -> Pixel:
+        """
+        TODO: smart way to find character with minimap threshold decrement and multiple results
+        """
+        minimap = self.extract_minimap(self.search_img)
+        result = self.vision.find(minimap, self.cluster)
+        return result[0].center
+
+    def add_node_cooldown(self, node: Node, duration: float = 20):
+        cooldown_time = time() + duration
+        self.node_cooldowns[node] = cooldown_time
+
+    def clear_node_cooldowns(self):
+        self.node_cooldowns = {
+            node: cooldown_time
+            for node, cooldown_time in self.node_cooldowns.items()
+            if cooldown_time > time()
+        }
+
     def manage_nodes(self):
-        pass
+        char_location = self.find_character_on_map()  # can't return None
+        current_node = self.get_closest_node(char_location)
+        node_vector = self.create_node_vector(current_node, char_location)
+        node_direction = self.node_vector_to_pixel_direction(node_vector)
+        node_distance = abs(node_vector)
+
+        if self.node_cooldowns:
+            self.clear_node_cooldowns()
+
+        if 2 < node_distance < 50:
+            self.actions.move_click(node_direction)
+            self.add_node_cooldown(current_node)
 
     def manage_state(self):
         # Update character info on map

@@ -1,3 +1,4 @@
+from time import time
 from unittest import TestCase
 
 from core.common.entities import ImgLoader, Node, Pixel, Vector2d
@@ -9,6 +10,7 @@ class NavigatorTests(TestCase):
     def setUp(self) -> None:
         self.navigator = Navigator()
         self.origin = Pixel(1920 / 2, 1080 / 2)
+        self.search_img = ImgLoader("albion/tests/7.png")
 
     def test_load_cluster(self):
         cluster = self.navigator.load_cluster()
@@ -33,13 +35,7 @@ class NavigatorTests(TestCase):
         self.assertIsInstance(node_vector, Vector2d)
         self.assertEqual(node_vector, expected_vector)
 
-    def test_get_node_vector_distance(self):
-        node = self.navigator.nodes[0]
-        node_vector = self.navigator.create_node_vector(node, self.origin)
-        result = self.navigator.get_node_vector_distance(node_vector)
-        self.assertEqual(result, abs(node_vector))
-
-    def test_node_to_pixel_direction(self):
+    def test_node_vector_to_pixel_direction(self):
         # node, current_pos, expected_result
         cases = [
             (Node(585, 520), Pixel(560, 520), Pixel(1110, 440)),
@@ -48,8 +44,9 @@ class NavigatorTests(TestCase):
         ]
 
         for node, current_pos, expected_result in cases:
+            node_vector = self.navigator.create_node_vector(node, current_pos)
             self.assertEqual(
-                self.navigator.node_to_pixel_direction(node, current_pos),
+                self.navigator.node_vector_to_pixel_direction(node_vector),
                 expected_result,
             )
 
@@ -72,3 +69,28 @@ class NavigatorTests(TestCase):
                 self.navigator.get_closest_node(char_pos),
                 expected_result,
             )
+
+    def test_find_character_on_map(self):
+        self.navigator.search_img = self.search_img
+        result = self.navigator.find_character_on_map()
+        self.assertEqual(result, Pixel(x=468, y=45))
+
+    def test_add_node_cooldown(self):
+        self.assertFalse(self.navigator.node_cooldowns)
+        node = self.navigator.nodes[0]
+        self.navigator.add_node_cooldown(node)
+        self.assertEqual(self.navigator.node_cooldowns[node], time() + 20)
+
+    def test_clear_node_cooldowns(self):
+        node = self.navigator.nodes[0]
+        node_1 = self.navigator.nodes[1]
+        self.navigator.node_cooldowns[node] = time() - 20
+        self.navigator.node_cooldowns[node_1] = time() + 20
+        # Test cooldown size
+        self.assertTrue(len(self.navigator.node_cooldowns) == 2)
+        self.navigator.clear_node_cooldowns()
+        # Test that 1 cooldown was cleared
+        with self.assertRaises(KeyError):
+            assert self.navigator.node_cooldowns[node]
+        self.assertTrue(len(self.navigator.node_cooldowns) == 1)
+        self.assertIsInstance(self.navigator.node_cooldowns, dict)
