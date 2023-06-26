@@ -1,3 +1,5 @@
+from time import sleep
+
 from core.common.entities import Pixel, Rect
 
 
@@ -15,3 +17,9 @@ def find_closest(origin: Pixel, positions: list[Pixel] | list[Rect]) -> Pixel:
             min_dist = dist
             closest_pos = pos
     return closest_pos
+
+
+def log(task: str, delay: float = 0):
+    print(f"- {task}")
+    if delay:
+        sleep(delay)

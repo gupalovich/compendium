@@ -1,12 +1,13 @@
+import math
 from time import sleep
 
 from core.common.bots import BotChild
-from core.common.entities import Img, ImgLoader, Pixel, Rect
+from core.common.entities import Img, ImgLoader, Node, Pixel, Rect, Vector2d
 from core.common.enums import State
-from core.common.utils import find_closest
+from core.common.utils import find_closest, log
 from core.display.vision import YoloVision
 
-from ..actions.input import AlbionActions, log
+from ..actions.input import AlbionActions
 from ..actions.utils import extract_minimap
 from ..actions.vision import AlbionVision
 
@@ -54,6 +55,7 @@ class Gatherer(BotChild):
         self.actions = AlbionActions()
         self.vision = AlbionVision()
         self.yolo = YoloVision(self.model_file_path, self.classes)
+        self.targets = {}
 
     def find_targets(self):
         """Filter out monster/resources from target labels"""
@@ -85,19 +87,63 @@ class Gatherer(BotChild):
 
 
 class Navigator(BotChild):
+    clusters = {
+        "mase_knoll": {
+            "path": "albion/maps/mase_knoll.png",
+            "nodes": [
+                Node(x=585, y=521),
+                Node(x=586, y=510),
+                Node(x=590, y=501),
+                Node(x=601, y=501),
+                Node(x=610, y=505),
+                Node(x=619, y=508),
+                Node(x=629, y=506),
+                Node(x=619, y=515),
+                Node(x=613, y=520),
+                Node(x=611, y=526),
+                Node(x=604, y=526),
+                Node(x=596, y=526),
+                Node(x=590, y=525),
+            ],
+        }
+    }
+
     def __init__(self) -> None:
         super().__init__()
         self.actions = AlbionActions()
+        self.cluster = self.load_cluster()
+        self.nodes = self.load_cluster_nodes()
+        self.current_node = None
+        self.node_cooldowns = {}
 
-    def load_current_map(self) -> Img:
-        """TODO: use map text detection instead of hardcoded image"""
-        return ImgLoader("albion/maps/mase_knoll.png")
+    def load_cluster(self) -> Img:
+        return ImgLoader(self.clusters["mase_knoll"]["path"])
 
-    def prepare_minimap(self, search_img: Img) -> Img:
+    def load_cluster_nodes(self) -> list[Node]:
+        return self.clusters["mase_knoll"]["nodes"]
+
+    def extract_minimap(self, search_img: Img) -> Img:
         ref_img = extract_minimap(search_img)
         ref_img.confidence = 0.72
         ref_img.resize_x(0.69)
         return ref_img
+
+    def node_to_pixel_direction(self, node: Node, current_pos: Pixel) -> Pixel:
+        node_vector = Vector2d(node.x - current_pos.x, current_pos.y - node.y)
+        res_x, res_y = 1920, 1080
+        origin_skew = 100
+        origin = Pixel(res_x / 2, res_y / 2 - origin_skew)
+        radius = 150
+        radians = node_vector.angle()
+        x = int(origin.x + radius * math.cos(radians))
+        y = int(origin.y - radius * math.sin(radians))
+        return Pixel(x, y)
+
+    def get_closest_node(self):
+        pass
+
+    def manage_nodes(self):
+        pass
 
     def manage_state(self):
         # Update character info on map

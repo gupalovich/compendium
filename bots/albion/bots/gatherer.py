@@ -1,5 +1,3 @@
-from time import sleep
-
 from core.common.bots import BotFather, Watcher
 from core.common.enums import State
 from core.display.window import WindowHandler
