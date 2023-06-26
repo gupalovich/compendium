@@ -227,14 +227,20 @@ class ImgBase:
     def save(self, img_path: str) -> None:
         cv.imwrite(settings.STATIC_PATH + img_path, self.data)
 
-    def crop(self, region: Rect) -> None:
+    def crop(self, region: Rect | Polygon) -> None:
+        if isinstance(region, Rect):
+            self._crop_rect(region)
+        if isinstance(region, Polygon):
+            self._crop_polygon(region)
+        self._set_dimensions()
+
+    def _crop_rect(self, region: Rect) -> None:
         self.data = self.data[
             region.left_top.y : region.right_bottom.y,
             region.left_top.x : region.right_bottom.x,
         ]
-        self._set_dimensions()
 
-    def crop_polygon(self, region: Polygon) -> None:
+    def _crop_polygon(self, region: Polygon) -> None:
         """Crop out polygon from image and fill background"""
         points = region.as_np_array()
         # Create a binary mask with the polygon shape
@@ -246,7 +252,6 @@ class ImgBase:
         self.data = masked_img[
             min(points[:, 1]) : max(points[:, 1]), min(points[:, 0]) : max(points[:, 0])
         ]
-        self._set_dimensions()
 
     def resize(self, size: Pixel) -> None:
         self.data = cv.resize(self.data, tuple(size))

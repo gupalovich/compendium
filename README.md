@@ -15,9 +15,10 @@ Key Features of Compendium:
 ## TODO
 
 0. Рефактор
-    - Код из меин перевести в отдельные e2e тесты
-    - убрать WindowHandler из зависимостей классов
-    - draw функции в Img или ImgDraw
+    - ImgExtractor
+    - Новая NodeWalker start функция для бота с возможностью вывода картинки наверх
+    - отрефакторить find_closest и get_closest_node_index
+    - BotChild targets добавить типы
 
 0. Тестирование
     - Добавить изолированность к input actions

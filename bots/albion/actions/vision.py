@@ -32,7 +32,11 @@ class MounterVision(Vision):
 
 
 class NavigatorVision(Vision):
-    pass
+    def locate_character_on_map(self):
+        pass
+
+    def find_closest_node_to_character(self):
+        pass
 
 
 class GathererVision(Vision):

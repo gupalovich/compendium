@@ -15,10 +15,9 @@ class Bot:
     INIT_SECONDS: float = 0
     PAUSE_DELAY: float = 0.2
     MAIN_LOOP_DELAY: float = 0.03
-    # bot properties
+    # properties
     running: bool = False
     state: State = None
-    # vision properties
     search_img: Img = None
 
     def start(self):

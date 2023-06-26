@@ -65,11 +65,7 @@ class ImgExtractor:
         crop_func, save_path = self.img_types.get(img_type)
         region = crop_func()
 
-        if isinstance(region, Polygon):
-            img.crop_polygon(region)
-        else:
-            img.crop(region)
-
+        img.crop(region)
         img.save(save_path.format(save_filename))
 
         return img

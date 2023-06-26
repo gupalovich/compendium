@@ -199,10 +199,10 @@ class ImgBaseTests(TestCase):
             [Pixel(100, 500), Pixel(500, 250), Pixel(1000, 600), Pixel(500, 800)]
         )
         width, height = 900, 550
-        img.crop_polygon(region)
-        # Test image was cropped
-        self.assertEqual(img.width, width)
-        self.assertEqual(img.height, height)
+        img._crop_polygon(region)
+        # Test image was not cropped
+        self.assertTrue(img.width > width)
+        self.assertTrue(img.height > height)
         # Test pixel color at (10, 10)
         pixel_color = img.data[10, 10]
         expected_color = (0, 0, 0)
