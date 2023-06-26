@@ -21,3 +21,6 @@ class AlbionActions(Actions):
 
     def gather(self, resource_node: Pixel) -> None:
         self.move_click(resource_node)
+
+    def move(self, location: Pixel) -> None:
+        self.move_click(location)

@@ -139,8 +139,8 @@ class NodeWalker:
                 continue
 
             search_img = draw_circles(search_img, result.locations)
-            search_img = draw_circles(search_img, self.nodes, color=(255, 255, 0))
-            search_img = draw_circles(search_img, self.cooldowns, color=(0, 0, 0))
+            search_img = draw_circles(search_img, self.nodes, bgr=(255, 255, 0))
+            search_img = draw_circles(search_img, self.cooldowns, bgr=(0, 0, 0))
 
             search_img.resize_x(1.2)
 
@@ -152,9 +152,6 @@ class NodeWalker:
 
             char_pos = result.locations[0].center
 
-            available_nodes = [
-                node for node in self.nodes if node not in self.cooldowns
-            ]
             if self.cooldowns:
                 current_time = time()
                 # Update cooldowns and remove expired ones
@@ -221,7 +218,7 @@ class NodeMapper:
 
     def start(self):
         while True:
-            self.map = draw_circles(self.map, self.nodes, color=self.node_color)
+            self.map = draw_circles(self.map, self.nodes, bgr=self.node_color)
             cv.imshow("NodeMapper Screen", self.map.data)
             cv.setMouseCallback("NodeMapper Screen", self.click_event)
             if cv.waitKey(1) == ord(self.exit_key):

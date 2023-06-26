@@ -2,6 +2,7 @@ from time import sleep
 
 from core.common.bots import BotChild
 from core.common.enums import State
+from core.display.vision import YoloVision
 
 from ..actions.input import AlbionActions, log
 from ..actions.vision import GathererVision, MounterVision, NavigatorVision
@@ -31,11 +32,25 @@ class Mounter(BotChild):
 
 
 class Gatherer(BotChild):
+    model_file_path = "ai/albion/models/best_albion1.0.engine"
+    classes = [
+        "Heretic",
+        "Elemental",
+        "Sandstone",
+        "Rough Stone",
+        "Limestone",
+        "Birch",
+        "Chestnut",
+        "Logs",
+        "Copper Ore",
+        "Tin Ore",
+    ]
+
     def __init__(self) -> None:
         super().__init__()
         self.actions = AlbionActions()
         self.vision = GathererVision()
-        self.yolo = self.vision.load_model()
+        self.yolo = YoloVision(self.model_file_path, self.classes)
 
     def manage_state(self):
         if not self.state:

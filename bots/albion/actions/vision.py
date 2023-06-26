@@ -1,5 +1,5 @@
 from core.common.entities import Img, ImgLoader, Pixel, Rect, SearchResult
-from core.display.vision import Vision, YoloVision
+from core.display.vision import Vision
 
 crop_areas = {
     "skill_panel": Rect(Pixel(475, 960), Pixel(1480, 1080)),
@@ -36,24 +36,6 @@ class NavigatorVision(Vision):
 
 
 class GathererVision(Vision):
-    model_file_path = "ai/albion/models/best_albion1.0.engine"
-    classes = [
-        "Heretic",
-        "Elemental",
-        "Sandstone",
-        "Rough Stone",
-        "Limestone",
-        "Birch",
-        "Chestnut",
-        "Logs",
-        "Copper Ore",
-        "Tin Ore",
-    ]
-
-    def load_model(self):
-        yolo = YoloVision(self.model_file_path, self.classes)
-        return yolo
-
     def find_closest(self, result: list[Rect]):
         char_pos = Pixel(1920 / 2, 1080 / 2)
 
