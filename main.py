@@ -1,16 +1,20 @@
 import logging
 
-import cv2 as cv
-
 from config import settings
 
 
 def main():
-    from bots.albion.bots.gatherer import GathererStateManager
+    # from bots.albion.bots.gatherer import GathererStateManager
 
-    gatherer = GathererStateManager()
-    gatherer.start()
+    # gatherer = GathererStateManager()
+    # gatherer.start()
 
+    from core.display.window import WindowHandler
+
+    window_handler = WindowHandler()
+    window_handler.live_screenshot()
+
+    # import cv2 as cv
     # from bots.albion.bots.children import Navigator
     # from core.common.enums import State
     # from core.display.window import WindowHandler

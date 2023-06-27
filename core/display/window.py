@@ -10,6 +10,8 @@ import win32ui
 from config import settings
 from core.common.entities import Img, Pixel, Rect
 
+from .utils import draw_rectangles
+
 
 class WindowException(Exception):
     """Base class for exceptions in this module."""
@@ -134,19 +136,40 @@ class WindowHandler:
     def live_screenshot(self, exit_key="q", screen_key="f") -> None:
         """Simplify process of taking screenshots"""
 
-        while True:
-            screenshot = self.grab(self.dimensions)
+        model_file_path = "ai/albion/models/best_albion1.0.engine"
+        classes = [
+            "Heretic",
+            "Elemental",
+            "Sandstone",
+            "Rough Stone",
+            "Limestone",
+            "Birch",
+            "Chestnut",
+            "Logs",
+            "Copper Ore",
+            "Tin Ore",
+        ]
+        from .vision import YoloVision
 
-            cv.imshow("Windowshot", screenshot)
+        yolo = YoloVision(model_file_path, classes)
+
+        while True:
+            screenshot = self.grab()
+            targets = yolo.find(screenshot, confidence=0.8)
+
+            screenshot = draw_rectangles(screenshot, targets)
+
+            cv.imshow("Windowshot", screenshot.data)
 
             loop_time = time()
 
-            if cv.waitKey(1) == ord(exit_key):
-                cv.destroyAllWindows()
-                break
             if cv.waitKey(1) == ord(screen_key):
                 print("[INFO] Windowshot taken...")
+                screenshot.reset()
                 cv.imwrite(f"static/screenshots/{loop_time}.jpg", screenshot.data)
+            # if cv.waitKey(1) == ord(exit_key):
+            #     cv.destroyAllWindows()
+            #     break
         print("[INFO] Done.")
 
 

@@ -1,10 +1,14 @@
-Еретик
-Элементаль
-Песчаник
-Грубый Камень
-Известняк
-Береза
-Каштан
-Бревна
-Медная Руда
-Оловянная Руда
+Heretic
+Elemental
+Sandstone
+Rough Stone
+Limestone
+Birch
+Chestnut
+Logs
+Copper Ore
+Tin Ore
+Used Rough Stone
+Used Limestone
+Used Copper Ore
+Used Tin Ore
