@@ -275,7 +275,6 @@ class ImgLoaderTests(TestCase):
         img = ImgLoader(self.img_path, 0.8, ColorFormat.GRAY)
         self.assertFalse(np.array_equal(img.initial, self.loaded_img))
         self.assertTrue(np.array_equal(img.initial, img.data))
-        self.assertEqual(img.path, self.img_path)
         self.assertEqual(img.confidence, 0.8)
         self.assertEqual(img.width, self.width)
         self.assertEqual(img.height, self.height)

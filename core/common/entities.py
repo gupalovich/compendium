@@ -278,17 +278,16 @@ class Img(ImgBase):
 
 class ImgLoader(ImgBase):
     def __init__(self, path: str, conf=0.65, fmt=ColorFormat.BGR) -> None:
-        self.path = path
+        self._data = self._load(path, fmt)
         self.confidence = conf
         self.fmt = fmt
-        self._load()
         self._set_params()
 
-    def _load(self) -> None:
-        img = cv.imread(settings.STATIC_PATH + self.path, self.fmt)
+    def _load(self, path: str, fmt: ColorFormat) -> np.ndarray:
+        img = cv.imread(settings.STATIC_PATH + path, fmt)
         if img is None or not img.any():
-            raise FileNotFoundError(f"Can't load img from this path: {self.path}")
-        self._data = img
+            raise FileNotFoundError(f"Can't load img from this path: {path}")
+        return img
 
 
 @dataclass
