@@ -114,7 +114,7 @@ class Navigator(BotChild):
         self.vision = AlbionVision()
         self.cluster = self.load_cluster()
         self.nodes = self.load_cluster_nodes()
-        self.node_cooldowns = {}
+        self.current_node = None
 
     def load_cluster(self) -> Img:
         return ImgLoader(self.clusters["mase_knoll"]["path"])
@@ -142,7 +142,8 @@ class Navigator(BotChild):
         return Pixel(x, y)
 
     def get_closest_node(self, char_pos: Pixel) -> Node:
-        return find_closest(char_pos, self.nodes)
+        nodes = [node for node in self.nodes if not node.cooldown]
+        return find_closest(char_pos, nodes)
 
     def find_character_on_map(self) -> Pixel:
         """
@@ -153,15 +154,12 @@ class Navigator(BotChild):
         return result[0].center
 
     def add_node_cooldown(self, node: Node, duration: float = 20):
-        cooldown_time = time() + duration
-        self.node_cooldowns[node] = cooldown_time
+        node.update_cooldown(time() + duration)
 
     def clear_node_cooldowns(self):
-        self.node_cooldowns = {
-            node: cooldown_time
-            for node, cooldown_time in self.node_cooldowns.items()
-            if cooldown_time > time()
-        }
+        for node in self.nodes:
+            if node.cooldown < time():
+                node.reset_cooldown()
 
     def manage_nodes(self):
         char_location = self.find_character_on_map()  # can't return None
@@ -170,11 +168,11 @@ class Navigator(BotChild):
         node_direction = self.node_vector_to_pixel_direction(node_vector)
         node_distance = abs(node_vector)
 
-        if self.node_cooldowns:
-            self.clear_node_cooldowns()
+        self.clear_node_cooldowns()
 
         if 2 < node_distance < 50:
             self.actions.move_click(node_direction)
+        if node_distance < 2:
             self.add_node_cooldown(current_node)
 
     def manage_state(self):
@@ -182,7 +180,6 @@ class Navigator(BotChild):
 
         if self.state == State.START:
             # Move character from node to node
-            # save node history
             pass
         else:
             sleep(0.2)

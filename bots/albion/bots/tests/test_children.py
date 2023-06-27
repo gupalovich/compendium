@@ -76,21 +76,19 @@ class NavigatorTests(TestCase):
         self.assertEqual(result, Pixel(x=468, y=45))
 
     def test_add_node_cooldown(self):
-        self.assertFalse(self.navigator.node_cooldowns)
-        node = self.navigator.nodes[0]
-        self.navigator.add_node_cooldown(node)
-        self.assertEqual(self.navigator.node_cooldowns[node], time() + 20)
+        self.navigator.add_node_cooldown(self.navigator.nodes[0])
+        self.assertEqual(self.navigator.nodes[0].cooldown, time() + 20)
+        self.assertEqual(self.navigator.nodes[1].cooldown, 0)
 
     def test_clear_node_cooldowns(self):
         node = self.navigator.nodes[0]
         node_1 = self.navigator.nodes[1]
-        self.navigator.node_cooldowns[node] = time() - 20
-        self.navigator.node_cooldowns[node_1] = time() + 20
-        # Test cooldown size
-        self.assertTrue(len(self.navigator.node_cooldowns) == 2)
+        # set cooldowns
+        node.update_cooldown(time() - 20)
+        node_1.update_cooldown(time() + 20)
+        self.assertNotEqual(node.cooldown, 0)
+        self.assertNotEqual(node_1.cooldown, 0)
+        # test cooldown reset
         self.navigator.clear_node_cooldowns()
-        # Test that 1 cooldown was cleared
-        with self.assertRaises(KeyError):
-            assert self.navigator.node_cooldowns[node]
-        self.assertTrue(len(self.navigator.node_cooldowns) == 1)
-        self.assertIsInstance(self.navigator.node_cooldowns, dict)
+        self.assertEqual(node.cooldown, 0)
+        self.assertNotEqual(node_1.cooldown, 0)

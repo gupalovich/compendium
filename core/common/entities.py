@@ -49,7 +49,14 @@ class Pixel(VectorBase):
 
 
 class Node(VectorBase):
-    """A Node in pixel-coordinate system"""
+    cooldown: float = 0
+
+    def update_cooldown(self, cooldown_time: float):
+        self.cooldown = cooldown_time
+
+    def reset_cooldown(self):
+        """Set cooldown to 0"""
+        self.cooldown = 0
 
 
 @dataclass
