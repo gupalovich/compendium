@@ -58,28 +58,32 @@ class Gatherer(BotChild):
         self.actions = AlbionActions()
         self.vision = AlbionVision()
         self.yolo = YoloVision(self.model_file_path, self.classes)
+        self.goal = ["Limestone", "Rough Stone", "Logs", "Copper Ore"]
         self.targets = {}
 
-    def find_targets(self):
-        """Filter out monster/resources from target labels"""
+    def filter_targets(self, targets: list[Rect]) -> list[Rect]:
+        return [target for target in targets if target.label in self.goal]
 
-    def get_closest_target(self, locations: list[Rect]):
+    def get_closest_target(self, targets: list[Rect]):
         origin = Pixel(1920 / 2, 1080 / 2)
-        return find_closest(origin, locations)
+        targets = [target for target in targets if target.label in self.goal]
+        return find_closest(origin, targets)
 
     def manage_state(self):
         if not self.state:
             return
 
-        self.targets = self.yolo.find(self.search_img, confidence=0.7)
+        targets = self.yolo.find(self.search_img, confidence=0.85)
+        self.targets = self.filter_targets(targets)
 
         if self.state == State.START:
             is_gathering = self.vision.is_gathering(self.search_img)
 
             if self.targets:
                 target = self.get_closest_target(self.targets)
-                self.actions.gather(target.center)
-                log(f"Trying to gather [{target.label}]")
+                if target:
+                    self.actions.gather(target)
+                    log("Trying to gather", delay=1)
             if is_gathering:
                 log("Gathering", delay=0.3)
             if not is_gathering and not self.targets:
@@ -173,6 +177,7 @@ class Navigator(BotChild):
         node_vector = self.create_node_vector(current_node, char_location)
         node_direction = self.node_vector_to_pixel_direction(node_vector)
         node_distance = abs(node_vector)
+
         self.clear_node_cooldowns()
 
         if 2 < node_distance < 50:
@@ -196,8 +201,6 @@ class Navigator(BotChild):
         # print("Node Direction: ", node_direction, "\n")
 
     def manage_state(self):
-        # Update character info on map
-
         if self.state == State.START:
             self.manage_nodes()
         else:
