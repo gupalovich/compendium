@@ -12,7 +12,7 @@ def find_closest(origin: Pixel, positions: list[Pixel] | list[Rect]) -> Pixel:
         if isinstance(pos, Rect):
             pos = pos.center
 
-        dist = abs(abs(origin) - abs(pos))
+        dist = abs(origin.x - pos.x) + abs(origin.y - pos.y)
         if dist < min_dist:
             min_dist = dist
             closest_pos = pos

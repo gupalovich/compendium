@@ -1,10 +1,13 @@
 import math
 from time import sleep, time
 
+import cv2 as cv
+
 from core.common.bots import BotChild
 from core.common.entities import Img, ImgLoader, Node, Pixel, Rect, Vector2d
 from core.common.enums import State
 from core.common.utils import find_closest, log
+from core.display.utils import draw_circles
 from core.display.vision import YoloVision
 
 from ..actions.input import AlbionActions
@@ -124,7 +127,7 @@ class Navigator(BotChild):
 
     def extract_minimap(self, search_img: Img) -> Img:
         ref_img = extract_minimap(search_img)
-        ref_img.resize_x(0.69)
+        ref_img.resize_x(0.70)
         return ref_img
 
     def create_node_vector(self, node: Node, current_pos: Pixel) -> Vector2d:
@@ -134,7 +137,7 @@ class Navigator(BotChild):
         res_x, res_y = 1920, 1080
         origin_skew = 100
         origin = Pixel(res_x / 2, res_y / 2 - origin_skew)
-        radius = 150
+        radius = 250
         radians = node_vector.angle()
         x = int(origin.x + radius * math.cos(radians))
         y = int(origin.y - radius * math.sin(radians))
@@ -145,7 +148,7 @@ class Navigator(BotChild):
         return find_closest(char_pos, nodes)
 
     def find_character_on_map(self) -> Pixel:
-        confidence = 0.9
+        confidence = 0.85
         while confidence > 0.6:
             minimap = self.extract_minimap(self.search_img)
             minimap.confidence = confidence
@@ -164,24 +167,38 @@ class Navigator(BotChild):
                 node.reset_cooldown()
 
     def manage_nodes(self):
-        char_location = self.find_character_on_map()  # can't return None
+        self.cluster.reset()
+        char_location = self.find_character_on_map()
         current_node = self.get_closest_node(char_location)
         node_vector = self.create_node_vector(current_node, char_location)
         node_direction = self.node_vector_to_pixel_direction(node_vector)
         node_distance = abs(node_vector)
-
         self.clear_node_cooldowns()
 
         if 2 < node_distance < 50:
             self.actions.move_click(node_direction)
-        if node_distance < 2:
+        if node_distance < 4:
             self.add_node_cooldown(current_node)
+
+        # draw_circles(self.cluster, [char_location])
+        # draw_circles(self.cluster, self.nodes, bgr=(255, 255, 0))
+        # draw_circles(
+        #     self.cluster,
+        #     [node for node in self.nodes if node.cooldown],
+        #     bgr=(0, 0, 0),
+        # )
+        # draw_circles(self.cluster, [current_node], bgr=(255, 0, 255))
+        # self.cluster.resize_x(1.2)
+
+        # print("Node: ", current_node)
+        # print("Node Vector: ", node_vector)
+        # print("Node Distance: ", node_distance)
+        # print("Node Direction: ", node_direction, "\n")
 
     def manage_state(self):
         # Update character info on map
 
         if self.state == State.START:
-            # Move character from node to node
-            pass
+            self.manage_nodes()
         else:
             sleep(0.2)

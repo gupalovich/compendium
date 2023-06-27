@@ -24,8 +24,8 @@ class NavigatorTests(TestCase):
 
     def test_extract_minimap(self):
         minimap = self.navigator.extract_minimap(ImgLoader("albion/tests/7.png"))
-        self.assertEqual(minimap.width, 90)
-        self.assertEqual(minimap.height, 90)
+        self.assertEqual(minimap.width, 91)
+        self.assertEqual(minimap.height, 91)
 
     def test_create_node_vector(self):
         node = self.navigator.nodes[0]
@@ -36,10 +36,11 @@ class NavigatorTests(TestCase):
 
     def test_node_vector_to_pixel_direction(self):
         # node, current_pos, expected_result
+        radius = 250
         cases = [
-            (Node(585, 520), Pixel(560, 520), Pixel(1110, 440)),
-            (Node(400, 400), Pixel(0, 0), Pixel(1066, 546)),
-            (Node(400, 400), Pixel(1920, 1080), Pixel(823, 378)),
+            (Node(585, 520), Pixel(560, 520), Pixel(960 + radius, 190 + radius)),
+            (Node(400, 400), Pixel(0, 0), Pixel(886 + radius, 366 + radius)),
+            (Node(400, 400), Pixel(1920, 1080), Pixel(481 + radius, 87 + radius)),
         ]
 
         for node, current_pos, expected_result in cases:
@@ -59,9 +60,9 @@ class NavigatorTests(TestCase):
             (self.origin, self.navigator.nodes[0]),
             (Pixel(self.origin.x + 100, self.origin.y + 100), self.navigator.nodes[0]),
             (Pixel(self.origin.x - 149, self.origin.y - 149), self.navigator.nodes[0]),
-            (Pixel(self.origin.x - 150, self.origin.y - 150), self.navigator.nodes[1]),
+            (Pixel(self.origin.x - 151, self.origin.y - 151), self.navigator.nodes[1]),
             (Pixel(self.origin.x - 249, self.origin.y - 249), self.navigator.nodes[1]),
-            (Pixel(self.origin.x - 250, self.origin.y - 250), self.navigator.nodes[2]),
+            (Pixel(self.origin.x - 251, self.origin.y - 251), self.navigator.nodes[2]),
         ]
         for char_pos, expected_result in cases:
             self.assertEqual(
@@ -72,11 +73,11 @@ class NavigatorTests(TestCase):
     def test_find_character_on_map(self):
         self.navigator.search_img = self.search_img
         result = self.navigator.find_character_on_map()
-        self.assertEqual(result, Pixel(x=619, y=694))
+        self.assertEqual(result, Pixel(x=620, y=692))
 
     def test_add_node_cooldown(self):
         self.navigator.add_node_cooldown(self.navigator.nodes[0])
-        self.assertEqual(self.navigator.nodes[0].cooldown, time() + 20)
+        self.assertEqual(int(self.navigator.nodes[0].cooldown), int(time() + 20))
         self.assertEqual(self.navigator.nodes[1].cooldown, 0)
 
     def test_clear_node_cooldowns(self):
