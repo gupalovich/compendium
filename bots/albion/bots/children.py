@@ -124,7 +124,6 @@ class Navigator(BotChild):
 
     def extract_minimap(self, search_img: Img) -> Img:
         ref_img = extract_minimap(search_img)
-        ref_img.confidence = 0.72
         ref_img.resize_x(0.69)
         return ref_img
 
@@ -146,12 +145,15 @@ class Navigator(BotChild):
         return find_closest(char_pos, nodes)
 
     def find_character_on_map(self) -> Pixel:
-        """
-        TODO: smart way to find character with minimap threshold decrement and multiple results
-        """
-        minimap = self.extract_minimap(self.search_img)
-        result = self.vision.find(minimap, self.cluster)
-        return result[0].center
+        confidence = 0.9
+        while confidence > 0.6:
+            minimap = self.extract_minimap(self.search_img)
+            minimap.confidence = confidence
+            results = self.vision.find(minimap, self.cluster)
+            if results:
+                return results[0].center
+            confidence = round(confidence - 0.01, 2)
+        print(f"- No result found in: [{self.find_character_on_map.__name__}]")
 
     def add_node_cooldown(self, node: Node, duration: float = 20):
         node.update_cooldown(time() + duration)

@@ -24,7 +24,6 @@ class NavigatorTests(TestCase):
 
     def test_extract_minimap(self):
         minimap = self.navigator.extract_minimap(ImgLoader("albion/tests/7.png"))
-        self.assertEqual(minimap.confidence, 0.72)
         self.assertEqual(minimap.width, 90)
         self.assertEqual(minimap.height, 90)
 
@@ -73,7 +72,7 @@ class NavigatorTests(TestCase):
     def test_find_character_on_map(self):
         self.navigator.search_img = self.search_img
         result = self.navigator.find_character_on_map()
-        self.assertEqual(result, Pixel(x=468, y=45))
+        self.assertEqual(result, Pixel(x=619, y=694))
 
     def test_add_node_cooldown(self):
         self.navigator.add_node_cooldown(self.navigator.nodes[0])

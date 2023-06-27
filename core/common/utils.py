@@ -19,7 +19,7 @@ def find_closest(origin: Pixel, positions: list[Pixel] | list[Rect]) -> Pixel:
     return closest_pos
 
 
-def log(task: str, delay: float = 0):
-    print(f"- {task}")
+def log(msg: str, delay: float = 0):
+    print(f"- {msg}")
     if delay:
         sleep(delay)
