@@ -76,17 +76,26 @@ class Gatherer(BotChild):
         self.targets = self.filter_targets(targets)
 
         if self.state == State.START:
-            is_gathering = self.vision.is_gathering(self.search_img)
-
             if self.targets:
                 target = self.get_closest_target(self.targets)
                 if target:
                     self.actions.gather(target)
                     log("Trying to gather")
+                    self.set_state(State.GATHERING)
+            else:
+                self.set_state(State.DONE)
+        elif self.state == State.GATHERING:
+            is_gathering = self.vision.is_gathering(self.search_img)
+            is_gathering_failed = self.vision.is_gathering_failed(self.search_img)
+            is_gathering_done = self.vision.is_gathering_done(self.search_img)
+
             if is_gathering:
                 log("Gathering", delay=0.2)
-            if not is_gathering and not self.targets:
-                log("Done gathering")
+            elif is_gathering_failed:
+                log("Gathering failed")
+                self.set_state(State.START)
+            elif is_gathering_done:
+                log("Gathering done")
                 self.set_state(State.DONE)
         else:
             sleep(0.2)
