@@ -57,6 +57,7 @@ class Gatherer(BotChild):
         self.actions = AlbionActions()
         self.vision = AlbionVision()
         self.yolo = YoloVision(self.model_file_path, self.classes)
+        self.monsters = ["Heretic", "Elemental"]
         self.goal = ["Limestone", "Rough Stone", "Logs", "Copper Ore"]
         self.targets = {}
 
@@ -67,6 +68,23 @@ class Gatherer(BotChild):
         origin = Pixel(1920 / 2, 1080 / 2)
         targets = [target for target in targets if target.label in self.goal]
         return find_closest(origin, targets)
+
+    def manage_killing(self):
+        pass
+
+    def manage_gathering(self):
+        is_gathering = self.vision.is_gathering(self.search_img)
+        is_gathering_failed = self.vision.is_gathering_failed(self.search_img)
+        is_gathering_done = self.vision.is_gathering_done(self.search_img)
+
+        if is_gathering:
+            log("Gathering", delay=0.2)
+        elif is_gathering_failed:
+            log("Gathering failed")
+            self.set_state(State.START)
+        elif is_gathering_done:
+            log("Gathering done")
+            self.set_state(State.DONE)
 
     def manage_state(self):
         if not self.state:
@@ -85,18 +103,7 @@ class Gatherer(BotChild):
             else:
                 self.set_state(State.DONE)
         elif self.state == State.GATHERING:
-            is_gathering = self.vision.is_gathering(self.search_img)
-            is_gathering_failed = self.vision.is_gathering_failed(self.search_img)
-            is_gathering_done = self.vision.is_gathering_done(self.search_img)
-
-            if is_gathering:
-                log("Gathering", delay=0.2)
-            elif is_gathering_failed:
-                log("Gathering failed")
-                self.set_state(State.START)
-            elif is_gathering_done:
-                log("Gathering done")
-                self.set_state(State.DONE)
+            self.manage_gathering()
         else:
             sleep(0.2)
 

@@ -31,23 +31,38 @@ class AlbionVisionTests(TestCase):
                 ImgLoader("albion/tests/16.png"),
             ],
             "gathering_done": [ImgLoader("albion/tests/15.png")],
+            "monster_nearby": [
+                ImgLoader("albion/tests/7.png"),
+                ImgLoader("albion/tests/19.png"),
+                ImgLoader("albion/tests/21.png"),
+            ],
+            "monster_not_nearby": [
+                ImgLoader("albion/tests/4.png"),
+                ImgLoader("albion/tests/10.png"),
+            ],
         }
 
     def test_is_mounting(self):
         for i, case in enumerate(self.cases["casting"]):
             self.assertTrue(self.vision.is_mounting(case), f"Failed: {i}")
+
+    def test_is_mounting_false(self):
         for i, case in enumerate(self.cases["pass"]):
             self.assertFalse(self.vision.is_mounting(case), f"Failed: {i}")
 
     def test_is_mounted(self):
         for i, case in enumerate(self.cases["mounted"]):
             self.assertTrue(self.vision.is_mounted(case), f"Failed: {i}")
+
+    def test_is_mounted_false(self):
         for i, case in enumerate(self.cases["pass"]):
             self.assertFalse(self.vision.is_mounted(case), f"Failed: {i}")
 
     def test_is_gathering(self):
         for i, case in enumerate(self.cases["casting"]):
             self.assertTrue(self.vision.is_gathering(case), f"Failed: {i}")
+
+    def test_is_gathering_false(self):
         for i, case in enumerate(self.cases["pass"]):
             self.assertFalse(self.vision.is_gathering(case), f"Failed: {i}")
 
@@ -58,3 +73,11 @@ class AlbionVisionTests(TestCase):
     def test_is_gathering_done(self):
         for i, case in enumerate(self.cases["gathering_done"]):
             self.assertTrue(self.vision.is_gathering_done(case), f"Failed: {i}")
+
+    # def test_is_monster_nearby(self):
+    #     for i, case in enumerate(self.cases["monster_nearby"]):
+    #         self.assertTrue(self.vision.is_monster_nearby(case), f"Failed: {i}")
+
+    # def test_is_monster_nearby_false(self):
+    #     for i, case in enumerate(self.cases["monster_not_nearby"]):
+    #         self.assertFalse(self.vision.is_monster_nearby(case), f"Failed: {i}")

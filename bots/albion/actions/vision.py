@@ -11,6 +11,7 @@ class AlbionVision(Vision):
         }
         self.ref_images = {
             "mount_hp": ImgLoader("albion/ui/mount_hp.png", 0.85),
+            "monster_hp": ImgLoader("albion/ui/monster_hp.png", 0.8),
             "skill_teleport": ImgLoader("albion/ui/skill_teleport.png", 0.85),
             "cast_bar": ImgLoader("albion/ui/cast_bar.png", 0.85),
             "g_failed": ImgLoader("albion/ui/gathering_failed.png", 0.75),
@@ -40,3 +41,6 @@ class AlbionVision(Vision):
 
     def is_gathering_done(self, search_img: Img) -> bool:
         return self._bool_find("g_done", "small_screen", search_img)
+
+    def is_monster_nearby(self, search_img: Img) -> bool:
+        return self._bool_find("mount_hp", "small_screen", search_img)

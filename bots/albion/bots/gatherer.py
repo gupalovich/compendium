@@ -46,7 +46,7 @@ class GathererStateManager(BotFather):
             case State.GATHERING:
                 self.manage_active_child(
                     self.gatherer,
-                    next_state=State.NAVIGATING,
+                    next_state=State.MOUNTING,
                 )
 
     def start(self):
