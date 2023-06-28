@@ -16,7 +16,7 @@ Key Features of Compendium:
 
 0. Состояние Gatherer
     - Во время состояния Gathering убить монстров поблизости
-    
+
 
 10. Рефакторинг модуля мыши/клавиатуры
     - Создать апи
@@ -75,7 +75,7 @@ flowchart LR
     - `pip install torch==1.11.0+cu115 torchvision==0.12.0+cu115 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu115`
 
 4. Train model
-    - `python train.py --img 640 --batch 2 --epochs 240 --data ../data/ready_data.yaml --weights yolov5s.pt --cache --device 0 --workers 2`
+    - `python train.py --img 640 --batch 2 --epochs 240 --data ../albion/ready_data.yaml --weights yolov5s.pt --cache --device 0 --workers 2`
 
 5. Test trained model
     - `python detect.py --weights runs/train/exp/weights/best.pt --img 640 --source ../data/test_data/ --conf-thres 0.65`

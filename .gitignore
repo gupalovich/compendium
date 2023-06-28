@@ -280,5 +280,7 @@ supervisord.conf
 config.ini
 static/temp/*
 static/albion/temp/*
+ai/albion/all_annotations/*
+ai/albion/all_screenshots/*
 yolov5
 *.cache
