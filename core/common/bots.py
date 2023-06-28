@@ -1,3 +1,4 @@
+import copy
 from threading import Lock, Thread
 from time import sleep
 
@@ -56,7 +57,7 @@ class BotChild(Bot):
 
     def update_search_img(self, img: Img):
         self.lock.acquire()
-        self.search_img = img
+        self.search_img = copy.deepcopy(img)
         self.lock.release()
 
 

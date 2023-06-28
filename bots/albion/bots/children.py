@@ -1,8 +1,7 @@
 import math
 from time import sleep, time
 
-import cv2 as cv
-
+from config import settings
 from core.common.bots import BotChild
 from core.common.entities import Img, ImgLoader, Node, Pixel, Rect, Vector2d
 from core.common.enums import State
@@ -83,9 +82,9 @@ class Gatherer(BotChild):
                 target = self.get_closest_target(self.targets)
                 if target:
                     self.actions.gather(target)
-                    log("Trying to gather", delay=1)
+                    log("Trying to gather")
             if is_gathering:
-                log("Gathering", delay=0.3)
+                log("Gathering", delay=0.2)
             if not is_gathering and not self.targets:
                 log("Done gathering")
                 self.set_state(State.DONE)
@@ -185,20 +184,21 @@ class Navigator(BotChild):
         if node_distance < 4:
             self.add_node_cooldown(current_node)
 
-        # draw_circles(self.cluster, [char_location])
-        # draw_circles(self.cluster, self.nodes, bgr=(255, 255, 0))
-        # draw_circles(
-        #     self.cluster,
-        #     [node for node in self.nodes if node.cooldown],
-        #     bgr=(0, 0, 0),
-        # )
-        # draw_circles(self.cluster, [current_node], bgr=(255, 0, 255))
-        # self.cluster.resize_x(1.2)
+        if settings.DEBUG:
+            draw_circles(self.cluster, [char_location])
+            draw_circles(self.cluster, self.nodes, bgr=(255, 255, 0))
+            draw_circles(
+                self.cluster,
+                [node for node in self.nodes if node.cooldown],
+                bgr=(0, 0, 0),
+            )
+            draw_circles(self.cluster, [current_node], bgr=(255, 0, 255))
+            self.cluster.resize_x(1.2)
 
-        # print("Node: ", current_node)
-        # print("Node Vector: ", node_vector)
-        # print("Node Distance: ", node_distance)
-        # print("Node Direction: ", node_direction, "\n")
+            print("Node: ", current_node)
+            print("Node Vector: ", node_vector)
+            print("Node Distance: ", node_distance)
+            print("Node Direction: ", node_direction, "\n")
 
     def manage_state(self):
         if self.state == State.START:

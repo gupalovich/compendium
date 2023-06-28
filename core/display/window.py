@@ -133,7 +133,7 @@ class WindowHandler:
 
         return Img(data=img)
 
-    def live_screenshot(self, exit_key="q", screen_key="f") -> None:
+    def live_screenshot(self, screen_key="f") -> None:
         """Simplify process of taking screenshots"""
 
         model_file_path = "ai/albion/models/best_albion1.0.engine"
@@ -167,9 +167,6 @@ class WindowHandler:
                 print("[INFO] Windowshot taken...")
                 screenshot.reset()
                 cv.imwrite(f"static/screenshots/{loop_time}.jpg", screenshot.data)
-            # if cv.waitKey(1) == ord(exit_key):
-            #     cv.destroyAllWindows()
-            #     break
         print("[INFO] Done.")
 
 
