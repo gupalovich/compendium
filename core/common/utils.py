@@ -49,8 +49,8 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
 
     organize_annotations(image_dir, annotations_dir, output_dir)
 
-    ### TODO: Test
-        - Make it a class, Split into smaller functions
+    ### TODO:
+        - Test
         - Improve automation: Image placement randomization with fixed val_size
     """
 
