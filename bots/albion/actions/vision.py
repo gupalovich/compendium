@@ -34,10 +34,9 @@ class AlbionVision(Vision):
         return self._bool_find("cast_bar", "casting", search_img)
 
     def is_gathering_failed(self, search_img: Img) -> bool:
-        return self._bool_find("g_failed", "small_screen", search_img)
-
-    def is_gathering_tool_failed(self, search_img: Img) -> bool:
-        return self._bool_find("g_tool_failed", "small_screen", search_img)
+        tool = self._bool_find("g_failed", "small_screen", search_img)
+        tool_failed = self._bool_find("g_tool_failed", "small_screen", search_img)
+        return tool or tool_failed
 
     def is_gathering_done(self, search_img: Img) -> bool:
         return self._bool_find("g_done", "small_screen", search_img)
