@@ -44,7 +44,7 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
 
     ### Example:
     image_dir = "./data/train_data/images"
-    annotations_dir = "./data/annotations"
+    annotations_dir = "./data/all_annotations"
     output_dir = "./data/train_data/labels"
 
     organize_annotations(image_dir, annotations_dir, output_dir)
