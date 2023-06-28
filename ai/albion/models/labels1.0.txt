@@ -1,0 +1,10 @@
+Heretic
+Elemental
+Sandstone
+Rough Stone
+Limestone
+Birch
+Chestnut
+Logs
+Copper Ore
+Tin Ore

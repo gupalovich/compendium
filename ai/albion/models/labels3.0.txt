@@ -1,0 +1,9 @@
+Monster
+Logs
+Sandstone
+Limestone
+Rough Stone
+Copper Ore
+Tin Ore
+Birch
+Chestnut
