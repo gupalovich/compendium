@@ -78,7 +78,7 @@ flowchart LR
     - `python train.py --img 640 --batch 2 --epochs 240 --data ../albion/ready_data.yaml --weights yolov5s.pt --cache --device 0 --workers 2`
 
 5. Test trained model
-    - `python detect.py --weights runs/train/exp/weights/best.pt --img 640 --source ../data/test_data/ --conf-thres 0.65`
+    - `python detect.py --weights runs/train/exp/weights/best.pt --img 640 --source ../albion/train_data/test_data/ --conf-thres 0.65`
 
 6. Export model (TensorRT required)
     - Path to model: `runs/train/exp/weights/best.pt`
