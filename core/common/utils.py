@@ -43,9 +43,9 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
         Path to the directory with labels
 
     ### Example:
-    image_dir = "./data/train_data/images"
-    annotations_dir = "./data/all_annotations"
-    output_dir = "./data/train_data/labels"
+    image_dir = "./ai/albion/train_data/images"
+    annotations_dir = "./ai/albion/all_annotations"
+    output_dir = "./ai/albion/train_data/labels"
 
     organize_annotations(image_dir, annotations_dir, output_dir)
 
@@ -89,6 +89,51 @@ def organize_annotations(image_dir: str, annotations_dir: str, output_dir: str) 
     print(f"Filtered Val annotations size: {len(filtered_annotations['val'])}")
 
     return filtered_annotations
+
+
+def replace_annotation_class(directory: str, class_to_replace: int, new_class: int):
+    """
+    ### Example:
+    - replace_annotation_class("/path/to/annotations_directory", 7, 2)
+    """
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            filepath = os.path.join(directory, filename)
+            with open(filepath, "r+", encoding="utf-8") as file:
+                lines = file.readlines()
+                file.seek(0)  # Move the file pointer to the beginning
+                for line in lines:
+                    parts = line.split()
+                    annotation_class = int(parts[0])
+                    if annotation_class == class_to_replace:
+                        parts[0] = str(new_class)
+                    updated_line = " ".join(parts)
+                    file.write(updated_line + "\n")
+                file.truncate()  # Remove any remaining content after the updated lines
+
+
+def delete_annotation_class_line(directory: str, class_to_delete: int):
+    """
+    ### Example:
+    - delete_annotation_class_line("/path/to/annotations_directory", 4)
+    """
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            filepath = os.path.join(directory, filename)
+            with open(filepath, "r+", encoding="utf-8") as file:
+                lines = file.readlines()
+                file.seek(0)  # Move the file pointer to the beginning
+                file.truncate()  # Clear the file content
+                for line in lines:
+                    try:
+                        parts = line.split()
+                        annotation_class = int(parts[0])
+                        if annotation_class != class_to_delete:
+                            file.write(line.rstrip("\n") + "\n")
+                    except ValueError:
+                        print("File contains non-integer values:", filepath)
 
 
 def mirror_images(image_dir: str) -> None:

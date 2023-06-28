@@ -8,17 +8,12 @@ test: ../albion/train_data/test_data # test images (optional)
 
 # Classes
 names:
-  0: Heretic
-  1: Elemental
+  0: Monster
+  1: Logs
   2: Sandstone
-  3: Rough Stone
-  4: Limestone
-  5: Birch
-  6: Chestnut
-  7: Logs
-  8: Copper Ore
-  9: Tin Ore
-  10: Used Rough Stone
-  11: Used Limestone
-  12: Used Copper Ore
-  13: Used Tin Ore
+  3: Limestone
+  4: Rough Stone
+  5: Copper Ore
+  6: Tin Ore
+  7: Birch
+  8: Chestnut

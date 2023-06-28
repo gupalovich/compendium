@@ -4,10 +4,32 @@ from config import settings
 
 
 def main():
-    from bots.albion.bots.gatherer import GathererStateManager
+    from core.display.vision import YoloVision
 
-    gatherer = GathererStateManager()
-    gatherer.start()
+    model_file_path = "ai/albion/models/best_albion2.0.engine"
+    classes = [
+        "Heretic",
+        "Elemental",
+        "Sandstone",
+        "Rough Stone",
+        "Limestone",
+        "Birch",
+        "Chestnut",
+        "Logs",
+        "Copper Ore",
+        "Tin Ore",
+        "Used Rough Stone",
+        "Used Limestone",
+        "Used Copper Ore",
+        "Used Tin Ore",
+    ]
+    vision = YoloVision(model_file_path, classes)
+    vision.start()
+
+    # from bots.albion.bots.gatherer import GathererStateManager
+
+    # gatherer = GathererStateManager()
+    # gatherer.start()
 
     # from core.display.window import WindowHandler
 
