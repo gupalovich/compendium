@@ -6,22 +6,17 @@ from config import settings
 def main():
     from core.display.vision import YoloVision
 
-    model_file_path = "ai/albion/models/best_albion2.0.engine"
+    model_file_path = "ai/albion/models/best_albion3.0.engine"
     classes = [
-        "Heretic",
-        "Elemental",
-        "Sandstone",
-        "Rough Stone",
-        "Limestone",
-        "Birch",
-        "Chestnut",
+        "Monster",
         "Logs",
+        "Sandstone",
+        "Limestone",
+        "Rough Stone",
         "Copper Ore",
         "Tin Ore",
-        "Used Rough Stone",
-        "Used Limestone",
-        "Used Copper Ore",
-        "Used Tin Ore",
+        "Birch",
+        "Chestnut",
     ]
     vision = YoloVision(model_file_path, classes)
     vision.start()

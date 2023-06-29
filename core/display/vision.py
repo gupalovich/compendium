@@ -122,7 +122,7 @@ class YoloVision:
         loop_time = time()
         while True:
             search_img = window.grab()
-            result = self.find(search_img, confidence=0.8)
+            result = self.find(search_img, confidence=0.6)
 
             print("FPS {}".format(1.0 / (time() - loop_time)))
             loop_time = time()
